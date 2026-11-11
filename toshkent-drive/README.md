@@ -2,8 +2,9 @@
 
 Toshkent ko'chalarida 3D haydash o'yini (brauzerda ishlaydi, Three.js).
 
-- 59 ta mashina (10 tasi haqiqiy 3D model), 18 xil rang, 360° avtosalon va shaxsiy garaj
-- Taksi rejimi, ko'chadagi pullar, cheksiz hisob
+- 59 ta toʻliq 3D mashina: hammasida salon (oʻrindiqlar, rul, panel), shaffof oynalar; 10 tasi skanerlangan real model. 18 xil rang, 360° avtosalon va shaxsiy garaj
+- 3D shahar: tomli mahalla uylari va devorlari, balkonli koʻp qavatli uylar, minorali osmonoʻpar binolar, ishlaydigan svetoforlar, bekatlar, skameykalar, favvoralar, teraklar va bulutlar
+- Taksi rejimi (tomda TAXI belgisi), ko'chadagi pullar, cheksiz hisob
 - Do'konlar, yo'laklarda yuruvchi odamlar, ko'cha harakati
 - Telefon (gorizontal, sensorli boshqaruv) va kompyuter uchun alohida grafika: Telefon / Kompyuter / Ultra
 
