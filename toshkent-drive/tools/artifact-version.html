@@ -235,7 +235,7 @@ body.lp .sws{grid-template-columns:repeat(9,1fr);gap:4px}
   <div class="menu-in">
     <div class="eyebrow">Toshkent · Haydash simulyatori</div>
     <h1 class="logo">TOSHKENT<br><em>DRIVE</em></h1>
-    <p class="lead">Poytaxt koʻchalarida haydang, taksida pul ishlang, avtosalondan yangi mashina sotib oling va shaxsiy garajingizni toʻldiring. 59 ta toʻliq 3D mashina (salonli, 10 tasi skanerlangan real model), 18 xil rang.</p>
+    <p class="lead">Poytaxt koʻchalarida haydang, taksida pul ishlang, avtosalondan yangi mashina sotib oling va shaxsiy garajingizni toʻldiring. 59 ta haqiqiy 3D mashina modeli, 18 xil rang.</p>
     <div class="stat-line" id="menuStat"></div>
     <div class="row"><button class="btn" id="play">Boshlash</button><button class="btn ghost" id="playShop">Avtosalon</button></div>
     <div class="row" style="gap:6px"><span class="stat-line">Grafika:</span><button class="chip" data-gfx="phone">Telefon (yengil)</button><button class="chip" data-gfx="pc">Kompyuter</button><button class="chip" data-gfx="ultra">Ultra (kuchli kompyuter)</button></div>
@@ -342,7 +342,7 @@ const COLORS=[
 {n:'Firuza',c:'#14a7b4'},{n:'Moviy',c:'#2f6fd6'},{n:'Toʻq koʻk',c:'#16244f'},{n:'Binafsha',c:'#5b2d8e'},
 {n:'Pushti',c:'#e05a8a'},{n:'Mat qora',c:'#202124',matte:true}
 ];
-const BRANDS=[['all','Hammasi'],['real','Haqiqiy 3D']].concat([...new Set(CARS.map(c=>c.bk))].map(k=>[k,CARS.find(c=>c.bk===k).brand.replace('-Benz','')]));
+const BRANDS=[['all','Hammasi']].concat([...new Set(CARS.map(c=>c.bk))].map(k=>[k,CARS.find(c=>c.bk===k).brand.replace('-Benz','')]));
 
 /* ================= SAVE ================= */
 const KEY='toshkent-drive-v1';
@@ -605,11 +605,64 @@ const REAL={
  'porsche-911-gt3-r-2024':{key:'gt3r',n:2,mb:13.4,paint:/^EXT_Carpaint/,wheels:/^WHEEL_(LF|RF|LR|RR)_\d+$/,credit:'“2024 Porsche 992 GT3 R” — Dave Love (CC BY 4.0)'},
  'ferrari-f40-lb-works':{key:'f40',n:2,mb:12.9,paint:/^Paint$/,credit:'“LB-Works Ferrari F40 | www.vecarz.com” — vecarz (CC BY-NC-SA 4.0, faqat notijorat)'}
 };
+/*REAL-GEN*/
+Object.assign(REAL,{
+ 'audi-a4':{key:'audi-a4',n:1,mb:4.5,paint:/^(Car_Paint)$/,hide:/^CarShadow/,credit:"“audi a4 L40 tfsi” — ItsDiyor (CC BY 4.0)"},
+ 'audi-a6':{key:'audi-a6',n:1,mb:3.6,paint:/^(Metallic)$/,flip:true,credit:"“Audi A6 55 TFSI Quattro (C8)” — Mona x Supercars (CC BY 4.0)"},
+ 'audi-q7':{key:'audi-q7',n:1,mb:1.4,paint:/^(Part1Mtl)$/,flip:true,credit:"“2015 Audi Q7” — DisneyCars (CC BY 4.0)"},
+ 'audi-q8':{key:'audi-q8',n:1,mb:4.6,paint:/^(Metallic)$/,flip:true,credit:"“2023 Audi RS Q8” — DisneyCars (CC BY 4.0)"},
+ 'audi-r8':{key:'audi-r8',n:1,mb:4.4,paint:/^(Metallic_3)$/,flip:true,credit:"“2021 Audi R8 V10 Performance Quattro (Type 4S)” — DisneyCars (CC BY 4.0)"},
+ 'audi-rs-6-avant':{key:'audi-rs-6-avant',n:1,mb:4.7,paint:/^(Paint)$/,flip:true,credit:"“2020 Audi RS 6 Avant” — Galaxy Car Showroom (CC BY 4.0)"},
+ 'bmw-3-series':{key:'bmw-3-series',n:2,mb:14.2,paint:/^(body_color)$/,credit:"“2006 BMW 330i” — tonielpro520 (CC BY 4.0)"},
+ 'bmw-5-series':{key:'bmw-5-series',n:1,mb:10.1,paint:/^(Carpaint)$/,hide:/gauge_emissive/,flip:true,credit:"“Bmw M5 F90” — Res1n (CC BY 4.0)"},
+ 'bmw-7-series':{key:'bmw-7-series',n:1,mb:4.0,paint:/^(Body_Color)$/,credit:"“BMW 7-series (F01)” — Black Snow (CC BY 4.0)"},
+ 'bmw-i8':{key:'bmw-i8',n:1,mb:3.9,paint:/^(bBMW_i8Elite_2017Paint_Material1)$/,credit:"“BMW i8 XS 2015 | www.vecarz.com” — vecarz (CC BY 4.0)"},
+ 'bmw-m4':{key:'bmw-m4',n:1,mb:10.3,paint:/^(ARm4_main)$/,credit:"“BMW M4 f82” — Black Snow (CC BY 4.0)"},
+ 'bmw-m8':{key:'bmw-m8',n:1,mb:6.6,paint:/^(m8f92_CarPaint)$/,credit:"“BMW M8 F92 Coupé Competition” — kevin (ケビン) (CC BY 4.0)"},
+ 'bmw-x5':{key:'bmw-x5',n:1,mb:7.4,paint:/^(Marina_Bay_Blue_Metallic)$/,credit:"“2020 BMW X5 M Competition” — David_Holiday (CC BY 4.0)"},
+ 'bmw-x7':{key:'bmw-x7',n:1,mb:11.3,paint:/^(M_2023_BMW_X7_M60i_LCI_Brooklyn_Grey_Metallic)$/,credit:"“2023 BMW X7 M60i LCI” — tonielpro520 (CC BY 4.0)"},
+ 'chevrolet-camaro-ss':{key:'chevrolet-camaro-ss',n:1,mb:1.6,credit:"“2017 Chevy Camaro 50th Anniversary” — Ddiaz Design (CC BY 4.0)"},
+ 'chevrolet-cobalt':{key:'chevrolet-cobalt',n:2,mb:14.2,paint:/^(Realistic_Car_Paint)$/,flip:true,credit:"“Chevrolet Cobalt LTZ 2014” — Q.SARDOR (CC BY 4.0)"},
+ 'chevrolet-corvette-c8':{key:'chevrolet-corvette-c8',n:1,mb:5.9,paint:/^(Body_Color)$/,flip:true,credit:"“2019 Chevrolet Corvette C8 Stingray” — Hari Prasath R (CC BY 4.0)"},
+ 'chevrolet-damas':{key:'chevrolet-damas',n:1,mb:1.8,paint:/^(material_3)$/,credit:"“Chevrolet Damas” — own.guest (CC BY 4.0)"},
+ 'chevrolet-equinox':{key:'chevrolet-equinox',n:1,mb:8.0,paint:/^(CarPaint)$/,credit:"“2018 Chevrolet Equinox Premier” — 007 (CC BY 4.0)"},
+ 'chevrolet-gentra':{key:'chevrolet-gentra',n:1,mb:6.2,credit:"“Midnight Black Chevrolet Gentra in a Showroom” — Aizen_Uchixa (CC BY 4.0)"},
+ 'chevrolet-malibu':{key:'chevrolet-malibu',n:1,mb:3.9,paint:/^(Paint_Color)$/,credit:"“Chevrolet Malibu 2021” — ItsDiyor (CC BY 4.0)"},
+ 'chevrolet-nexia-3':{key:'chevrolet-nexia-3',n:1,mb:1.4,paint:/^(body)$/,credit:"“2009_Chevrolet_Aveo” — creativelion (CC BY 4.0)"},
+ 'chevrolet-onix':{key:'chevrolet-onix',n:1,mb:11.3,paint:/^(material_0)$/,credit:"“Onix+ Plus+2021” — lilbronie (CC BY 4.0)"},
+ 'chevrolet-spark':{key:'chevrolet-spark',n:1,mb:1.1,paint:/^(primary)$/,flip:true,credit:"“Chevrolet Spark” — BHP3D (CC BY 4.0)"},
+ 'chevrolet-tahoe':{key:'chevrolet-tahoe',n:1,mb:6.7,paint:/^(2021_Chevrolet_Tahoe_RST_vehicle_generic_smallspecmap__PAINT_1)$/,credit:"“2021 Chevrolet Tahoe RST-Police” — David_Holiday (CC BY 4.0)"},
+ 'chevrolet-tracker':{key:'chevrolet-tracker',n:1,mb:3.4,paint:/^(Paint_Color)$/,credit:"“Chevrolet Trax 2021” — ItsDiyor (CC BY 4.0)"},
+ 'ferrari-roma':{key:'ferrari-roma',n:1,mb:4.4,paint:/^(Ferrari_RomaRewardRecycled_2020Paint_Material)$/,credit:"“2020 Ferrari Roma” — Ddiaz Design (CC BY 4.0)"},
+ 'ferrari-sf90-stradale':{key:'ferrari-sf90-stradale',n:1,mb:4.7,paint:/Paint_Material/,credit:"“Ferrari sf90” — Res1n (CC BY 4.0)"},
+ 'lamborghini-aventador-svj':{key:'lamborghini-aventador-svj',n:1,mb:4.4,paint:/^(Lamborghini_AventadorSVJRewardRecycled_2019Paint_Material)$/,credit:"“2019 Lamborghini Aventador SVJ 63” — Ddiaz Design (CC BY 4.0)"},
+ 'lamborghini-hurac-n-evo':{key:'lamborghini-hurac-n-evo',n:1,mb:3.5,paint:/^(Lamborghini_HuracanEvoSpyderRewardRecycled_2019Paint_Material)$/,credit:"“2019 Lamborghini Huracán EVO Spyder” — Ddiaz Design (CC BY 4.0)"},
+ 'lamborghini-urus':{key:'lamborghini-urus',n:1,mb:4.5,paint:/Paint_Material/,credit:"“2025 Lamborghini Urus SE” — Ddiaz Design (CC BY 4.0)"},
+ 'mercedes-amg-gt':{key:'mercedes-amg-gt',n:1,mb:6.8,paint:/^(M_CarPaint_Max)$/,credit:"“2021 Mercedes-AMG GT Black Series” — DisneyCars (CC BY 4.0)"},
+ 'mercedes-c-class':{key:'mercedes-c-class',n:1,mb:4.2,paint:/^(Paint_Color)$/,credit:"“Mercedes-Benz C-Class 2020” — ItsDiyor (CC BY 4.0)"},
+ 'mercedes-e-class':{key:'mercedes-e-class',n:1,mb:10.6,paint:/^(New_Material)$/,flip:true,credit:"“Mercedes-AMG E 63 S (W213)” — Mona x Supercars (CC BY 4.0)"},
+ 'mercedes-g-63-amg':{key:'mercedes-g-63-amg',n:1,mb:4.5,paint:/^(MMercedesAMG_G63SUVRewardRecycled_2020Paint_Material1)$/,credit:"“2020 Mercedes-Benz G-Class AMG G63” — Outlaw Games™ (CC BY-NC 4.0, faqat notijorat)"},
+ 'mercedes-gle':{key:'mercedes-gle',n:1,mb:1.8,paint:/^(carPaint)$/,credit:"“2016 Mercedes-Benz GLE63 AMG Coupe” — Ddiaz Design (CC BY-NC-SA 4.0, faqat notijorat)"},
+ 'mercedes-s-class':{key:'mercedes-s-class',n:1,mb:3.6,paint:/^(Carpaint)$/,credit:"“Mercedes S-class” — SipanBareyan (CC BY 4.0)"},
+ 'porsche-911-carrera-s':{key:'porsche-911-carrera-s',n:1,mb:6.6,paint:/^(SMI_1228010001_002)$/,credit:"“2019 Porsche 911 Carrera S Cabriolet (992)” — Ddiaz Design (CC BY 4.0)"},
+ 'porsche-cayenne':{key:'porsche-cayenne',n:1,mb:5.2,paint:/^(Porsche_CayenneTurboGTRewardRecycled_2022Paint_Material)$/,credit:"“2022 Porsche Cayenne Turbo GT” — Maroi Mister Let Me Think Official 3D Studio (CC BY 4.0)"},
+ 'tesla-cybertruck':{key:'tesla-cybertruck',n:1,mb:0.5,flip:true,credit:"“Tesla Cybertruck” — A Certain Duck (CC BY 4.0)"},
+ 'tesla-model-3':{key:'tesla-model-3',n:1,mb:3.6,paint:/^(Paint_Color)$/,credit:"“Tesla Model 3 2020” — ItsDiyor (CC BY 4.0)"},
+ 'tesla-model-s':{key:'tesla-model-s',n:1,mb:1.1,hide:/glows/,credit:"“tesla model s” — amogusstrikesback2 (CC BY 4.0)"},
+ 'tesla-model-x':{key:'tesla-model-x',n:1,mb:3.7,paint:/^(Paint_Color)$/,credit:"“Tesla Model X 2020” — ItsDiyor (CC BY 4.0)"},
+ 'tesla-model-y':{key:'tesla-model-y',n:2,mb:14.3,paint:/^(Carro_Pintura)$/,credit:"“2021 Tesla Model Y” — tonielpro520 (CC BY 4.0)"},
+ 'toyota-land-cruiser-300':{key:'toyota-land-cruiser-300',n:1,mb:6.9,paint:/^(TMI_1350010001_044)$/,credit:"“2022_ Toyota_ Land_ Cruiser_300_VX” — rexrain studio (CC BY 4.0)"},
+ 'volvo-s90':{key:'volvo-s90',n:1,mb:9.8,paint:/^(primary)$/,hide:/^COLIDER/,credit:"“Volvo S90” — シRuletăシ (CC BY 4.0)"},
+ 'volvo-v90':{key:'volvo-v90',n:1,mb:1.3,paint:/^(body_paint)$/,flip:true,credit:"“Volvo V60 Polestar (2013)” — Myedsu (CC BY 4.0)"},
+ 'volvo-xc60':{key:'volvo-xc60',n:2,mb:22.2,paint:/^(Carro_Pintura)$/,credit:"“2023 Volvo XC60” — tonielpro520 (CC BY 4.0)"},
+ 'volvo-xc90':{key:'volvo-xc90',n:1,mb:7.7,credit:"“Volvo-XC90-CCD-assembly” — jday.amx (CC BY 4.0)"}
+});
+/*END-REAL-GEN*/
 const realTpl={},realReq={};
 function loadReal(id,announce){const d=REAL[id];if(realReq[id]||!THREE.GLTFLoader||!d)return;realReq[id]=1;
   const c=CAR[id];if(announce)toast(c.brand+' '+c.model+': 3D model yuklanmoqda (~'+d.mb+' MB)…');
   const ld=new THREE.GLTFLoader();
-  const done=gl=>{realTpl[id]=gl.scene;if(announce)toast(c.brand+' '+c.model+' — 3D model tayyor','good');try{onRealLoaded(id);}catch(e){console.warn(e);}};
+  const done=gl=>{if(d.hide){const rm=[];gl.scene.traverse(o=>{if(o.isMesh&&(d.hide.test(o.name||'')||d.hide.test(o.parent&&o.parent.name||'')||[].concat(o.material).some(x=>x&&d.hide.test(x.name||''))))rm.push(o);});rm.forEach(o=>o.parent.remove(o));}realTpl[id]=d.key&&!d.wheels?mergeByMaterial(gl.scene):gl.scene;if(announce)toast(c.brand+' '+c.model+' — 3D model tayyor','good');try{onRealLoaded(id);}catch(e){console.warn(e);}};
   const fail=e=>{console.warn('3D model yuklanmadi',id,e);realReq[id]=0;if(announce)toast(c.model+': 3D model yuklanmadi, oddiy model koʻrsatildi','bad');};
   if(d.url){if(THREE.DRACOLoader){const dl=new THREE.DRACOLoader();dl.setDecoderPath('draco/');dl.setDecoderConfig({type:'js'});ld.setDRACOLoader(dl);}ld.load(d.url,done,undefined,fail);return;}
   const fl=new THREE.FileLoader();fl.setResponseType('text');
@@ -618,15 +671,33 @@ function loadReal(id,announce){const d=REAL[id];if(realReq[id]||!THREE.GLTFLoade
     const s=atob(ts.join(''));const u8=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u8[i]=s.charCodeAt(i);
     return new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
   }).then(ab=>ld.parse(ab,'',done,fail)).catch(fail);}
-function buildCar(sp,ci,opt){if(REAL[sp.id]){if(realTpl[sp.id])return buildRealCar(sp,ci,opt||{});loadReal(sp.id,true);}return buildProcCar(sp,ci,opt);}
+// Sketchfab models arrive as hundreds of small meshes; bake them into one mesh per material
+function mergeByMaterial(root){root.updateMatrixWorld(true);const groups=new Map();
+  root.traverse(o=>{if(o.isMesh&&!Array.isArray(o.material)&&o.geometry.attributes.position){let a=groups.get(o.material);if(!a)groups.set(o.material,a=[]);a.push(o);}});
+  const out=new THREE.Group(),v=new THREE.Vector3(),nm=new THREE.Matrix3();
+  groups.forEach((list,mat)=>{let nv=0,ni=0,anyN=false;const hasUV=list.some(o=>o.geometry.attributes.uv);
+    list.forEach(o=>{const g=o.geometry;nv+=g.attributes.position.count;ni+=g.index?g.index.count:g.attributes.position.count;if(g.attributes.normal)anyN=true;});
+    const P=new Float32Array(nv*3),N=new Float32Array(nv*3),U=hasUV?new Float32Array(nv*2):null,I=nv>65535?new Uint32Array(ni):new Uint16Array(ni);let vo=0,io=0;
+    list.forEach(o=>{const g=o.geometry,p=g.attributes.position,n=g.attributes.normal,u=g.attributes.uv,m=o.matrixWorld,flipW=m.determinant()<0;nm.getNormalMatrix(m);
+      for(let i=0;i<p.count;i++){const k=(vo+i)*3;v.fromBufferAttribute(p,i).applyMatrix4(m);P[k]=v.x;P[k+1]=v.y;P[k+2]=v.z;
+        if(n){v.fromBufferAttribute(n,i).applyMatrix3(nm).normalize();N[k]=v.x;N[k+1]=v.y;N[k+2]=v.z;}else N[k+1]=1;
+        if(U&&u){U[(vo+i)*2]=u.getX(i);U[(vo+i)*2+1]=u.getY(i);}}
+      const cnt=g.index?g.index.count:p.count;
+      for(let t=0;t+2<cnt;t+=3){const a=g.index?g.index.getX(t):t,b=g.index?g.index.getX(t+1):t+1,c=g.index?g.index.getX(t+2):t+2;I[io+t]=a+vo;I[io+t+1]=(flipW?c:b)+vo;I[io+t+2]=(flipW?b:c)+vo;}
+      vo+=p.count;io+=cnt;});
+    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(P,3));geo.setAttribute('normal',new THREE.BufferAttribute(N,3));if(U)geo.setAttribute('uv',new THREE.BufferAttribute(U,2));geo.setIndex(new THREE.BufferAttribute(I,1));
+    if(!anyN)geo.computeVertexNormals();
+    const me=new THREE.Mesh(geo,mat);me.name=mat.name||'';out.add(me);});
+  return out;}
+function buildCar(sp,ci,opt){if(REAL[sp.id]&&!(opt&&opt.proc)){if(realTpl[sp.id])return buildRealCar(sp,ci,opt||{});loadReal(sp.id,!(opt&&opt.quiet));}return buildProcCar(sp,ci,opt);}
 function recenter(m){m.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(m);m.position.x-=(b.min.x+b.max.x)/2;m.position.z-=(b.min.z+b.max.z)/2;m.position.y-=b.min.y;m.updateMatrixWorld(true);return b;}
 function buildRealCar(sp,ci,opt){
   const d=REAL[sp.id],m=realTpl[sp.id].clone(true),g=new THREE.Group();g.add(m);
-  const bm=bodyMat(ci),tm=new THREE.MeshStandardMaterial({color:C('#5a0808'),emissive:C('#ff2414'),emissiveIntensity:.55,roughness:.2});
+  let bm2=null;const bm=bodyMat(ci),tm=new THREE.MeshStandardMaterial({color:C('#5a0808'),emissive:C('#ff2414'),emissiveIntensity:.55,roughness:.2});
   const set=(n,mt)=>{const o=m.getObjectByName(n);if(o)o.traverse(q=>{if(q.isMesh)q.material=mt;});};
   if(d.bodyNode)set(d.bodyNode,bm);if(d.tailNode)set(d.tailNode,tm);
   m.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;o.receiveShadow=true;
-    if(d.paint){const a=[].concat(o.material).map(x=>x&&d.paint.test(x.name||'')?bm:x);o.material=Array.isArray(o.material)?a:a[0];}});
+    if(d.paint){const a=[].concat(o.material).map(x=>x&&d.paint.test(x.name||'')?(x.side===THREE.DoubleSide?(bm2||(bm2=bm.clone(),bm2.side=THREE.DoubleSide,bm2)):bm):x);o.material=Array.isArray(o.material)?a:a[0];}});
   m.updateMatrixWorld(true);
   let b=new THREE.Box3().setFromObject(m),sz=b.getSize(new THREE.Vector3());
   if(sz.x>sz.z){m.rotation.y=Math.PI/2;m.updateMatrixWorld(true);b.setFromObject(m);sz=b.getSize(new THREE.Vector3());}
@@ -651,18 +722,18 @@ function buildRealCar(sp,ci,opt){
       wheels.push(o);}}
   if(d.plate&&opt.plate!==false){b=new THREE.Box3().setFromObject(m);const pm=new THREE.MeshStandardMaterial({map:plateTex(opt.plate||{reg:'01',txt:'A 777 AA'}),roughness:.4}),pg=new THREE.PlaneGeometry(.52,.114);
     const fp=new THREE.Mesh(pg,pm);fp.position.set(0,.3,b.max.z-.06);g.add(fp);const rp2=new THREE.Mesh(pg,pm);rp2.position.set(0,.42,b.min.z+.04);rp2.rotation.y=Math.PI;g.add(rp2);}
-  g.userData={sp,wheels,pivots,tail:tm,body:bm,r,real:true};
+  g.userData={sp,wheels,pivots,tail:tm,body:bm,body2:bm2,r,real:true};
   return g;
 }
 function spinWheel(w,a){if(w.userData.ax)w.rotateOnAxis(w.userData.ax,a*w.userData.sg);else w.rotation.x+=a;}
 function steerPivot(p,a){if(p.userData.up){p.quaternion.copy(p.userData.q0);p.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(p.userData.up,a));}else p.rotation.y=a;}
 function onRealLoaded(id){
   if(P.sp&&P.sp.id===id)setPlayerCar();
-  DISPLAY.forEach(d=>{if(d.id!==id)return;const c=buildCar(CAR[id],d.ci,{lod:true,plate:{reg:'01',txt:'SALON'}});c.position.copy(d.c.position);c.rotation.copy(d.c.rotation);scene.remove(d.c);disposeCar(d.c);scene.add(c);d.c=c;});
+  DISPLAY.forEach(d=>{if(d.id!==id)return;const c=buildCar(CAR[id],d.ci,{lod:true,quiet:true,plate:{reg:'01',txt:'SALON'}});c.position.copy(d.c.position);c.rotation.copy(d.c.rotation);scene.remove(d.c);disposeCar(d.c);scene.add(c);d.c=c;});
   if(mode==='stage'&&ST.car&&ST.car.userData.sp.id===id){if(ST.mode==='shop')showStageCar(ST.sel,ST.color);else{const o=S.owned[ST.gsel];showStageCar(o.id,ST.gcolor,o.plate);}}
 }
 loadReal('ferrari-458-italia',false);
-function disposeCar(g){if(!g)return;const u=g.userData;if(u.real){[u.body,u.tail].forEach(mm=>{if(mm)mm.dispose();});return;}
+function disposeCar(g){if(!g)return;const u=g.userData;if(u.real){[u.body,u.tail,u.body2].forEach(mm=>{if(mm)mm.dispose();});return;}
   const keep=Object.values(MAT);g.traverse(o=>{if(!o.isMesh)return;[].concat(o.material).forEach(mm=>{if(mm&&!keep.includes(mm)&&mm.dispose)mm.dispose();});if(o.geometry&&!KEEPG.has(o.geometry))o.geometry.dispose();});}
 
 /* ================= WORLD ================= */
@@ -1006,7 +1077,7 @@ const CLOUDS=(()=>{const n=46,per=5,im=new THREE.InstancedMesh(new THREE.Icosahe
 
 // dealership display cars
 const DISPLAY=[];{const lot=LM.salon.lot;['ferrari-458-italia','bmw-m8','mercedes-benz-g-63-amg','lamborghini-urus','tesla-model-s'].forEach((id,k)=>{
-  const c=buildCar(CAR[id.replace('mercedes-benz','mercedes')]||CAR[id],[5,13,1,8,0][k],{lod:true,plate:{reg:'01',txt:'SALON'}});c.position.set(lot[0]-48+k*24,.32,lot[1]);c.rotation.y=.5;scene.add(c);DISPLAY.push({c,id:id.replace('mercedes-benz','mercedes'),ci:[5,13,1,8,0][k]});});}
+  const c=buildCar(CAR[id.replace('mercedes-benz','mercedes')]||CAR[id],[5,13,1,8,0][k],{lod:true,quiet:true,proc:id!=='ferrari-458-italia',plate:{reg:'01',txt:'SALON'}});c.position.set(lot[0]-48+k*24,.32,lot[1]);c.rotation.y=.5;scene.add(c);DISPLAY.push({c,id:id.replace('mercedes-benz','mercedes'),ci:[5,13,1,8,0][k]});});}
 
 /* ================= PLACES / ROAD HELPERS ================= */
 function district(x,z){const a=x<-250?0:x>250?2:1,b=z<-250?0:z>250?2:1;return [['Olmazor','Yunusobod','Mirzo Ulugʻbek'],['Shayxontohur','Markaz','Yashnobod'],['Chilonzor','Yakkasaroy','Mirobod']][b][a];}
@@ -1039,7 +1110,7 @@ const TCOLS=[0,0,0,0,2,2,1,1,3,14,6,10];
 for(let k=0;k<38;k++){
   const axis=Math.random()<.5?'z':'x',i=ri(0,8),dir=Math.random()<.5?1:-1,lanes=LANES(i),lw=RW(i)/2/lanes,lane=ri(0,lanes-1);
   const lat=(lw*(lane+.5))*(axis==='z'?-dir:dir);
-  const sp=CAR[pick(TCARS)],mesh=buildCar(sp,pick(TCOLS),{lod:true,plate:randomPlate()});scene.add(mesh);
+  const sp=CAR[pick(TCARS)],mesh=buildCar(sp,pick(TCOLS),{lod:true,proc:true,plate:randomPlate()});scene.add(mesh);
   const t={axis,road:ROADS[i],lat,dir,pos:rnd(-700,700),speed:0,cruise:rnd(11,17),mesh,wait:0,x:0,z:0,h:axis==='z'?(dir>0?0:Math.PI):(dir>0?Math.PI/2:-Math.PI/2)};
   TRAFFIC.push(t);
 }
@@ -1305,12 +1376,12 @@ function specs(sp){return `<div class="specs"><div class="spec"><span>Maks. tezl
 function swatches(sel){return `<div class="swl"><span>Rang</span><b>${COLORS[sel].n}</b></div><div class="sws">${COLORS.map((c,k)=>`<button class="sw${k===sel?' on':''}" data-c="${k}" style="background:${c.c}" aria-label="${c.n}" title="${c.n}"></button>`).join('')}</div>`;}
 function renderStageUI(){
   const shop=ST.mode==='shop';
-  $('#stSub').textContent=shop?CARS.length+' ta model · '+Object.keys(REAL).length+' tasi haqiqiy 3D':S.owned.length+' ta mashina · '+S.trips+' ta taksi safari';
+  $('#stSub').textContent=shop?CARS.length+' ta haqiqiy 3D model':S.owned.length+' ta mashina · '+S.trips+' ta taksi safari';
   $('#chips').innerHTML=shop?BRANDS.map(([k,n])=>`<button class="chip${ST.brand===k?' on':''}" data-b="${k}">${n}</button>`).join(''):'';
   $('#chips').style.display=shop?'':'none';
   if(shop){
     const list=CARS.filter(c=>ST.brand==='all'||(ST.brand==='real'?!!REAL[c.id]:c.bk===ST.brand));
-    $('#items').innerHTML=list.map(c=>{const own=S.owned.some(o=>o.id===c.id);return `<button class="item${c.id===ST.sel?' sel':''}${S.money<c.price?' poor':''}" data-id="${c.id}"><span class="b">${c.brand}${REAL[c.id]?' · 3D':''}</span><span class="m">${c.model}</span>${own?'<span class="own">Sizda bor</span>':`<span class="p">${fmt(c.price)}</span>`}</button>`;}).join('');
+    $('#items').innerHTML=list.map(c=>{const own=S.owned.some(o=>o.id===c.id);return `<button class="item${c.id===ST.sel?' sel':''}${S.money<c.price?' poor':''}" data-id="${c.id}"><span class="b">${c.brand}</span><span class="m">${c.model}</span>${own?'<span class="own">Sizda bor</span>':`<span class="p">${fmt(c.price)}</span>`}</button>`;}).join('');
     const sp=CAR[ST.sel],own=S.owned.some(o=>o.id===sp.id),can=S.money>=sp.price;
     $('#detail').innerHTML=`<div><div class="d-brand">${sp.brand}</div><div class="d-model">${sp.model}</div></div>${specs(sp)}${REAL[sp.id]?'<div class="stat-line">'+REAL[sp.id].credit+'</div>':''}${swatches(ST.color)}
       <div class="d-actions">${can?`<button class="btn gold" id="buy">Sotib olish · ${fmt(sp.price)}</button>`:`<button class="btn" disabled>Yetishmaydi: ${fmt(sp.price-S.money)}</button>`}${own?'<div class="stat-line">Bu model garajingizda bor — yana bittasini boshqa rangda olishingiz mumkin.</div>':''}</div>`;
@@ -1355,7 +1426,7 @@ $('#bCam').addEventListener('click',()=>{camMode=(camMode+1)%3;});
 document.querySelectorAll('.hbtn').forEach(b=>b.addEventListener('click',()=>{b.blur();if(mode==='drive')canvas.focus();}));
 const sndBtn=$('#bSound');const syncSnd=()=>sndBtn.classList.toggle('active',S.sound);syncSnd();
 sndBtn.addEventListener('click',()=>{S.sound=!S.sound;persist();syncSnd();});
-$('#credits').textContent='Haqiqiy 3D modellar (Sketchfab): '+Object.values(REAL).map(d=>d.credit).join(' · ');
+$('#credits').textContent='Barcha '+Object.keys(REAL).length+' ta mashina — Sketchfab mualliflarining 3D modellari (Creative Commons). Har bir model muallifi avtosalonda va README faylida koʻrsatilgan.';
 $('#menuStat').innerHTML=`Hisobingiz: <b>${UNLIMITED?'∞ cheksiz':fmt(S.money)}</b> · Garajda: <b>${S.owned.length}</b> ta mashina · Safarlar: <b>${S.trips}</b>`;
 const KM={KeyW:'up',ArrowUp:'up',KeyS:'down',ArrowDown:'down',KeyA:'left',ArrowLeft:'left',KeyD:'right',ArrowRight:'right',Space:'hb'};
 addEventListener('keydown',e=>{if(mode!=='drive'){if(e.code==='Escape'&&mode==='stage')closeStage();return;}
@@ -1409,6 +1480,7 @@ function frame(now){
   sky.position.copy(cam.position);
   for(const c of CASH)c.s.rotation.y+=dt*2;
   pickBeam.rotation.y+=dt;dropBeam.rotation.y+=dt;
+  if(mode==='drive'&&!DISPLAY.req&&Math.hypot(P.x-LM.salon.lot[0],P.z-LM.salon.lot[1])<280){DISPLAY.req=1;DISPLAY.forEach(d=>{if(realTpl[d.id])onRealLoaded(d.id);else loadReal(d.id,false);});}
   if(mode==='drive'){updateTraffic(dt);updatePeople(dt);updateDrive(dt);sky.position.copy(cam.position);renderer.render(scene,cam);}
   else if(mode==='stage'){updateStage(dt);renderer.render(ST.scene,ST.cam);}
   else{updateTraffic(dt);updatePeople(dt);menuA+=dt*.05;const cx=40,cz=-20;cam.position.set(cx+Math.cos(menuA)*230,95,cz+Math.sin(menuA)*230);cam.lookAt(cx,25,cz);
