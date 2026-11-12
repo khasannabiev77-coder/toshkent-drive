@@ -1232,21 +1232,72 @@ function resetToRoad(){let best=null;for(let i=0;i<9;i++){const dv=Math.abs(P.x-
 
 /* ================= AUDIO ================= */
 let A=null;
+// Engine character per car: cylinder count, redline, loudness, firing unevenness (V8 burble)
+function engProfile(sp){if(sp.ev)return null;const t=sp.type,p=sp.price;let cyl=4,red=6200,loud=1,un=.12;
+  if(t==='van'||sp.model==='Spark'){cyl=3;red=5800;loud=.9;un=.22;}
+  else if(t==='sport'){cyl=p>400000?12:p>200000?10:8;red=8600;loud=1.45;un=cyl===8?.3:.08;}
+  else if(t==='coupe'){cyl=p>100000?8:6;red=7400;loud=1.3;un=cyl===8?.32:.1;}
+  else if(p>100000){cyl=8;red=6800;loud=1.15;un=.3;}
+  else if(p>45000||t==='suv'||t==='box'){cyl=6;red=6500;loud=1.05;un=.1;}
+  return {cyl,red,loud,un};}
+// One full engine cycle (two crank revolutions): a decaying, ringing exhaust pulse for every cylinder
+function engBuffer(ac,cyl,un){const n=8192,b=ac.createBuffer(1,n,ac.sampleRate),d=b.getChannelData(0),per=n/cyl,V=[0,1,.35,.8,.15,.6,.9,.3,.5,.7,.2,.45];
+  for(let c=0;c<cyl;c++){const amp=1-un*V[c%12],st=Math.floor(c*per+(un>.25?per*.18*((c%4)===1?1:(c%4)===3?-1:0):0)),len=Math.floor(per*2.2);
+    for(let i=0;i<len;i++){const t=i/per,k=((st+i)%n+n)%n;d[k]+=amp*(Math.exp(-4.5*t)*Math.sin(6.283*1.6*t)+.45*Math.exp(-8*t)*Math.sin(6.283*4.3*t)+.25*Math.exp(-14*t)*Math.sin(6.283*9*t));}}
+  let m=0;for(let i=0;i<n;i++)m=Math.max(m,Math.abs(d[i]));for(let i=0;i<n;i++)d[i]/=m;return b;}
 function initAudio(){if(A)return;try{const ac=new (window.AudioContext||window.webkitAudioContext)();
-  const o1=ac.createOscillator(),o2=ac.createOscillator();o1.type='sawtooth';o2.type='square';
-  const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=700;const g=ac.createGain();g.gain.value=0;
-  o1.connect(lp);o2.connect(lp);lp.connect(g);g.connect(ac.destination);o1.start();o2.start();
-  const buf=ac.createBuffer(1,ac.sampleRate,ac.sampleRate),dd=buf.getChannelData(0);for(let k=0;k<dd.length;k++)dd[k]=Math.random()*2-1;
-  const n=ac.createBufferSource();n.buffer=buf;n.loop=true;const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1800;bp.Q.value=1.5;const ng=ac.createGain();ng.gain.value=0;n.connect(bp);bp.connect(ng);ng.connect(ac.destination);n.start();
-  A={ac,o1,o2,g,ng,lp};}catch(e){A=null;}}
+  const G=v=>{const g=ac.createGain();g.gain.value=v||0;return g;};
+  const F=(type,fr,q,gain)=>{const b=ac.createBiquadFilter();b.type=type;b.frequency.value=fr;if(q!=null)b.Q.value=q;if(gain!=null)b.gain.value=gain;return b;};
+  const master=G(0),comp=ac.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=5;comp.attack.value=.01;comp.release.value=.2;master.connect(comp);comp.connect(ac.destination);
+  const nb=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),nd=nb.getChannelData(0);for(let k=0;k<nd.length;k++)nd[k]=Math.random()*2-1;
+  const noise=ac.createBufferSource();noise.buffer=nb;noise.loop=true;noise.start();
+  // engine: pulses -> soft clip -> fixed "body" resonances -> throttle-controlled low-pass
+  const sh=ac.createWaveShaper();{const c=new Float32Array(1024);for(let i=0;i<1024;i++)c[i]=Math.tanh((i/511.5-1)*2.4);sh.curve=c;sh.oversample='2x';}
+  const pre=G(1),hp=F('highpass',35,.7),p1=F('peaking',150,1.1,7),p2=F('peaking',480,1.8,5),p3=F('peaking',1900,1.4,3),lp=F('lowpass',900,.8),eng=G(0);
+  pre.connect(sh);sh.connect(hp);hp.connect(p1);p1.connect(p2);p2.connect(p3);p3.connect(lp);lp.connect(eng);eng.connect(master);
+  const subLp=F('lowpass',110,.9),sub=G(0);pre.connect(subLp);subLp.connect(sub);sub.connect(master);
+  const inBp=F('bandpass',2200,.7),intake=G(0);noise.connect(inBp);inBp.connect(intake);intake.connect(master);
+  // tyres: two resonant noise bands + a wobbling pitched squeal, plus low scrub
+  const tire=G(0),t1=F('bandpass',1050,5),t2=F('bandpass',2500,7),t2g=G(.35);noise.connect(t1);t1.connect(tire);noise.connect(t2);t2.connect(t2g);t2g.connect(tire);
+  const sq=ac.createOscillator();sq.type='sawtooth';sq.frequency.value=1250;const sqBp=F('bandpass',1250,9),sqG=G(0);sq.connect(sqBp);sqBp.connect(sqG);sqG.connect(tire);sq.start();
+  const lfo=ac.createOscillator();lfo.frequency.value=6.5;const lfoG=G(35);lfo.connect(lfoG);lfoG.connect(sq.frequency);lfo.start();tire.connect(master);
+  const scrubLp=F('lowpass',420,.7),scrub=G(0);noise.connect(scrubLp);scrubLp.connect(scrub);scrub.connect(master);
+  const roadLp=F('lowpass',300,.6),road=G(0);noise.connect(roadLp);roadLp.connect(road);road.connect(master);
+  const windBp=F('bandpass',1100,.45),wind=G(0);noise.connect(windBp);windBp.connect(wind);wind.connect(master);
+  // electric motor whine
+  const e1=ac.createOscillator(),e2=ac.createOscillator(),evG=G(0),e2g=G(.4);e1.type='sine';e2.type='triangle';e1.connect(evG);e2.connect(e2g);e2g.connect(evG);evG.connect(master);e1.start();e2.start();
+  A={ac,master,noise,pre,lp,eng,sub,inBp,intake,tire,t1,t2,sq,sqBp,sqG,scrub,roadLp,road,wind,e1,e2,evG,src:null,key:'',thr:0};
+  }catch(e){A=null;}}
+// exhaust crackle when lifting off at high revs
+function pop(at,loud){const ac=A.ac,g=ac.createGain(),fl=ac.createBiquadFilter();fl.type='lowpass';fl.frequency.value=500+Math.random()*700;A.noise.connect(fl);fl.connect(g);g.connect(A.master);
+  g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(.3*loud,at+.004);g.gain.exponentialRampToValueAtTime(.0001,at+.05+Math.random()*.05);setTimeout(()=>{try{A.noise.disconnect(fl);}catch(e){}g.disconnect();},(at-ac.currentTime+.4)*1000);}
 function beep(f,d){if(!A||!S.sound)return;const o=A.ac.createOscillator(),g=A.ac.createGain();o.frequency.value=f;o.type='sine';g.gain.value=.08;o.connect(g);g.connect(A.ac.destination);o.start();g.gain.setTargetAtTime(0,A.ac.currentTime+d,.03);o.stop(A.ac.currentTime+d+.2);}
 function horn(){if(!A||!S.sound)return;[392,494].forEach(f=>{const o=A.ac.createOscillator(),g=A.ac.createGain();o.type='square';o.frequency.value=f;g.gain.value=.05;const lp=A.ac.createBiquadFilter();lp.frequency.value=1500;o.connect(lp);lp.connect(g);g.connect(A.ac.destination);o.start();g.gain.setTargetAtTime(0,A.ac.currentTime+.35,.03);o.stop(A.ac.currentTime+.6);});}
 function thud(v){if(!A||!S.sound)return;const o=A.ac.createOscillator(),g=A.ac.createGain();o.type='triangle';o.frequency.value=70;o.frequency.setTargetAtTime(35,A.ac.currentTime,.05);g.gain.value=Math.min(.35,v/40);o.connect(g);g.connect(A.ac.destination);o.start();g.gain.setTargetAtTime(0,A.ac.currentTime+.05,.06);o.stop(A.ac.currentTime+.5);}
-function updateAudio(rpm,thr,slip,on){if(!A)return;const t=A.ac.currentTime,ev=P.sp&&P.sp.ev;
-  const vol=on&&S.sound?(ev?.025+thr*.03:.045+thr*.05):0;
-  if(ev){A.o1.type='sine';A.o1.frequency.setTargetAtTime(160+rpm*900,t,.05);A.o2.frequency.setTargetAtTime(80+rpm*450,t,.05);A.lp.frequency.setTargetAtTime(2400,t,.1);}
-  else{A.o1.type='sawtooth';const f=38+rpm*135;A.o1.frequency.setTargetAtTime(f,t,.04);A.o2.frequency.setTargetAtTime(f*.5,t,.04);A.lp.frequency.setTargetAtTime(500+rpm*1400+thr*400,t,.08);}
-  A.g.gain.setTargetAtTime(vol,t,.08);A.ng.gain.setTargetAtTime(on&&S.sound?clamp((slip-3)/12,0,1)*.07:0,t,.06);}
+function updateAudio(rpm,thr,slip,on,x){if(!A)return;const ac=A.ac,t=ac.currentTime,sp=P.sp,Q=(p,v,tc)=>p.setTargetAtTime(v,t,tc||.05);x=x||{v:0,brake:false,hb:false};
+  const live=on&&S.sound;Q(A.master.gain,live?.9:0,.08);if(!live){A.thr=0;return;}
+  const pr=sp&&engProfile(sp),v=x.v;
+  if(pr){const key=pr.cyl+'/'+pr.un;
+    if(A.key!==key){if(A.src){try{A.src.stop();}catch(e){}A.src.disconnect();}const b=ac.createBufferSource();b.buffer=engBuffer(ac,pr.cyl,pr.un);b.loop=true;b.connect(A.pre);b.start();A.src=b;A.key=key;}
+    const real=850+rpm*(pr.red-850)+(rpm<.3?Math.sin(t*9)*22:0);
+    Q(A.src.playbackRate,real/120*8192/ac.sampleRate,.035);
+    Q(A.pre.gain,.55+thr*.9+rpm*.5,.05);
+    Q(A.lp.frequency,500+rpm*2600+thr*(900+rpm*3200),.06);
+    Q(A.eng.gain,(.11+rpm*.13)*(thr?1:.55)*pr.loud,.06);
+    Q(A.sub.gain,(pr.cyl>=8?.16:.07)*(.5+thr*.6)*pr.loud,.08);
+    Q(A.inBp.frequency,1500+rpm*2600,.08);Q(A.intake.gain,thr*(.004+rpm*rpm*.03)*pr.loud,.06);Q(A.evG.gain,0,.05);
+    if(A.thr&&!thr&&rpm>.5&&pr.loud>1.2){const n=2+Math.floor(Math.random()*4);for(let k=0;k<n;k++)pop(t+.08+Math.random()*.7,pr.loud);}
+  }else{if(A.src){try{A.src.stop();}catch(e){}A.src.disconnect();A.src=null;A.key='';}
+    Q(A.eng.gain,0);Q(A.sub.gain,0);Q(A.intake.gain,0);const fe=90+v*34;Q(A.e1.frequency,fe,.06);Q(A.e2.frequency,fe*2.02,.06);Q(A.evG.gain,v>.3||thr?.012+thr*.03+Math.min(.02,v*.0006):0,.08);}
+  A.thr=thr;
+  // tyres: sideways slip, wheelspin off the line, locked brakes, handbrake
+  const spin=thr&&v<9&&sp.acc<6?(1-v/9)*.8:0,skid=x.brake&&!x.hb&&v>14?.3:0;
+  let k=Math.max(clamp((slip-2.2)/8,0,1),spin,skid);if(x.hb&&v>6)k=Math.max(k,.55);if(v<1.5&&!spin)k=0;
+  const ft=820+Math.min(1,v/32)*520+k*160;
+  Q(A.t1.frequency,ft,.08);Q(A.t2.frequency,ft*2.35,.08);Q(A.sq.frequency,ft*1.18*(1+(Math.random()-.5)*.05),.04);Q(A.sqBp.frequency,ft*1.18,.08);
+  Q(A.tire.gain,Math.pow(k,1.3)*1.2,.05);Q(A.sqG.gain,k>.3?(k-.3)*.9:0,.07);
+  Q(A.scrub.gain,clamp((slip-.8)/4,0,1)*(1-k)*.12*(v>2?1:0),.08);
+  Q(A.roadLp.frequency,180+v*9,.2);Q(A.road.gain,Math.min(.09,v*.0022),.2);Q(A.wind.gain,Math.min(.05,v*v*.00002),.3);}
 
 /* ================= HUD ================= */
 const mini=$('#mini'),mctx=mini.getContext('2d'),speedo=$('#speedo'),sctx=speedo.getContext('2d');
@@ -1328,7 +1379,7 @@ function updateDrive(dt){
   const lo=gi?gs[gi-1]:0,rpm=sp.ev?clamp(fr,0,1):clamp(.22+.78*(fr-lo)/(gs[gi]-lo)+(up?.05:0),0,1);
   rpmS+=(rpm-rpmS)*Math.min(1,dt*8);
   const gear=vF<-.5?'R':speed<.3&&!up?'N':sp.ev?'D':'D'+(gi+1);
-  updateAudio(rpmS,up?1:0,Math.abs(vL),true);
+  updateAudio(rpmS,up?1:0,Math.abs(vL),true,{v:speed,brake:braking,hb:hb});
   // camera
   const camD=[{d:7.2+sp.L*.3,h:2.3+sp.H*.3,l:1.1},{d:12.5,h:4.4,l:1.4}][camMode];
   if(camMode<2){const vh=speed>2?Math.atan2(P.vx,P.vz):P.h;const ch=vF<-1?P.h:P.h+Math.atan2(Math.sin(vh-P.h),Math.cos(vh-P.h))*.35;
@@ -1495,7 +1546,7 @@ function frame(now){
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
-if(window.__TD_TEST)window.__td={ST,openStage,showStageCar,CARS,realTpl,P,cam,PEOPLE,SHOPPTS,renderer,scene,TRAFFIC,TL,S,taxi,keys};
+if(window.__TD_TEST)window.__td={ST,openStage,showStageCar,CARS,realTpl,P,cam,PEOPLE,SHOPPTS,renderer,scene,TRAFFIC,TL,S,taxi,keys,get A(){return A;}};
 })();
 </script>
 </body>
