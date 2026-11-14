@@ -136,11 +136,13 @@ function updBuffs(){const a=[];for(const k in BUFF_NAME)if(S.buff[k]>0){const s=
 let baseDpr=1,dyn=1,fpsN=0,fpsT=0;
 
 const V2={nT:0,dirty:true,tA:0,hT:0,
-  init(){applySeason();updBuffs();V2.chip();},
+  // headlight lamp is made up front: adding a light later recompiles every material and freezes the game for a moment
+  mkSpot(){spot=new THREE.SpotLight(C('#fff2d6'),0,70,.5,.6,1.2);scene.add(spot);scene.add(spot.target);},
+  init(){applySeason();updBuffs();V2.chip();if(S.gfx!=='phone')V2.mkSpot();},
   chip(){const h=Math.floor(W.tod),mi=Math.floor((W.tod-h)*60),se=SEAS[W.season],tp=Math.round(lerp(se.temp[0],se.temp[1],W.night));
     $('#envChip').textContent=String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0')+' · '+SEASON_NAME[W.season]+' · '+(tp>0?'+':tp<0?'−':'')+Math.abs(tp)+'°';},
   setDpr(G,k){const short=Math.max(1,Math.min(innerWidth,innerHeight)),dp=devicePixelRatio||1;
-    baseDpr=k==='phone'&&matchMedia('(pointer:coarse)').matches?Math.min(dp,3,Math.max(1.5,1080/short)):Math.min(dp,G.dpr);dyn=1;renderer.setPixelRatio(baseDpr);V2.dirty=true;},
+    if(k!=='phone'&&!spot)V2.mkSpot();baseDpr=k==='phone'&&matchMedia('(pointer:coarse)').matches?Math.min(dp,3,Math.max(1.5,1080/short)):Math.min(dp,G.dpr);dyn=1;renderer.setPixelRatio(baseDpr);V2.dirty=true;},
   fareMul(){let m=1+(S.buff.food>0?.1:0)+(S.buff.vit>0?.1:0)+(S.buff.style>0?.05:0)+(S.up.pro?.15:0)+(S.up.suit?.08:0)+(S.up.shoes?.05:0)+(S.up.card?.05:0);
     if(S.inv.flowers>0){S.inv.flowers--;m*=1.3;toast('Guldasta yoʻlovchiga yoqdi: +30%','gold');}else if(S.inv.sweet>0){S.inv.sweet--;m*=1.15;toast('Shirinlik uchun rahmat: +15%','gold');}updBuffs();return m;},
   limitMul(){return S.buff.focus>0||S.buff.vit>0?1.25:1;},
@@ -173,6 +175,7 @@ const V2={nT:0,dirty:true,tA:0,hT:0,
     $('#hud').hidden=true;$('#touch').style.visibility='hidden';$('#shopUI').hidden=false;
     let nx=0,nz=0,bd=1e9;for(const r of ROADS){const ax=r-curShop.x,az=r-curShop.z;if(Math.abs(ax)<bd){bd=Math.abs(ax);nx=Math.sign(ax);nz=0;}if(Math.abs(az)<bd){bd=Math.abs(az);nz=Math.sign(az);nx=0;}}cam.position.set(curShop.x+nx*11,2.7,curShop.z+nz*11);cam.lookAt(curShop.x+nz*4.5,2.3,curShop.z-nx*4.5);renderShop();},
   closeShop(){$('#shopUI').hidden=true;curShop=null;startDrive();},
+  forceShop(s){if(mode!=='drive')startDrive();nearShop=s;V2.enterShop();},
   tick(dt){vT+=dt;
     if(S.todMode==='auto')W.tod=(W.tod+dt/60)%24;else{let d=TODS[S.todMode]-W.tod;d=((d+36)%24)-12;if(Math.abs(d)>.01){W.tod=(W.tod+d*Math.min(1,dt*1.6)+24)%24;V2.dirty=true;}}
     V2.tA+=dt;if(V2.tA>.25||V2.dirty){V2.tA=0;V2.dirty=false;applyTime();}
@@ -183,7 +186,7 @@ const V2={nT:0,dirty:true,tA:0,hT:0,
     let ch=false;for(const k in S.buff)if(S.buff[k]>0){S.buff[k]-=dt;if(S.buff[k]<=0){S.buff[k]=0;ch=true;toast(BUFF_NAME[k]+' taʼsiri tugadi');}}
     saveT+=dt;if(saveT>12){saveT=0;S.tod=W.tod;persist();}
     // headlight
-    if(W.night>.05&&S.gfx!=='phone'){if(!spot){spot=new THREE.SpotLight(C('#fff2d6'),0,70,.5,.6,1.2);scene.add(spot);scene.add(spot.target);}
+    if(W.night>.05&&S.gfx!=='phone'){if(!spot)V2.mkSpot();
       const fx=Math.sin(P.h),fz=Math.cos(P.h),L=P.sp.L/2;spot.position.set(P.x+fx*L,1,P.z+fz*L);spot.target.position.set(P.x+fx*(L+18),0,P.z+fz*(L+18));spot.intensity=W.night*2.4;}else if(spot)spot.intensity=0;
     // shop prompt
     shopT+=dt;if(shopT>.2){shopT=0;let b=null,bd=15;if(Math.hypot(P.vx,P.vz)<2.5)for(const s of SHOPPTS){const d=Math.abs(s.x-P.x)+Math.abs(s.z-P.z);if(d<bd){bd=d;b=s;}}
@@ -201,3 +204,8 @@ $('#bTime').addEventListener('click',()=>V2.nextTime());$('#bSeason').addEventLi
 document.querySelectorAll('[data-tod]').forEach(b=>b.addEventListener('click',()=>V2.setTime(b.dataset.tod,true)));
 document.querySelectorAll('[data-season]').forEach(b=>b.addEventListener('click',()=>V2.setSeason(b.dataset.season,true)));
 {const sp=$('#splash');if(sp){const off=()=>{sp.classList.add('out');setTimeout(()=>sp.remove(),600);};setTimeout(off,2600);sp.addEventListener('pointerdown',off);}}
+// iOS Safari ignores user-scalable=no: block pinch and double-tap zoom by hand
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+{let lastT=0;document.addEventListener('touchend',e=>{const now=e.timeStamp;if(now-lastT<350&&!e.target.closest('button,a,input,select,textarea,[data-k],[data-id]'))e.preventDefault();lastT=now;},{passive:false});}
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
