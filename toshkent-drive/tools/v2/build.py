@@ -76,9 +76,11 @@ rep("  if(mode==='drive'){updateTraffic(dt);updatePeople(dt);updateDrive(dt);sky
     "  V2.tick(dt);\n  if(mode==='drive'){updateTraffic(dt);updatePeople(dt);updateDrive(dt);sky.position.copy(cam.position);renderer.render(scene,cam);}\n  else if(mode==='shop'){renderer.render(scene,cam);}")
 rep("  renderer.setPixelRatio(Math.min(devicePixelRatio||1,G.dpr));\n  const type=", "  V2.setDpr(G,k);\n  const type=")
 rep("\nsetPlayerCar();\nP.mesh.position.set(P.x,0,P.z);", "\nV2.init();setPlayerCar();\nP.mesh.position.set(P.x,0,P.z);")
-rep("if(window.__TD_TEST)window.__td={", "if(window.__TD_TEST)window.__td={V2,W,SHOPPTS2:SHOPPTS,LM,applySeason,startDrive,resetToRoad,setPlayerCar,BLOCKS,updateTraffic,updatePeople,updateDrive,ROADS,")
+rep("if(window.__TD_TEST)window.__td={", "if(window.__TD_TEST)window.__td={V2,W,SHOPPTS2:SHOPPTS,LM,applySeason,startDrive,resetToRoad,setPlayerCar,BLOCKS,updateTraffic,updatePeople,updateDrive,ROADS,CAT,persist,getMode:()=>mode,")
 rep("menuA+=dt*.05;const cx=40,cz=-20;cam.position.set(cx+Math.cos(menuA)*230,95,cz+Math.sin(menuA)*230);cam.lookAt(cx,25,cz);", "menuA+=dt*.05;const cx=V2.cam?V2.cam[3]:40,cz=V2.cam?V2.cam[5]:-20;cam.position.set(cx+Math.cos(menuA)*230,95,cz+Math.sin(menuA)*230);cam.lookAt(cx,25,cz);if(V2.cam){cam.position.set(V2.cam[0],V2.cam[1],V2.cam[2]);cam.lookAt(V2.cam[3],V2.cam[4],V2.cam[5]);}")
 rep("/* ================= GRAPHICS PRESETS ================= */", open(os.path.join(HERE, 'v2.js'), encoding='utf-8').read() + "\n/* ================= GRAPHICS PRESETS ================= */")
+# ---- no zoom on phones
+rep('<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">', '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">')
 # ---- markup
 logo = '<svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Toshkent Drive">' + open(os.path.join(HERE, 'logo_inner.svg'), encoding='utf-8').read() + '</svg>'
 SOC = '<div class="social"><a href="https://instagram.com/azamowc" target="_blank" rel="noopener"><i>Instagram</i><b>@azamowc</b></a><a href="https://t.me/azamowic" target="_blank" rel="noopener"><i>Telegram</i><b>@azamowic</b></a></div>'

@@ -36,3 +36,14 @@ body.lp #envChip{padding:4px 9px;font-size:11.5px}
 body.lp .menu-logo svg{width:250px}
 body.lp .social a{padding:5px 10px;font-size:12px}
 @media (prefers-reduced-motion:reduce){.td-em,.td-dash,.td-arrow,.td-sun,.td-w1,.td-w2,.td-line{animation:none}}
+/* phones: no double-tap / pinch zoom anywhere in the game */
+#menu,.shop-card,#shopItems,.st-list,.items{touch-action:pan-y}
+button,a,.chip,.btn,.hbtn,#prompt,.social a{touch-action:manipulation}
+#splash,#gl,#touch,.tb{touch-action:none}
+/* phone landscape: action bar in one row (swipe sideways if it does not fit), nitro above the gas pedal */
+body.lp #actions{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;pointer-events:auto;touch-action:pan-x;scrollbar-width:none;overscroll-behavior:contain}
+body.lp #actions::-webkit-scrollbar{display:none}
+body.lp #actions .hbtn{flex:none}
+body.lp #actions .hbtn:first-child{margin-left:auto}body.lp #actions .hbtn:last-child{margin-right:auto}
+@media (pointer:coarse){#tNitro{right:calc(29px + env(safe-area-inset-right,0px));bottom:calc(158px + env(safe-area-inset-bottom,0px));width:58px;height:58px}}
+body.lp #buffs span{padding:3px 8px;font-size:11px}
