@@ -1,0 +1,24 @@
+<defs>
+<linearGradient id="tdGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f0a52e"/></linearGradient>
+<linearGradient id="tdSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f2f3a"/><stop offset="1" stop-color="#071015"/></linearGradient>
+<clipPath id="tdClip"><rect x="-84" y="-84" width="168" height="168" rx="38"/></clipPath>
+</defs>
+<g transform="translate(110,110)">
+<g class="td-em">
+<rect x="-84" y="-84" width="168" height="168" rx="38" fill="url(#tdSky)"/>
+<g clip-path="url(#tdClip)">
+<circle class="td-sun" cx="0" cy="-22" r="30" fill="#1fc1c4" opacity=".22"/>
+<path d="M-84 -18 h22 v-16 h10 v-22 h12 v30 h8 v-12 q14 -26 28 0 v12 h8 v-40 h12 v26 h10 v-14 h14 v36 h34 v20 h-168z" fill="#123540"/>
+<path d="M-70 84 L-12 -18 L12 -18 L70 84z" fill="#16252c"/>
+<path d="M-70 84 L-12 -18 M70 84 L12 -18" stroke="#1fc1c4" stroke-width="2.5" fill="none" opacity=".7"/>
+<path class="td-dash" d="M0 84 L0 -18" stroke="#eaf3f3" stroke-width="5" stroke-dasharray="14 16" fill="none"/>
+</g>
+<path class="td-arrow" d="M0 -40 L30 38 L0 20 L-30 38z" fill="url(#tdGold)" stroke="#071015" stroke-width="3" stroke-linejoin="round"/>
+<rect x="-84" y="-84" width="168" height="168" rx="38" fill="none" stroke="#1fc1c4" stroke-width="3"/>
+</g>
+</g>
+<g class="td-word" font-family="'Chakra Petch','Inter Display','Inter','Arial Black','Segoe UI',Arial,sans-serif" font-weight="700">
+<text class="td-w1" x="222" y="104" font-size="70" fill="#eaf3f3" letter-spacing="2">TOSHKENT</text>
+<text class="td-w2" x="222" y="176" font-size="70" fill="url(#tdGold)" letter-spacing="14">DRIVE</text>
+<rect class="td-line" x="224" y="190" width="372" height="5" rx="2.5" fill="#1fc1c4"/>
+</g>
