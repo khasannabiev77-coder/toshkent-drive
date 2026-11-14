@@ -119,3 +119,30 @@ toshkent-drive/
    [GltfSlim]::Run("C:\yo'l\model.glb", "models\kalit", 1024)
    ```
 4. `index.html` dagi `RAW` ro'yxatiga mashinani, `REAL` ro'yxatiga `{key:'kalit', n:<qismlar soni>, paint:/bo'yoq material nomi/, credit:'...'}` qo'shing.
+
+### Modellarni yengillashtirish (tez yuklanish)
+
+`models/` ichidagi fayllar `tools/slim/` yordamida qayta ishlangan: ustma-ust tushgan uchlar birlashtirilgan,
+uchburchaklar soni 70–150 mingga tushirilgan (QEM), teksturalar 512 px gacha kichraytirilgan.
+Jami hajm 391 MB dan 98 MB ga tushdi, eng og'ir model 23 MB o'rniga 3,7 MB.
+O'yin har bir modelni birinchi yuklashdan keyin brauzer bazasida (IndexedDB) saqlaydi, keyingi safar tarmoqsiz ochadi.
+Modellarni qayta yaratsangiz, `index.html` dagi `MODEL_VER` ni oshiring.
+
+```
+gcc -O2 -o tools/slim/qem tools/slim/qem.c -lm
+python3 tools/slim/slim.py model.glb models/kalit 70000 512 --nolines
+```
+
+### 2-versiya: kun-tun, fasllar, doʻkonlar
+
+- **Kun va tun:** oʻyin soati (1 oʻyin soati = 1 daqiqa), tunda derazalar, chiroqlar va faralar yonadi. `N` tugmasi yoki menyudan tanlanadi.
+- **Toʻrt fasl:** bahor, yoz, kuz, qish (qor yogʻadi, yoʻl sirpanchiq). Avto rejimda haqiqiy oyga qarab tanlanadi.
+- **Doʻkonlar:** doʻkon oldida toʻxtab `E` bosiladi. Ovqat va ichimliklar vaqtinchalik bonus, kiyim, telefon va ehtiyot qismlar doimiy yaxshilanish beradi (nitro — `Shift`).
+- **Iqtisod:** cheksiz pul oʻchirilgan (`UNLIMITED=false`), pul taksi va koʻchadagi pullardan topiladi.
+- **Xarita:** diqqatga sazovor joylar Amir Temur xiyoboniga nisbatan haqiqiy yoʻnalishlarida: Tashkent City va Chorsu gʻarbda, teleminora va Minor masjidi shimolda, Navoiy teatri janubda, Humo Arena va Magic City janubi-gʻarbda. Bu soddalashtirilgan toʻr, koʻchama-koʻcha aniq xarita emas.
+- **Harakat:** transport chorrahalarda buriladi, piyodalar toʻxtab turadi va tez kelayotgan mashinadan chetlanadi.
+- **Sifat:** telefonda Full HD gacha, kadr tezligi tushsa oʻlcham avtomatik pasayadi. `index.html#telefon`, `#kompyuter`, `#ultra` orqali majburan tanlash mumkin.
+
+`index.html` endi `tools/v2/build.py` orqali yigʻiladi (1-versiya asosiga yamoqlar + `v2.js`).
+
+Instagram: [@azamowc](https://instagram.com/azamowc) · Telegram: [@azamowic](https://t.me/azamowic)

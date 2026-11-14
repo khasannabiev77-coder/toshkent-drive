@@ -1,0 +1,14 @@
+.td-em{transform-box:fill-box;transform-origin:center;animation:tdPop .9s cubic-bezier(.2,1.4,.4,1) both}
+.td-dash{animation:tdDash .7s linear infinite}
+.td-arrow{transform-box:fill-box;transform-origin:center;animation:tdArrow 1.6s ease-in-out infinite,tdIn .8s .25s both}
+.td-sun{animation:tdSun 3s ease-in-out infinite}
+.td-w1{animation:tdSlide .7s .35s cubic-bezier(.2,.9,.3,1) both}
+.td-w2{animation:tdSlide .7s .55s cubic-bezier(.2,.9,.3,1) both}
+.td-line{transform-box:fill-box;transform-origin:left center;animation:tdLine .8s .9s cubic-bezier(.2,.9,.3,1) both}
+@keyframes tdPop{from{opacity:0;transform:scale(.4) rotate(-12deg)}to{opacity:1;transform:none}}
+@keyframes tdDash{to{stroke-dashoffset:-30}}
+@keyframes tdArrow{0%,100%{transform:translateY(3px)}50%{transform:translateY(-5px)}}
+@keyframes tdIn{from{opacity:0}to{opacity:1}}
+@keyframes tdSun{0%,100%{opacity:.18}50%{opacity:.34}}
+@keyframes tdSlide{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes tdLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
