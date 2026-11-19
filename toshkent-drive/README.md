@@ -5,7 +5,8 @@ Toshkent ko'chalarida 3D haydash o'yini (brauzerda ishlaydi, Three.js).
 - 59 ta haqiqiy 3D mashina modeli (Sketchfab mualliflari ishlari), 18 xil rang, 360° avtosalon va shaxsiy garaj
 - 3D shahar: tomli mahalla uylari va devorlari, balkonli koʻp qavatli uylar, minorali osmonoʻpar binolar, ishlaydigan svetoforlar, bekatlar, skameykalar, favvoralar, teraklar va bulutlar
 - Ovoz: silindrlar soniga qarab farqlanuvchi motor (3 silindrdan V12 gacha), drift va tormozda shina chiyillashi, yoʻl va shamol shovqini, elektromobil ovozi
-- Taksi rejimi (tomda TAXI belgisi), ko'chadagi pullar, cheksiz hisob
+- Taksi rejimi (tomda TAXI belgisi), ko'chadagi pullar
+- Ochiq dunyo: piyoda qahramon, politsiya va 1–5 yulduzli qidiruv, ob-havo, 5 ta hikoya missiyasi va 10 ta qo'shimcha ish, telefon, xarita va GPS (pastda batafsil)
 - Do'konlar, yo'laklarda yuruvchi odamlar, ko'cha harakati
 - Telefon (gorizontal, sensorli boshqaruv) va kompyuter uchun alohida grafika: Telefon / Kompyuter / Ultra
 
@@ -19,7 +20,18 @@ Kompyuterda: papkada `npx serve` yoki `python -m http.server` ishga tushirib, br
 
 ## Boshqaruv
 
-W/↑ gaz · S/↓ tormoz · A D/← → rul · Probel drift · T taksi · C kamera · H signal · R yo'lga qaytarish · B avtosalon · G garaj
+| Tugma | Mashinada | Piyoda |
+|---|---|---|
+| W A S D / strelkalar | gaz, tormoz, rul | kamera tomonga yurish |
+| Probel | drift (qo'l tormozi) | sakrash |
+| Shift | nitro | yugurish |
+| F | mashinadan tushish | mashinaga o'tirish / olib qochish |
+| E / Enter | gaplashish, missiya, do'konga kirish, keyingi gap | xuddi shunday |
+| Q yoki sichqoncha bosish | — | musht |
+| Sichqoncha (bosib surish), g'ildirak | — | kamerani aylantirish, masofa |
+| P yoki Esc · M | telefon (pauza) · xarita | xuddi shunday |
+| T · C · H · K · N · R | taksi · kamera · signal · surat · vaqt · yo'lga qaytarish | K — surat |
+| B · G | avtosalon · garaj | xuddi shunday |
 
 ## 3D modellar va litsenziyalar
 
@@ -138,11 +150,40 @@ python3 tools/slim/slim.py model.glb models/kalit 70000 512 --nolines
 - **Kun va tun:** oʻyin soati (1 oʻyin soati = 1 daqiqa), tunda derazalar, chiroqlar va faralar yonadi. `N` tugmasi yoki menyudan tanlanadi.
 - **Toʻrt fasl:** bahor, yoz, kuz, qish (qor yogʻadi, yoʻl sirpanchiq). Avto rejimda haqiqiy oyga qarab tanlanadi.
 - **Doʻkonlar:** doʻkon oldida toʻxtab `E` bosiladi. Ovqat va ichimliklar vaqtinchalik bonus, kiyim, telefon va ehtiyot qismlar doimiy yaxshilanish beradi (nitro — `Shift`).
-- **Iqtisod:** cheksiz pul oʻchirilgan (`UNLIMITED=false`), pul taksi va koʻchadagi pullardan topiladi.
+- **Iqtisod:** pul taksi, missiyalar va koʻchadagi pullardan topiladi. Cheksiz pulni telefon → Sozlamalar orqali yoqish mumkin (sukut boʻyicha oʻchiq).
 - **Xarita:** diqqatga sazovor joylar Amir Temur xiyoboniga nisbatan haqiqiy yoʻnalishlarida: Tashkent City va Chorsu gʻarbda, teleminora va Minor masjidi shimolda, Navoiy teatri janubda, Humo Arena va Magic City janubi-gʻarbda. Bu soddalashtirilgan toʻr, koʻchama-koʻcha aniq xarita emas.
 - **Harakat:** transport chorrahalarda buriladi, piyodalar toʻxtab turadi va tez kelayotgan mashinadan chetlanadi.
 - **Sifat:** telefonda Full HD gacha, kadr tezligi tushsa oʻlcham avtomatik pasayadi. `index.html#telefon`, `#kompyuter`, `#ultra` orqali majburan tanlash mumkin.
 
-`index.html` endi `tools/v2/build.py` orqali yigʻiladi (1-versiya asosiga yamoqlar + `v2.js`).
+### Ochiq dunyo qatlami
+
+- **Piyoda qahramon (Sardor):** yurish, yugurish, sakrash, musht; mashinaga oʻtirish va tushish; istalgan mashinani olib qochish (jinoyat).
+  Kiyim, soch, doʻppi, chopon va ranglar telefondagi «Qahramon» ilovasida. Doʻkonlarga piyoda ham kirish mumkin.
+- **Politsiya:** 1–5 yulduzli qidiruv; patrul mashinalari, yoʻl toʻsiqlari, tunda projektorli vertolyot, piyoda politsiyachilar.
+  Ular oxirgi koʻrilgan joyni qidiradi; koʻzdan yoʻqolsangiz qutulasiz, ushlansangiz jarima, sogʻliq tugasa — shifoxona.
+- **Ob-havo** (kun-tun va fasllar ustiga): ochiq, bulutli, yomgʻir, momaqaldiroq, tuman; yomgʻirda yoʻl hoʻl va sirpanchiq.
+  Qishda yomgʻir oʻrniga 2-versiyaning qori yogʻadi.
+- **Missiyalar:** 5 ta hikoya missiyasi (1-bob: Botir aka, Kamron, Lola, Inspektor Rahimov) va 10 ta ish — taksi, yetkazib berish,
+  koʻcha poygasi, vaqtga qarshi, mashina yetkazish, tez yordam, qochish, drift, surat ovi, 20 ta oltin anor.
+  Tasodifiy hodisalar: adashgan sayyoh, buzilgan mashina, politsiya quvuvi, avariya, poyga va yetkazish takliflari.
+- **Telefon** (`P` yoki `Esc`, oʻyin pauzada): xarita, missiyalar, ishlar, xabarlar, kontaktlar, qahramon, kamera (galereya), ob-havo
+  (vaqtni oʻtkazish), garaj, sozlamalar (subtitr hajmi/foni, lotin-kirill, cheksiz pul, mini-xarita aylanishi, 3 ta saqlash sloti).
+- **Xarita va GPS** (`M`): ochilgan hududlar, nuqta qoʻyish, koʻchalar boʻylab marshrut, ochilgan joylarga tez sayohat.
+  Taksi yoʻlovchisigacha marshrut «Navigator» xaridi bilan chiziladi. Mini-xaritani bosib masshtab oʻzgaradi.
+- **Saqlash:** har 20 soniyada avtomatik; menyuda «Davom etish», «Yangi oʻyin», «Yuklash».
+- Ishlab chiquvchilar uchun: manzil oxiriga `#debug` qoʻshilsa, telefonda Debug ilovasi chiqadi (teleport, vaqt, ob-havo, qidiruv, pul, oʻlmaslik).
+
+### Yigʻish
+
+`index.html` ikki bosqichda yigʻiladi; `tools/artifact-version.html` — xuddi shu faylning nusxasi:
+
+```
+python tools/v2/build.py tools/v2/base_index.html v2.html
+node tools/v2/world/build.js v2.html index.html tools/artifact-version.html
+```
+
+1-qadam — 1-versiya asosi + v2 yamoqlari, 2-qadam — ochiq dunyo qatlami. `tools/v2/world/` ichida: `build.js` (yamoqlar; har biri aniq
+bir marta mos kelishi shart, aks holda yigʻish toʻxtaydi), `world.js` (tizimlar), `world.css`, `save.js` (saqlashni tekshirish),
+`input.js` (klaviatura va sensor), `minimap.js`.
 
 Instagram: [@azamowc](https://instagram.com/azamowc) · Telegram: [@azamowic](https://t.me/azamowic)
