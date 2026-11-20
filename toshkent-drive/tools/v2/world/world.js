@@ -647,17 +647,19 @@ function hudExtra(){starP.forEach((p,i)=>p.classList.toggle('on',i<WANT.lvl));st
   else o.classList.remove('on');
   $('#taxi').style.display=(MS.cur||EVT.cur)&&!taxi.on?'none':'';}
 let ACT=null,lastHint='';
-function updateHints(){let txt='',key='',fn=null;const X=px(),Z=pz();
-  if(DLG.cur){key='E';txt='Keyingi gap';fn=()=>nextLine();}
+let hintKey='',actLab='';
+function updateHints(){let txt='',key='',fn=null,lab='OK';const X=px(),Z=pz();
+  if(DLG.cur){key='E';txt='Keyingi gap';fn=()=>nextLine();lab='KEYINGI';}
   else if(WANT.bust>.2)txt='Qoʻlga olinmoqda… '+Math.min(100,Math.round(WANT.bust/(mode==='drive'?2.6:1.6)*100))+'%';
-  else if(MS.hintE){key='E';txt=MS.hintE.txt;fn=MS.hintE.fn;}
+  else if(MS.hintE){key='E';txt=MS.hintE.txt;fn=MS.hintE.fn;lab='BAJARISH';}
   else{const smk=storyMarker();
-    if(smk&&Math.hypot(smk.x-X,smk.z-Z)<9){const def=STORY[S.story];if(def.hours&&!inHours(W.tod,def.hours))txt=def.giver+' '+def.hours[0]+':00 dan keyin keladi (Telefon → Ob-havo → kutish)';else{key='E';txt='Missiya: '+def.title;fn=()=>startMission(def);}}
-    else if(EVT.cur&&EVT.cur.near&&EVT.cur.near()){key='E';txt=EVT.cur.act;fn=()=>EVT.cur.onE();}
-    else if(mode==='foot'){const n=nearestEnterable();if(n){key='F';txt=n.kind==='traffic'?'Mashinani olib qochish (jinoyat!)':'Mashinaga oʻtirish';}else if(!nearShop){const p=nearPed(2.2);if(p){key='E';txt='Salomlashish · Q — musht';fn=()=>greet(p);}}}
+    if(smk&&Math.hypot(smk.x-X,smk.z-Z)<9){const def=STORY[S.story];if(def.hours&&!inHours(W.tod,def.hours))txt=def.giver+' '+def.hours[0]+':00 dan keyin keladi (Telefon → Ob-havo → kutish)';else{key='E';txt='Missiya: '+def.title;fn=()=>startMission(def);lab='MISSIYA';}}
+    else if(EVT.cur&&EVT.cur.near&&EVT.cur.near()){key='E';txt=EVT.cur.act;fn=()=>EVT.cur.onE();lab='YORDAM';}
+    else if(mode==='foot'){const n=nearestEnterable();if(n){key='F';txt=n.kind==='traffic'?'Mashinani olib qochish (jinoyat!)':'Mashinaga oʻtirish';}else if(!nearShop){const p=nearPed(2.2);if(p){key='E';txt=TOUCHUI()?'Salomlashish':'Salomlashish · Q — musht';fn=()=>greet(p);lab='SALOM';}}}
     else if(mode==='drive'&&Math.hypot(P.vx,P.vz)<1){key='F';txt='Mashinadan tushish';}}
-  ACT=fn;const h=$('#hint'),s=key+'|'+txt;if(s!==lastHint){lastHint=s;if(txt){h.innerHTML=(key?'<kbd>'+key+'</kbd>':'')+esc(txt);h.classList.add('on');}else h.classList.remove('on');}
-  $('#tAct').classList.toggle('on',!!fn);}
+  ACT=fn;hintKey=key;const h=$('#hint'),s=key+'|'+txt;if(s!==lastHint){lastHint=s;if(txt){h.innerHTML=(key?'<kbd>'+key+'</kbd>':'')+esc(txt);h.classList.add('on');h.classList.toggle('tap',!!key);}else h.classList.remove('on');}
+  if(!fn&&nearShop&&!PAUSED)lab='KIRISH';const on=!!fn||(!!nearShop&&!WANT.lvl),ta=$('#tAct');ta.classList.toggle('on',on);if(on&&lab!==actLab){actLab=lab;ta.textContent=lab;}}
+$('#hint').addEventListener('click',()=>{if(PAUSED)return;if(hintKey==='F')toggleVehicle();else if(hintKey==='E')interact();});
 function interact(){if(PAUSED)return;if(ACT)ACT();else if(nearShop)V2.enterShop();}
 function touchAction(a){if(a==='enter')toggleVehicle();else if(a==='jump')HERO.jumpReq=true;else if(a==='punch')punch();else if(a==='act')interact();}
 
@@ -684,6 +686,8 @@ const APPS=[
   ['hero','Qahramon','#b45a3c','<path d="M8 3 3 6l2 4 2-1v12h10V9l2 1 2-4-5-3c-1 2-2 3-4 3S9 5 8 3z"/>'],
   ['camera','Kamera','#374151','<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l2-3h4l2 3"/>'],
   ['weather','Ob-havo','#2563eb','<circle cx="8" cy="8" r="3"/><path d="M8 20h9a4 4 0 0 0 0-8 5 5 0 0 0-9 1 3.5 3.5 0 0 0 0 7z"/>'],
+  ['bonus','Bonus','linear-gradient(45deg,#f09433,#dc2743 50%,#bc1888)','<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>'],
+  ['shop','Avtosalon','#0e7490','<path d="M5 17h14l-1.5-6h-11zM7 11l1.5-4h7L17 11M7 17v2M17 17v2"/>'],
   ['garage','Garaj','#475569','<path d="M3 15l2-6h14l2 6v4H3zM7 19v2M17 19v2M6.5 15h.01M17.5 15h.01"/>'],
   ['settings','Sozlamalar','#4b5563','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>'],
   ['debug','Debug','#7f1d1d','<path d="M8 8h8v10H8zM12 4v4M4 12h4M16 12h4"/>']];
@@ -694,7 +698,7 @@ const swRow=(arr,cur,key)=>`<div class="ph-sw">${arr.map((c,i)=>`<button class="
 function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').textContent=WEATHERS[WX.cur].n+' · '+(S.unlimited?'∞':fmt(S.money));
   const back=t=>`<div class="ph-title"><button class="ph-back" data-act="home" aria-label="Orqaga">‹</button>${t}</div>`;let h='';
   switch(phApp){
-  case 'home':{const un=S.msgs.filter(m=>!m.r).length;h=`<div class="ph-home">`+APPS.filter(a=>a[0]!=='debug'||DEBUG).map(a=>`<button class="app" data-act="app:${a[0]}"><i style="background:${a[2]}">${SVGI(a[3])}</i>${a[1]}${a[0]==='msgs'&&un?`<em>${un}</em>`:''}</button>`).join('')+`</div>`;
+  case 'home':{const un=S.msgs.filter(m=>!m.r).length;h=`<div class="ph-home">`+APPS.filter(a=>a[0]!=='debug'||DEBUG).map(a=>`<button class="app" data-act="app:${a[0]}"><i style="background:${a[2]}">${SVGI(a[3])}</i>${a[1]}${a[0]==='msgs'&&un?`<em>${un}</em>`:a[0]==='bonus'&&!INSTA.got()?'<em>!</em>':''}</button>`).join('')+`</div>`;
     h+=`<div class="ph-card" style="margin-top:8px"><div class="meta2">Hikoya</div><p>${S.story>=STORY.length?'1-bob yakunlandi. Davomi kutilmoqda!':esc(STORY[S.story].title)+' — '+esc(STORY[S.story].giver)}</p></div>`;break;}
   case 'missions':{h=back('Missiyalar');
     if(MS.cur)h+=`<div class="ph-card cur"><div class="meta2">Joriy</div><h4>${esc(MS.cur.title)}</h4><p>${esc(MS.txt)}</p><button class="btn danger" data-act="mcancel">Bekor qilish</button></div>`;
@@ -720,7 +724,10 @@ function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').text
     h+=PHOTOS.length?`<div class="ph-gal">${PHOTOS.map((u,i)=>`<a href="${u}" download="toshkent-surat-${i+1}.jpg" title="Yuklab olish"><img src="${u}" alt="Surat ${i+1}"></a>`).join('')}</div>`:'<p class="stat-line">Galereya boʻsh.</p>';break;}
   case 'weather':{const busy=MS.cur||WANT.lvl;h=back('Ob-havo')+`<div class="ph-card"><div class="meta2">Hozir</div><h4 style="font-size:28px">${clockStr(W.tod)}</h4><p>${SEASON_NAME[W.season]} · ${WEATHERS[WX.cur].n} · yoʻl ilashuvi ${Math.round(ENV.grip*100)}%${ENV.wet>.2?' · yoʻllar hoʻl':''}</p></div>
       <div class="ph-card"><div class="meta2">Vaqtni oʻtkazish</div><div class="ph-opt">${[8,13,19,22].map(t=>`<button class="chip" data-act="wait:${t}"${busy?' disabled':''}>${t}:00</button>`).join('')}</div>${busy?'<p>Missiya yoki qidiruv paytida mumkin emas.</p>':''}</div>`;break;}
-  case 'settings':{const s=S.sub;h=back('Sozlamalar')+`<div class="ph-card"><div class="ph-row"><span>Ovoz</span>${chip(S.sound,'set:sound',S.sound?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Cheksiz pul</span>${chip(S.unlimited,'set:unl',S.unlimited?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Mini-xarita aylansin</span>${chip(!!S.miniRot,'set:rot',S.miniRot?'Ha':'Yoʻq')}</div></div>
+  case 'bonus':{const got=INSTA.got();h=back('Bonus')+`<div class="ph-card ig-card"><div class="meta2">Instagram bonusi</div><h4>${fmt(INSTA.SUM)}</h4><p>Instagram sahifamiz <b>@${INSTA.USER}</b> ga obuna boʻling va oʻyin hisobingizga bir martalik bonus oling.</p>`+
+      (got?'<p style="color:var(--green);font-weight:700">Bonus olingan. Obuna uchun rahmat!</p>':INSTA.ready()?`<button class="btn" data-act="ig:claim">${fmt(INSTA.SUM)} bonusni olish</button>`:`<button class="btn ig-btn" data-act="ig:open">Instagramda obuna boʻlish</button>${INSTA.opened?'<p class="stat-line">Obuna boʻlgach, oʻyinga qayting.</p>':''}`)+
+      `</div><p class="stat-line">Bonus har bir qurilmada bir marta beriladi.</p>`;break;}
+  case 'settings':{const s=S.sub;h=back('Sozlamalar')+`<div class="ph-card"><div class="ph-row"><span>Ovoz</span>${chip(S.sound,'set:sound',S.sound?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Cheksiz pul</span>${chip(S.unlimited,'set:unl',S.unlimited?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Mini-xarita aylansin</span>${chip(!!S.miniRot,'set:rot',S.miniRot?'Ha':'Yoʻq')}</div><div class="ph-row"><span>Sensor tugmalar</span><div class="ph-opt">${[['auto','Avto'],['on','Ha'],['off','Yoʻq']].map(([v,n])=>chip(touchPref()===v,'touch:'+v,n)).join('')}</div></div></div>
       <div class="ph-card"><div class="meta2">Subtitrlar</div><div class="ph-row"><span>Holat</span>${chip(s.on,'set:sub',s.on?'Yoqilgan':'Oʻchiq')}</div>
         <div class="ph-row"><span>Shrift</span><div class="ph-opt">${[[.85,'S'],[1,'M'],[1.2,'L'],[1.4,'XL']].map(([v,n])=>chip(s.size===v,'set:size:'+v,n)).join('')}</div></div>
         <div class="ph-row"><span>Fon</span><div class="ph-opt">${[[0,'0%'],[.35,'35%'],[.6,'60%'],[.85,'85%']].map(([v,n])=>chip(s.bg===v,'set:bg:'+v,n)).join('')}</div></div>
@@ -734,11 +741,14 @@ function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').text
       <div class="ph-card"><div class="ph-opt">${chip(false,'dbg:money','+$10 000')}${chip(GOD,'dbg:god','Oʻlmaslik')}${chip(false,'dbg:skip','Qadamni oʻtkazish')}${chip(false,'dbg:story','Hikoyani nolga')}${chip(false,'dbg:npc','NPC chaqirish')}${chip(false,'dbg:evt','Hodisa')}</div></div>`;break;}
   }
   $('#phBody').innerHTML=h;}
+$('#phX').addEventListener('click',()=>closePhone());
 $('#phHome').addEventListener('click',()=>{if(phApp==='home')closePhone();else{phApp='home';renderPhone();}});
 $('#phBody').addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const [a,x,y]=b.dataset.act.split(':');
   switch(a){
     case 'home':phApp='home';break;
-    case 'app':if(x==='map'){openMap();return;}if(x==='garage'){closePhone();openStage('garage');return;}phApp=x;break;
+    case 'app':if(x==='map'){openMap();return;}if(x==='garage'||x==='shop'){closePhone();openStage(x);return;}phApp=x;break;
+    case 'ig':if(x==='open')INSTA.open();else INSTA.claim();break;
+    case 'touch':setTouchPref(x);break;
     case 'mcancel':failMission('Bekor qilindi');break;
     case 'sgps':{const m=storyMarker();if(m){GPS.wp={x:m.x,z:m.z};toast('GPS oʻrnatildi','gold');closePhone();}return;}
     case 'wait':if(MS.cur||WANT.lvl)return;closePhone();bigScreen('VAQT OʻTMOQDA',x+':00 gacha',()=>skipTo(+x),'#eaf3f3');return;
@@ -812,6 +822,25 @@ $('#mvClr').addEventListener('click',()=>{GPS.wp=null;GPS.t=0;updateGPS(1);drawM
 $('#mvClose').addEventListener('click',closeMap);
 addEventListener('resize',()=>{if(mapOpen){sizeMap();drawMap();}});
 
+/* ================= Instagram follow bonus (once per device) and touch-control preference ================= */
+// Instagram gives no way to check a follow from a web page, so the bonus unlocks after the player has opened the profile
+// and come back; it is remembered per device (localStorage) and per save.
+const INSTA={USER:'azamowc',SUM:50000,K:'toshkent-drive-ig-bonus',opened:false,t:0,
+  got(){let d=false;try{d=localStorage.getItem(INSTA.K)==='1';}catch(e){}return d||!!S.igBonus;},
+  ready(){return INSTA.opened&&Date.now()-INSTA.t>5000;},
+  open(){INSTA.opened=true;INSTA.t=Date.now();try{window.open('https://www.instagram.com/'+INSTA.USER+'/','_blank','noopener');}catch(e){}
+    syncIG();setTimeout(()=>{syncIG();if(phoneOpen&&phApp==='bonus')renderPhone();},5200);},
+  claim(){if(INSTA.got())return;if(!INSTA.ready()){toast('Avval Instagramda obuna boʻling','bad');return;}
+    earn(INSTA.SUM);S.igBonus=true;try{localStorage.setItem(INSTA.K,'1');}catch(e){}persist();updMoney();syncIG();menuStatLine();
+    toast('Instagram bonusi: +'+fmt(INSTA.SUM)+' · Obuna uchun rahmat!','gold');}};
+function syncIG(){const b=$('#igBanner');if(!b)return;const got=INSTA.got();b.hidden=got;if(got)return;
+  b.classList.toggle('ready',INSTA.ready());$('#igBtnT').textContent=INSTA.ready()?'Bonusni olish':'Obuna boʻlish';}
+$('#igBanner').addEventListener('click',()=>{if(INSTA.ready())INSTA.claim();else INSTA.open();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden||!INSTA.opened)return;setTimeout(()=>{syncIG();if(phoneOpen&&phApp==='bonus')renderPhone();},Math.max(0,5100-(Date.now()-INSTA.t)));});
+syncIG();
+function touchPref(){try{return localStorage.getItem('td-touch')||'auto';}catch(e){return 'auto';}}
+function setTouchPref(v){try{localStorage.setItem('td-touch',v);}catch(e){}document.body.classList.toggle('mob',window.__tdTouch(v));resize();toast(TOUCHUI()?'Sensor tugmalar yoqildi':'Sensor tugmalar oʻchirildi');}
+
 /* ================= SAVE SLOTS & GAME FLOW ================= */
 const slotKey=n=>KEY+'-slot'+n;
 function slotMeta(n){try{const d=JSON.parse(localStorage.getItem(slotKey(n))||'null');return d?{story:d.story|0,when:d.savedAt||0}:null;}catch(e){return null;}}
@@ -822,6 +851,7 @@ addEventListener('pagehide',()=>{if(mode==='drive'||mode==='foot')persist();});
 function showGameUI(){$('#touch').style.visibility='visible';$('#menu').hidden=true;$('#stageUI').hidden=true;$('#hud').hidden=false;canvas.focus();updMoney();}
 function startFoot(){initAudio();if(A&&A.ac.state==='suspended')A.ac.resume();mode='foot';document.body.classList.add('foot');HERO.mesh.visible=true;showGameUI();}
 function startGame(){if(S.onFoot){HERO.y=groundAt(HERO.x,HERO.z);FC.yaw=HERO.h+Math.PI;startFoot();}else startDrive();
+  if(!INSTA.got()&&!INSTA.nag){INSTA.nag=1;setTimeout(()=>{if(!INSTA.got())toast('Telefon → Bonus: Instagramga obuna boʻling va '+fmt(INSTA.SUM)+' oling','gold');},9000);}
   if(!S.played){S.played=1;setTimeout(()=>addMsg('Botir aka','Assalomu alaykum, Sardor! Toshkentga xush kelibsan. Chorsu bozori yonidagi ustaxonamga kel — senga ish bor. (Xaritada S belgisi)'),2500);}persist();}
 let newArm=false;
 $('#newGame').addEventListener('click',()=>{const b=$('#newGame');if(!newArm){newArm=true;b.textContent='Tasdiqlang: hammasi oʻchadi';setTimeout(()=>{newArm=false;b.textContent='Yangi oʻyin';},3500);return;}
@@ -829,7 +859,8 @@ $('#newGame').addEventListener('click',()=>{const b=$('#newGame');if(!newArm){ne
 $('#loadGame').addEventListener('click',()=>{const r=$('#slotRow');r.hidden=!r.hidden;if(r.hidden)return;
   r.innerHTML='<span class="stat-line">Slotlar:</span>'+[1,2,3].map(n=>{const m=slotMeta(n);return `<button class="chip" data-slot="${n}"${m?'':' disabled'}>${n}: ${m?'hikoya '+m.story+'/5':'boʻsh'}</button>`;}).join('');});
 $('#slotRow').addEventListener('click',e=>{const b=e.target.closest('[data-slot]');if(b&&!b.disabled)loadSlot(+b.dataset.slot);});
-$('#menuStat').innerHTML=`Hikoya: <b>${Math.min(S.story,STORY.length)}/${STORY.length}</b> · Hisob: <b>${S.unlimited?'∞ cheksiz':fmt(S.money)}</b> · Garajda: <b>${S.owned.length}</b> ta mashina · Vaqt: <b>${clockStr(W.tod)}</b>`;
+function menuStatLine(){$('#menuStat').innerHTML=`Hikoya: <b>${Math.min(S.story,STORY.length)}/${STORY.length}</b> · Hisob: <b>${S.unlimited?'∞ cheksiz':fmt(S.money)}</b> · Garajda: <b>${S.owned.length}</b> ta mashina · Vaqt: <b>${clockStr(W.tod)}</b>`;}
+menuStatLine();
 if(S.pos){P.x=S.pos.x;P.z=S.pos.z;P.h=S.pos.h;}
 if(S.hpos){HERO.x=S.hpos.x;HERO.z=S.hpos.z;HERO.h=S.hpos.h;}else{HERO.x=P.x-3;HERO.z=P.z;}
 HERO.y=groundAt(HERO.x,HERO.z);HERO.hp=S.hp;

@@ -9,6 +9,8 @@ Toshkent ko'chalarida 3D haydash o'yini (brauzerda ishlaydi, Three.js).
 - Ochiq dunyo: piyoda qahramon, politsiya va 1–5 yulduzli qidiruv, ob-havo, 5 ta hikoya missiyasi va 10 ta qo'shimcha ish, telefon, xarita va GPS (pastda batafsil)
 - Do'konlar, yo'laklarda yuruvchi odamlar, ko'cha harakati
 - Telefon (gorizontal, sensorli boshqaruv) va kompyuter uchun alohida grafika: Telefon / Kompyuter / Ultra
+- Telefonga ilova sifatida oʻrnatiladi (PWA): toʻliq ekran, gorizontal, ikkinchi ochilishda tez va internetsiz ishlaydi
+- Instagram bonusi: [@azamowc](https://instagram.com/azamowc) ga obuna boʻlgan oʻyinchiga bir martalik $50,000
 
 ## Ishga tushirish
 
@@ -17,6 +19,16 @@ GitHub Pages: **Settings → Pages → Branch: `main` / root → Save**. Bir nec
 
 Kompyuterda: papkada `npx serve` yoki `python -m http.server` ishga tushirib, brauzerda oching
 (`index.html` ni to'g'ridan-to'g'ri ikki marta bosib ochsangiz 3D modellar yuklanmaydi).
+
+Netlify: repozitoriy ildizidagi `netlify.toml` tayyor — Netlify'da **Add new project → Import from GitHub → shu repo** tanlansa,
+hech narsa sozlamasdan `toshkent-drive/` papkasi chiqariladi va har bir `git push` dan keyin sayt oʻzi yangilanadi.
+
+### Telefonga ilova qilib oʻrnatish
+
+- **Android (Chrome):** menyuda «Ilovani oʻrnatish» tugmasi chiqadi (yoki Chrome menyusi → «Ilovani oʻrnatish»).
+- **iPhone (Safari):** «Ulashish» → «Bosh ekranga qoʻshish».
+
+Oʻrnatilgan ilova toʻliq ekranda va gorizontal ochiladi; bir marta yuklangan modellar telefonda saqlanadi.
 
 ## Boshqaruv
 
@@ -32,6 +44,11 @@ Kompyuterda: papkada `npx serve` yoki `python -m http.server` ishga tushirib, br
 | P yoki Esc · M | telefon (pauza) · xarita | xuddi shunday |
 | T · C · H · K · N · R | taksi · kamera · signal · surat · vaqt · yo'lga qaytarish | K — surat |
 | B · G | avtosalon · garaj | xuddi shunday |
+
+**Telefonda:** mashinada chapda ◀ ▶ (rul) va «TUSHISH», oʻngda GAZ, TORMOZ, DRIFT, NITRO; piyodada chapda joystik, oʻngda
+SAKRASH, YUGURISH, MUSHT, MASHINA. Doʻkon, missiya, suhbat yonida sariq tugma chiqadi («KIRISH», «MISSIYA», «SALOM»…);
+tepadagi yozuvni bosish ham ishlaydi. Tepada: telefon, xarita, taksi, kamera, ovoz. Barmoq bilan surish — kamerani aylantirish.
+Sensor tugmalarni majburan yoqish/oʻchirish: Telefon → Sozlamalar → «Sensor tugmalar».
 
 ## 3D modellar va litsenziyalar
 
@@ -184,6 +201,10 @@ node tools/v2/world/build.js v2.html index.html tools/artifact-version.html
 
 1-qadam — 1-versiya asosi + v2 yamoqlari, 2-qadam — ochiq dunyo qatlami. `tools/v2/world/` ichida: `build.js` (yamoqlar; har biri aniq
 bir marta mos kelishi shart, aks holda yigʻish toʻxtaydi), `world.js` (tizimlar), `world.css`, `save.js` (saqlashni tekshirish),
-`input.js` (klaviatura va sensor), `minimap.js`.
+`input.js` (klaviatura va sensor), `minimap.js`, `mobile.css` (telefon interfeysi), `sw.template.js` (oflayn ishlash;
+yigʻishda `sw.js` versiyasi bilan yoziladi). `manifest.webmanifest` va `icons/` — ilova sifatida oʻrnatish uchun.
+
+Instagram bonusi: Instagram veb-sahifaga obunani tekshirish imkonini bermaydi, shuning uchun bonus oʻyinchi profilni ochib
+oʻyinga qaytgach beriladi va har bir qurilmada bir marta. Hisob nomi va summa `world.js` dagi `INSTA` obyektida.
 
 Instagram: [@azamowc](https://instagram.com/azamowc) · Telegram: [@azamowic](https://t.me/azamowic)

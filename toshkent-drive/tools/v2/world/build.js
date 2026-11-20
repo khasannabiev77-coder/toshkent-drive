@@ -183,6 +183,70 @@ rep("+Math.abs(tp)+'°';}", "+Math.abs(tp)+'°'+(window.__TD_WORLD?' · '+WEATHE
 /* ---------------- the open-world systems and the new frame loop replace the v2 tail ---------------- */
 span('V2.init();setPlayerCar();\nP.mesh.position.set(P.x,0,P.z);P.mesh.rotation.y=P.h;', '})();\n</script>', read('world.js'));
 
+/* ---------------- touch devices, installable app (PWA), Instagram bonus ---------------- */
+rep('</style>', read('mobile.css') + '</style>');
+// decide the touch layout before first paint; Settings → "Sensor tugmalar" can force it on/off
+rep('<body>\n', `<body>
+<script>(function(){function mm(q){try{return matchMedia(q).matches}catch(e){return false}}
+window.__tdTouch=function(p){if(p==='on')return true;if(p==='off')return false;var t=navigator.maxTouchPoints>0||'ontouchstart' in window;
+  return mm('(pointer:coarse)')||(t&&!mm('(any-pointer:fine)'))||(t&&/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));};
+var p='auto';try{p=localStorage.getItem('td-touch')||'auto'}catch(e){}if(window.__tdTouch(p))document.body.classList.add('mob');
+window.TOUCHUI=function(){return document.body.classList.contains('mob')};})();</script>
+`);
+rep('<title>Toshkent Drive</title>\n', `<title>Toshkent Drive</title>
+<meta name="theme-color" content="#071015">
+<meta name="description" content="Toshkent Drive — Toshkent koʻchalarida ochiq dunyo: piyoda yuring, mashina haydang, missiyalar, politsiya, kun-tun va ob-havo.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Toshkent Drive">
+`);
+// the phone layout follows body.mob instead of the (pointer:coarse) media query, which some phones and in-app browsers misreport
+{ const i = s.indexOf('<style>'), j = s.indexOf('</style>'); let css = s.slice(i, j), out = '', k = 0, n = 0;
+  const pre = sel => sel.split(',').map(x => { x = x.trim(); return x.startsWith('body') ? 'body.mob' + x.slice(4) : 'body.mob ' + x; }).join(',');
+  for (;;) { const a = css.indexOf('@media (pointer:coarse){', k); if (a < 0) break; let d = 0, b = a + 23;
+    for (; b < css.length; b++) { if (css[b] === '{') d++; else if (css[b] === '}' && --d === 0) break; }
+    const inner = css.slice(a + 24, b).replace(/([^{}]+)\{([^{}]*)\}/g, (m0, sel, decl) => '\n' + pre(sel) + '{' + decl + '}');
+    out += css.slice(k, a) + inner + '\n'; k = b + 1; n++; }
+  if (n < 3) throw new Error('coarse media blocks: ' + n);
+  s = s.slice(0, i) + out + css.slice(k) + s.slice(j); }
+s = s.split("matchMedia('(pointer:coarse)').matches").join('TOUCHUI()');
+rep("bs.setProperty('--W',w+'px');", "document.body.classList.toggle('short',h<380);document.body.classList.toggle('tiny',h<330);bs.setProperty('--W',w+'px');");
+// phones: cap the render resolution and react sooner to dropped frames
+rep('Math.min(dp,3,Math.max(1.5,1080/short))', 'Math.min(dp,2,Math.max(1.25,760/short))');
+rep('if(fps<27)nd=Math.max(.55,dyn-.12);else if(fps>52&&dyn<1)nd=Math.min(1,dyn+.06);', 'if(fps<(TOUCHUI()?40:27))nd=Math.max(.5,dyn-.12);else if(fps>55&&dyn<1)nd=Math.min(1,dyn+.05);');
+// icon buttons in the compact top bar
+{ const IC = { bPhone: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
+    bMap: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>',
+    bTaxi: '<path d="M5 16h14l-1.5-5.5h-11zM7 10.5 8.5 7h7l1.5 3.5M7 16v2.5M17 16v2.5M10 4.5h4"/>',
+    bCam: '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    bSound: '<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>' };
+  for (const id in IC) { const re = new RegExp('<button class="hbtn" id="' + id + '">([^<]+?)( <kbd>[^<]*</kbd>)?</button>'); const m = s.match(re); if (!m) throw new Error('hbtn ' + id);
+    const t = m[1].trim(); s = s.replace(re, () => `<button class="hbtn" id="${id}" aria-label="${t}"><svg class="hi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[id]}</svg><span class="hl">${t}</span>${m[2] || ''}</button>`); } }
+rep('<div class="tb" id="tExit" data-a="enter">CHIQISH</div>', '<div class="tb" id="tExit" data-a="enter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/></svg>TUSHISH</div>');
+rep('<div class="tb" id="tAct" data-a="act">E</div>', '<div class="tb" id="tAct" data-a="act">OK</div>');
+rep('<button class="ph-home-btn" id="phHome"', '<button class="ph-x" id="phX" aria-label="Telefonni yopish">✕</button><button class="ph-home-btn" id="phHome"');
+rep('    <div class="row" id="slotRow" style="gap:6px" hidden></div>\n', `    <div class="row" id="slotRow" style="gap:6px" hidden></div>
+    <button class="ig-banner" id="igBanner" hidden><i class="igi"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg></i><span>Instagramda <b style="all:unset;font-weight:700">@azamowc</b> ga obuna boʻling — <em>$50,000</em> bonus</span><b id="igBtnT">Obuna boʻlish</b></button>
+    <div class="row" id="installRow" hidden><button class="btn ghost" id="installBtn">Ilovani oʻrnatish</button><span class="stat-line" id="installHint"></span></div>
+`);
+// service worker (offline play, faster second start) and the install button
+rep('</body>', `<script>
+(function(){var row=document.getElementById('installRow'),btn=document.getElementById('installBtn'),hint=document.getElementById('installHint'),ev=null;
+  var standalone=matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone;
+  if('serviceWorker' in navigator&&location.protocol!=='file:'&&!window.__TD_TEST)addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+  addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;if(!standalone){row.hidden=false;hint.textContent='';}});
+  addEventListener('appinstalled',function(){row.hidden=true;});
+  if(!standalone&&/iPhone|iPad|iPod/.test(navigator.userAgent)){row.hidden=false;btn.hidden=true;hint.textContent='Ilova qilish: Safari → «Ulashish» → «Bosh ekranga qoʻshish»';}
+  btn.addEventListener('click',function(){if(!ev)return;ev.prompt();ev.userChoice.then(function(){ev=null;row.hidden=true;});});})();
+</script>
+</body>`);
+
 fs.writeFileSync(dst, s);
 if (copy) fs.writeFileSync(copy, s);
+// the service worker next to the page, versioned by the page content so phones pick up each new build
+{ const ver = require('crypto').createHash('sha1').update(s).digest('hex').slice(0, 10);
+  fs.writeFileSync(path.join(path.dirname(dst), 'sw.js'), read('sw.template.js').replace('__VER__', ver)); }
 console.log('built', dst, s.length);

@@ -1,0 +1,126 @@
+
+/* ================= Touch devices =================
+   body.mob — set before first paint by a tiny detector (touch screen without a fine pointer, or the player's choice in Settings).
+   body.lp  — touch device in landscape (a portrait phone is shown rotated, body.rot), the usual phone layout.
+   body.short / body.tiny — viewport height under 380 / 330 px. Every rule here is scoped, so desktop is unchanged. */
+.hbtn .hi{display:none;width:19px;height:19px;flex:none}
+#phX{display:none}
+.ig-banner{display:flex;align-items:center;gap:12px;padding:9px 10px 9px 12px;border-radius:12px;cursor:pointer;text-align:left;max-width:520px;
+  background:linear-gradient(100deg,rgba(240,148,51,.16),rgba(220,39,67,.16) 55%,rgba(188,24,136,.18));border:1px solid rgba(220,39,67,.45);color:var(--fg)}
+.ig-banner[hidden]{display:none}
+.ig-banner .igi{width:36px;height:36px;border-radius:10px;flex:none;display:grid;place-items:center;background:linear-gradient(45deg,#f09433,#dc2743 50%,#bc1888)}
+.ig-banner .igi svg{width:21px;height:21px}
+.ig-banner span{flex:1;font-size:13.5px;line-height:1.35}
+.ig-banner span em{font-style:normal;font-family:var(--f-display);font-weight:700;color:var(--gold)}
+.ig-banner b{flex:none;padding:7px 12px;border-radius:9px;background:#fff;color:#16252c;font-family:var(--f-display);font-size:13px;white-space:nowrap}
+.ig-banner.ready b{background:var(--gold)}
+.ig-card{border-color:rgba(220,39,67,.45)!important}
+.ig-card h4{font-family:var(--f-display);font-size:30px;color:var(--gold)}
+.btn.ig-btn{background:linear-gradient(45deg,#f09433,#dc2743 50%,#bc1888);color:#fff;border-color:transparent}
+#installBtn[hidden]{display:none}
+
+body.mob #touch{display:block}
+body.mob .hbtn kbd,body.mob #hint kbd,body.mob #prompt kbd{display:none}
+body.mob #hint.tap{pointer-events:auto;cursor:pointer;border-color:var(--accent)}
+body.mob #phX{display:grid;place-items:center;position:absolute;top:8px;left:-54px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line-strong);background:var(--panel-solid);color:var(--fg);font-size:20px;line-height:1;cursor:pointer;padding:0}
+body.mob .tb{-webkit-user-select:none;user-select:none;letter-spacing:.02em;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+body.mob .tb.on{transform:scale(.94)}
+body.mob #tAct{background:rgba(240,184,62,.88);color:#1a1405;border-color:rgba(255,220,140,.9);font-size:12px}
+
+/* ---- compact HUD ---- */
+body.lp #tl{width:212px;gap:4px;top:calc(6px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px))}
+body.lp .card{border-radius:8px}
+body.lp .money{font-size:16px;padding:3px 9px;gap:6px}
+body.lp .money small{display:none}
+body.lp #hp{padding:4px 9px;font-size:9.5px;gap:7px}
+body.lp #hp i{height:5px}
+body.lp .loc{display:none}
+body.lp #envChip{padding:3px 9px;font-size:10.5px;letter-spacing:.02em}
+body.lp #taxi{padding:5px 8px;gap:8px}
+body.lp #taxi:not(.on){display:none}
+body.lp #taxi .ico{width:24px;height:24px;border-radius:6px}
+body.lp #taxi .ico svg{width:15px;height:15px}
+body.lp #taxi .t1{font-size:11.5px}
+body.lp #taxi .t2{font-size:10.5px}
+body.lp #obj{padding:5px 9px;gap:1px}
+body.lp #obj .ot{font-size:9px;letter-spacing:.1em}
+body.lp #obj .ox{font-size:11.5px;line-height:1.3}
+body.lp #obj .oz{font-size:10.5px}
+body.lp #buffs{gap:4px}
+body.lp #buffs span{padding:2px 7px;font-size:10px}
+body.lp #tr{top:calc(6px + env(safe-area-inset-top,0px));right:calc(8px + env(safe-area-inset-right,0px));padding:3px}
+body.lp #mini{width:92px;height:92px}
+body.lp #br{top:calc(6px + env(safe-area-inset-top,0px));right:calc(110px + env(safe-area-inset-right,0px));bottom:auto}
+body.lp #speedo{width:84px;height:84px}
+body.lp #stars{top:calc(108px + env(safe-area-inset-top,0px));right:calc(8px + env(safe-area-inset-right,0px));padding:2px 6px;gap:2px}
+body.lp #stars svg{width:13px;height:13px}
+body.lp.foot #br{display:none}
+
+/* top bar: icon buttons between the left panel and the map */
+body.lp #actions{top:calc(6px + env(safe-area-inset-top,0px));bottom:auto;left:calc(230px + env(safe-area-inset-left,0px));right:calc(202px + env(safe-area-inset-right,0px));
+  max-width:none;flex-direction:row;flex-wrap:nowrap;justify-content:center;gap:6px;overflow:visible}
+body.lp.foot #actions{right:calc(112px + env(safe-area-inset-right,0px))}
+body.lp .hbtn{width:38px;height:38px;padding:0;justify-content:center;border-radius:11px;flex:none;gap:0}
+body.lp .hbtn .hi{display:block}
+body.lp .hbtn .hl{display:none}
+body.lp #bTime,body.lp #bSeason,body.lp #bGfx,body.lp #bGarage,body.lp #bShop{display:none}
+
+/* prompts: under the top bar, centred; tap to act */
+body.lp #hint{top:calc(52px + env(safe-area-inset-top,0px));bottom:auto;font-size:12.5px;padding:6px 13px;max-width:calc(var(--W) - 450px);text-align:center;white-space:normal;line-height:1.3}
+body.lp #prompt{top:calc(94px + env(safe-area-inset-top,0px));bottom:auto;font-size:12.5px;padding:7px 13px;max-width:calc(var(--W) - 450px);white-space:normal;line-height:1.3}
+body.lp #subs{bottom:calc(8px + env(safe-area-inset-bottom,0px));max-width:min(560px,calc(var(--W) - 400px))}
+body.lp #subs div{font-size:calc(12.5px * var(--subsz,1));padding:5px 10px;line-height:1.4}
+body.lp #toasts{top:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px));width:min(380px,calc(var(--W) - 420px))}
+body.lp .toast{font-size:12px;padding:6px 11px}
+
+/* ---- touch controls ---- */
+body.lp #touch{height:100%;inset:0}
+body.lp .tb{width:62px;height:62px;font-size:10.5px;background:rgba(8,16,21,.52)}
+/* driving: steering on the left thumb, pedals on the right */
+body.lp #tLeft{left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:70px;height:70px;font-size:20px}
+body.lp #tRight{left:calc(96px + env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:70px;height:70px;font-size:20px}
+body.lp #tGas{right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:84px;height:84px;font-size:13px;background:rgba(31,193,196,.26)}
+body.lp #tBrake{right:calc(108px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));width:68px;height:68px}
+body.lp #tHb{right:calc(110px + env(safe-area-inset-right,0px));bottom:calc(90px + env(safe-area-inset-bottom,0px));width:56px;height:56px;font-size:10px}
+body.lp #tNitro{right:calc(28px + env(safe-area-inset-right,0px));bottom:calc(108px + env(safe-area-inset-bottom,0px));width:56px;height:56px;font-size:10px;background:rgba(240,184,62,.28)}
+body.lp #tExit{left:calc(22px + env(safe-area-inset-left,0px));right:auto;bottom:calc(100px + env(safe-area-inset-bottom,0px));width:auto;height:40px;padding:0 13px;border-radius:12px;font-size:11px;display:flex;align-items:center;gap:6px}
+body.lp #tExit svg{width:17px;height:17px}
+/* on foot: joystick on the left, actions on the right */
+body.lp #joy{left:calc(20px + env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:122px;height:122px}
+body.lp #joyK{width:50px;height:50px;margin:-25px 0 0 -25px}
+body.lp #tJump{right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:72px;height:72px}
+body.lp #tRun{right:calc(98px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));width:64px;height:64px}
+body.lp #tPunch{right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(98px + env(safe-area-inset-bottom,0px));width:58px;height:58px;font-size:10px}
+body.lp #tEnter{right:calc(102px + env(safe-area-inset-right,0px));bottom:calc(88px + env(safe-area-inset-bottom,0px));width:58px;height:58px;font-size:10px}
+body.lp #tAct{right:calc(176px + env(safe-area-inset-right,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));width:66px;height:66px;font-size:11px}
+body.lp:not(.foot) #tAct{right:calc(184px + env(safe-area-inset-right,0px));bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+/* short screens (most phones with browser bars) */
+body.lp.short #touch{zoom:.9}
+body.lp.tiny #touch{zoom:.8}
+body.lp.tiny #obj .oz,body.lp.tiny #buffs{display:none}
+body.lp.tiny #mini{width:80px;height:80px}
+body.lp.tiny #br{right:calc(98px + env(safe-area-inset-right,0px))}
+body.lp.tiny #speedo{width:76px;height:76px}
+body.lp.tiny #stars{top:calc(94px + env(safe-area-inset-top,0px))}
+
+/* ---- phone, map, menu ---- */
+body.lp #phone{top:calc(8px + env(safe-area-inset-top,0px));height:calc(var(--H) - 16px);max-height:none;width:min(340px,calc(var(--W) - 140px));border-radius:26px;padding:8px}
+body.lp .ph-screen{border-radius:19px}
+body.lp .ph-home-btn{margin-top:6px}
+body.lp #menu{padding-block:10px}
+body.lp .menu-in{gap:9px;max-width:560px}
+body.lp .lead{font-size:12.5px;line-height:1.45;max-width:56ch}
+body.lp .ig-banner{padding:6px 8px 6px 10px;gap:9px}
+body.lp .ig-banner .igi{width:30px;height:30px}
+body.lp .ig-banner span{font-size:12px}
+body.lp .ig-banner b{padding:6px 10px;font-size:12px}
+body.lp #menu .btn{padding:10px 16px;font-size:14px}
+body.lp #menu .chip{padding:5px 10px;font-size:11.5px}
+body.lp.short .lead{display:none}
+body.lp.short #credits{display:none}
+body.lp .mv-top{flex-wrap:nowrap;overflow-x:auto;gap:6px;scrollbar-width:none}
+body.lp .mv-top .btn{padding:7px 11px;font-size:12.5px;flex:none}
+body.lp .mv-top .stat-line{display:none}
+body.lp #mvInfo{width:220px}
+#installRow[hidden]{display:none}
+body:has(#phone.on) #touch,body:has(#mapv.on) #touch{visibility:hidden!important}

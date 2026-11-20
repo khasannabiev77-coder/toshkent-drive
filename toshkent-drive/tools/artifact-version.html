@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Toshkent Drive</title>
+<meta name="theme-color" content="#071015">
+<meta name="description" content="Toshkent Drive — Toshkent koʻchalarida ochiq dunyo: piyoda yuring, mashina haydang, missiyalar, politsiya, kun-tun va ob-havo.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Toshkent Drive">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23071015'/%3E%3Cpath d='M16 5l8 20-8-5-8 5z' fill='%23f0b83e'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,20 +59,21 @@ button{font:inherit;color:inherit}
 .toast.good{color:var(--green);border-color:rgba(79,209,139,.45)}
 @keyframes tin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 #touch{display:none}
-@media (pointer:coarse){
-  #touch{display:block;position:fixed;inset:auto 0 0 0;z-index:6;pointer-events:none;height:170px}
-  .tb{position:absolute;pointer-events:auto;width:76px;height:76px;border-radius:50%;background:rgba(8,16,21,.55);border:1px solid var(--line-strong);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:13px;color:var(--fg);touch-action:none}
-  .tb.on{background:rgba(31,193,196,.35)}
-  #tLeft{left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px))}
-  #tRight{left:calc(104px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px))}
-  #tGas{right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(60px + env(safe-area-inset-bottom,0px));width:84px;height:84px;background:rgba(31,193,196,.22)}
-  #tBrake{right:calc(110px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px))}
-  #tHb{right:calc(110px + env(safe-area-inset-right,0px));bottom:calc(108px + env(safe-area-inset-bottom,0px));width:58px;height:58px;font-size:11px}
-  #br{bottom:auto;top:calc(150px + env(safe-area-inset-top,0px))}
-  #speedo{width:130px;height:130px}
-  #actions{bottom:auto;top:calc(170px + env(safe-area-inset-top,0px));flex-direction:column;max-width:none}
-  .hbtn kbd{display:none}
-}
+
+body.mob #touch{display:block;position:fixed;inset:auto 0 0 0;z-index:6;pointer-events:none;height:170px}
+body.mob .tb{position:absolute;pointer-events:auto;width:76px;height:76px;border-radius:50%;background:rgba(8,16,21,.55);border:1px solid var(--line-strong);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:13px;color:var(--fg);touch-action:none}
+body.mob .tb.on{background:rgba(31,193,196,.35)}
+body.mob #tLeft{left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+body.mob #tRight{left:calc(104px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+body.mob #tGas{right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(60px + env(safe-area-inset-bottom,0px));width:84px;height:84px;background:rgba(31,193,196,.22)}
+body.mob #tBrake{right:calc(110px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+body.mob #tHb{right:calc(110px + env(safe-area-inset-right,0px));bottom:calc(108px + env(safe-area-inset-bottom,0px));width:58px;height:58px;font-size:11px}
+body.mob #br{bottom:auto;top:calc(150px + env(safe-area-inset-top,0px))}
+body.mob #speedo{width:130px;height:130px}
+body.mob #actions{bottom:auto;top:calc(170px + env(safe-area-inset-top,0px));flex-direction:column;max-width:none}
+body.mob .hbtn kbd{display:none}
+
+
 @media (max-width:640px){
   #mini{width:120px;height:120px}
   .money{font-size:20px}
@@ -240,7 +249,10 @@ body.lp .sws{grid-template-columns:repeat(9,1fr);gap:4px}
 .s-n{font-family:var(--f-display);font-weight:600;font-size:16px}
 .s-d{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:2px}
 .s-item .btn{padding:9px 14px;font-size:14px;min-width:96px;font-variant-numeric:tabular-nums}
-@media (pointer:coarse){#tNitro{right:calc(190px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:62px;height:62px;font-size:11px;background:rgba(240,184,62,.25)}#prompt{bottom:auto;top:calc(64px + env(safe-area-inset-top,0px))}}
+
+body.mob #tNitro{right:calc(190px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:62px;height:62px;font-size:11px;background:rgba(240,184,62,.25)}
+body.mob #prompt{bottom:auto;top:calc(64px + env(safe-area-inset-top,0px))}
+
 body.lp #envChip{padding:4px 9px;font-size:11.5px}
 body.lp .menu-logo svg{width:250px}
 body.lp .social a{padding:5px 10px;font-size:12px}
@@ -254,7 +266,9 @@ body.lp #actions{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;poi
 body.lp #actions::-webkit-scrollbar{display:none}
 body.lp #actions .hbtn{flex:none}
 body.lp #actions .hbtn:first-child{margin-left:auto}body.lp #actions .hbtn:last-child{margin-right:auto}
-@media (pointer:coarse){#tNitro{right:calc(29px + env(safe-area-inset-right,0px));bottom:calc(158px + env(safe-area-inset-bottom,0px));width:58px;height:58px}}
+
+body.mob #tNitro{right:calc(29px + env(safe-area-inset-right,0px));bottom:calc(158px + env(safe-area-inset-bottom,0px));width:58px;height:58px}
+
 body.lp #buffs span{padding:3px 8px;font-size:11px}
 /* ---------- open-world HUD: clock, wanted stars, health, objective, subtitles ---------- */
 #hp{padding:7px 11px;display:none;align-items:center;gap:9px;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
@@ -330,22 +344,23 @@ body.foot #hp{display:flex}
 #mvInfo.on{display:flex}
 
 /* ---------- touch: on foot ---------- */
-@media (pointer:coarse){
-  #tFoot,#tDrive{display:none}
-  body.foot #tFoot,body:not(.foot) #tDrive{display:block}
-  #joy{position:absolute;left:calc(26px + env(safe-area-inset-left,0px));bottom:calc(26px + env(safe-area-inset-bottom,0px));width:132px;height:132px;border-radius:50%;background:rgba(8,16,21,.4);border:1px solid var(--line-strong);pointer-events:auto;touch-action:none}
-  #joyK{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(31,193,196,.35);border:1px solid var(--accent)}
-  #tJump{right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(26px + env(safe-area-inset-bottom,0px))}
-  #tRun{right:calc(104px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px))}
-  #tPunch{right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(112px + env(safe-area-inset-bottom,0px));width:64px;height:64px;font-size:11px}
-  #tEnter{right:calc(104px + env(safe-area-inset-right,0px));bottom:calc(108px + env(safe-area-inset-bottom,0px));width:62px;height:62px;font-size:10.5px}
-  #tExit{right:calc(190px + env(safe-area-inset-right,0px));bottom:calc(108px + env(safe-area-inset-bottom,0px));width:62px;height:62px;font-size:10.5px}
-  #tAct{right:calc(262px + env(safe-area-inset-right,0px));bottom:calc(112px + env(safe-area-inset-bottom,0px));width:58px;height:58px;font-size:15px;display:none;background:rgba(240,184,62,.3)}
-  #tAct.on{display:grid}
-  #subs{bottom:calc(178px + env(safe-area-inset-bottom,0px))}
-  #hint{bottom:calc(240px + env(safe-area-inset-bottom,0px))}
-  #phone{right:50%;transform:translateX(50%);bottom:auto;top:calc(10px + env(safe-area-inset-top,0px));height:calc(100% - 20px);max-height:600px;width:min(330px,calc(100% - 20px))}
-}
+
+body.mob #tFoot,body.mob #tDrive{display:none}
+body.mob.foot #tFoot,body.mob:not(.foot) #tDrive{display:block}
+body.mob #joy{position:absolute;left:calc(26px + env(safe-area-inset-left,0px));bottom:calc(26px + env(safe-area-inset-bottom,0px));width:132px;height:132px;border-radius:50%;background:rgba(8,16,21,.4);border:1px solid var(--line-strong);pointer-events:auto;touch-action:none}
+body.mob #joyK{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(31,193,196,.35);border:1px solid var(--accent)}
+body.mob #tJump{right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(26px + env(safe-area-inset-bottom,0px))}
+body.mob #tRun{right:calc(104px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+body.mob #tPunch{right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(112px + env(safe-area-inset-bottom,0px));width:64px;height:64px;font-size:11px}
+body.mob #tEnter{right:calc(104px + env(safe-area-inset-right,0px));bottom:calc(108px + env(safe-area-inset-bottom,0px));width:62px;height:62px;font-size:10.5px}
+body.mob #tExit{right:calc(190px + env(safe-area-inset-right,0px));bottom:calc(108px + env(safe-area-inset-bottom,0px));width:62px;height:62px;font-size:10.5px}
+body.mob #tAct{right:calc(262px + env(safe-area-inset-right,0px));bottom:calc(112px + env(safe-area-inset-bottom,0px));width:58px;height:58px;font-size:15px;display:none;background:rgba(240,184,62,.3)}
+body.mob #tAct.on{display:grid}
+body.mob #subs{bottom:calc(178px + env(safe-area-inset-bottom,0px))}
+body.mob #hint{bottom:calc(240px + env(safe-area-inset-bottom,0px))}
+body.mob #phone{right:50%;transform:translateX(50%);bottom:auto;top:calc(10px + env(safe-area-inset-top,0px));height:calc(100% - 20px);max-height:600px;width:min(330px,calc(100% - 20px))}
+
+
 body.lp #stars{top:calc(130px + env(safe-area-inset-top,0px));padding:3px 6px}
 body.lp #stars svg{width:15px;height:15px}
 body.lp body.lp body.lp #obj{padding:6px 9px}
@@ -358,9 +373,140 @@ body.foot #br{display:none}
 .ph-gal a{display:block}
 .ph-gal img{width:100%;border-radius:8px;display:block}
 @media (max-width:640px){#stars{top:calc(146px + env(safe-area-inset-top,0px))}}
+
+/* ================= Touch devices =================
+   body.mob — set before first paint by a tiny detector (touch screen without a fine pointer, or the player's choice in Settings).
+   body.lp  — touch device in landscape (a portrait phone is shown rotated, body.rot), the usual phone layout.
+   body.short / body.tiny — viewport height under 380 / 330 px. Every rule here is scoped, so desktop is unchanged. */
+.hbtn .hi{display:none;width:19px;height:19px;flex:none}
+#phX{display:none}
+.ig-banner{display:flex;align-items:center;gap:12px;padding:9px 10px 9px 12px;border-radius:12px;cursor:pointer;text-align:left;max-width:520px;
+  background:linear-gradient(100deg,rgba(240,148,51,.16),rgba(220,39,67,.16) 55%,rgba(188,24,136,.18));border:1px solid rgba(220,39,67,.45);color:var(--fg)}
+.ig-banner[hidden]{display:none}
+.ig-banner .igi{width:36px;height:36px;border-radius:10px;flex:none;display:grid;place-items:center;background:linear-gradient(45deg,#f09433,#dc2743 50%,#bc1888)}
+.ig-banner .igi svg{width:21px;height:21px}
+.ig-banner span{flex:1;font-size:13.5px;line-height:1.35}
+.ig-banner span em{font-style:normal;font-family:var(--f-display);font-weight:700;color:var(--gold)}
+.ig-banner b{flex:none;padding:7px 12px;border-radius:9px;background:#fff;color:#16252c;font-family:var(--f-display);font-size:13px;white-space:nowrap}
+.ig-banner.ready b{background:var(--gold)}
+.ig-card{border-color:rgba(220,39,67,.45)!important}
+.ig-card h4{font-family:var(--f-display);font-size:30px;color:var(--gold)}
+.btn.ig-btn{background:linear-gradient(45deg,#f09433,#dc2743 50%,#bc1888);color:#fff;border-color:transparent}
+#installBtn[hidden]{display:none}
+
+body.mob #touch{display:block}
+body.mob .hbtn kbd,body.mob #hint kbd,body.mob #prompt kbd{display:none}
+body.mob #hint.tap{pointer-events:auto;cursor:pointer;border-color:var(--accent)}
+body.mob #phX{display:grid;place-items:center;position:absolute;top:8px;left:-54px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line-strong);background:var(--panel-solid);color:var(--fg);font-size:20px;line-height:1;cursor:pointer;padding:0}
+body.mob .tb{-webkit-user-select:none;user-select:none;letter-spacing:.02em;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+body.mob .tb.on{transform:scale(.94)}
+body.mob #tAct{background:rgba(240,184,62,.88);color:#1a1405;border-color:rgba(255,220,140,.9);font-size:12px}
+
+/* ---- compact HUD ---- */
+body.lp #tl{width:212px;gap:4px;top:calc(6px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px))}
+body.lp .card{border-radius:8px}
+body.lp .money{font-size:16px;padding:3px 9px;gap:6px}
+body.lp .money small{display:none}
+body.lp #hp{padding:4px 9px;font-size:9.5px;gap:7px}
+body.lp #hp i{height:5px}
+body.lp .loc{display:none}
+body.lp #envChip{padding:3px 9px;font-size:10.5px;letter-spacing:.02em}
+body.lp #taxi{padding:5px 8px;gap:8px}
+body.lp #taxi:not(.on){display:none}
+body.lp #taxi .ico{width:24px;height:24px;border-radius:6px}
+body.lp #taxi .ico svg{width:15px;height:15px}
+body.lp #taxi .t1{font-size:11.5px}
+body.lp #taxi .t2{font-size:10.5px}
+body.lp #obj{padding:5px 9px;gap:1px}
+body.lp #obj .ot{font-size:9px;letter-spacing:.1em}
+body.lp #obj .ox{font-size:11.5px;line-height:1.3}
+body.lp #obj .oz{font-size:10.5px}
+body.lp #buffs{gap:4px}
+body.lp #buffs span{padding:2px 7px;font-size:10px}
+body.lp #tr{top:calc(6px + env(safe-area-inset-top,0px));right:calc(8px + env(safe-area-inset-right,0px));padding:3px}
+body.lp #mini{width:92px;height:92px}
+body.lp #br{top:calc(6px + env(safe-area-inset-top,0px));right:calc(110px + env(safe-area-inset-right,0px));bottom:auto}
+body.lp #speedo{width:84px;height:84px}
+body.lp #stars{top:calc(108px + env(safe-area-inset-top,0px));right:calc(8px + env(safe-area-inset-right,0px));padding:2px 6px;gap:2px}
+body.lp #stars svg{width:13px;height:13px}
+body.lp.foot #br{display:none}
+
+/* top bar: icon buttons between the left panel and the map */
+body.lp #actions{top:calc(6px + env(safe-area-inset-top,0px));bottom:auto;left:calc(230px + env(safe-area-inset-left,0px));right:calc(202px + env(safe-area-inset-right,0px));
+  max-width:none;flex-direction:row;flex-wrap:nowrap;justify-content:center;gap:6px;overflow:visible}
+body.lp.foot #actions{right:calc(112px + env(safe-area-inset-right,0px))}
+body.lp .hbtn{width:38px;height:38px;padding:0;justify-content:center;border-radius:11px;flex:none;gap:0}
+body.lp .hbtn .hi{display:block}
+body.lp .hbtn .hl{display:none}
+body.lp #bTime,body.lp #bSeason,body.lp #bGfx,body.lp #bGarage,body.lp #bShop{display:none}
+
+/* prompts: under the top bar, centred; tap to act */
+body.lp #hint{top:calc(52px + env(safe-area-inset-top,0px));bottom:auto;font-size:12.5px;padding:6px 13px;max-width:calc(var(--W) - 450px);text-align:center;white-space:normal;line-height:1.3}
+body.lp #prompt{top:calc(94px + env(safe-area-inset-top,0px));bottom:auto;font-size:12.5px;padding:7px 13px;max-width:calc(var(--W) - 450px);white-space:normal;line-height:1.3}
+body.lp #subs{bottom:calc(8px + env(safe-area-inset-bottom,0px));max-width:min(560px,calc(var(--W) - 400px))}
+body.lp #subs div{font-size:calc(12.5px * var(--subsz,1));padding:5px 10px;line-height:1.4}
+body.lp #toasts{top:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px));width:min(380px,calc(var(--W) - 420px))}
+body.lp .toast{font-size:12px;padding:6px 11px}
+
+/* ---- touch controls ---- */
+body.lp #touch{height:100%;inset:0}
+body.lp .tb{width:62px;height:62px;font-size:10.5px;background:rgba(8,16,21,.52)}
+/* driving: steering on the left thumb, pedals on the right */
+body.lp #tLeft{left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:70px;height:70px;font-size:20px}
+body.lp #tRight{left:calc(96px + env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:70px;height:70px;font-size:20px}
+body.lp #tGas{right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:84px;height:84px;font-size:13px;background:rgba(31,193,196,.26)}
+body.lp #tBrake{right:calc(108px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));width:68px;height:68px}
+body.lp #tHb{right:calc(110px + env(safe-area-inset-right,0px));bottom:calc(90px + env(safe-area-inset-bottom,0px));width:56px;height:56px;font-size:10px}
+body.lp #tNitro{right:calc(28px + env(safe-area-inset-right,0px));bottom:calc(108px + env(safe-area-inset-bottom,0px));width:56px;height:56px;font-size:10px;background:rgba(240,184,62,.28)}
+body.lp #tExit{left:calc(22px + env(safe-area-inset-left,0px));right:auto;bottom:calc(100px + env(safe-area-inset-bottom,0px));width:auto;height:40px;padding:0 13px;border-radius:12px;font-size:11px;display:flex;align-items:center;gap:6px}
+body.lp #tExit svg{width:17px;height:17px}
+/* on foot: joystick on the left, actions on the right */
+body.lp #joy{left:calc(20px + env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:122px;height:122px}
+body.lp #joyK{width:50px;height:50px;margin:-25px 0 0 -25px}
+body.lp #tJump{right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:72px;height:72px}
+body.lp #tRun{right:calc(98px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));width:64px;height:64px}
+body.lp #tPunch{right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(98px + env(safe-area-inset-bottom,0px));width:58px;height:58px;font-size:10px}
+body.lp #tEnter{right:calc(102px + env(safe-area-inset-right,0px));bottom:calc(88px + env(safe-area-inset-bottom,0px));width:58px;height:58px;font-size:10px}
+body.lp #tAct{right:calc(176px + env(safe-area-inset-right,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));width:66px;height:66px;font-size:11px}
+body.lp:not(.foot) #tAct{right:calc(184px + env(safe-area-inset-right,0px));bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+/* short screens (most phones with browser bars) */
+body.lp.short #touch{zoom:.9}
+body.lp.tiny #touch{zoom:.8}
+body.lp.tiny #obj .oz,body.lp.tiny #buffs{display:none}
+body.lp.tiny #mini{width:80px;height:80px}
+body.lp.tiny #br{right:calc(98px + env(safe-area-inset-right,0px))}
+body.lp.tiny #speedo{width:76px;height:76px}
+body.lp.tiny #stars{top:calc(94px + env(safe-area-inset-top,0px))}
+
+/* ---- phone, map, menu ---- */
+body.lp #phone{top:calc(8px + env(safe-area-inset-top,0px));height:calc(var(--H) - 16px);max-height:none;width:min(340px,calc(var(--W) - 140px));border-radius:26px;padding:8px}
+body.lp .ph-screen{border-radius:19px}
+body.lp .ph-home-btn{margin-top:6px}
+body.lp #menu{padding-block:10px}
+body.lp .menu-in{gap:9px;max-width:560px}
+body.lp .lead{font-size:12.5px;line-height:1.45;max-width:56ch}
+body.lp .ig-banner{padding:6px 8px 6px 10px;gap:9px}
+body.lp .ig-banner .igi{width:30px;height:30px}
+body.lp .ig-banner span{font-size:12px}
+body.lp .ig-banner b{padding:6px 10px;font-size:12px}
+body.lp #menu .btn{padding:10px 16px;font-size:14px}
+body.lp #menu .chip{padding:5px 10px;font-size:11.5px}
+body.lp.short .lead{display:none}
+body.lp.short #credits{display:none}
+body.lp .mv-top{flex-wrap:nowrap;overflow-x:auto;gap:6px;scrollbar-width:none}
+body.lp .mv-top .btn{padding:7px 11px;font-size:12.5px;flex:none}
+body.lp .mv-top .stat-line{display:none}
+body.lp #mvInfo{width:220px}
+#installRow[hidden]{display:none}
+body:has(#phone.on) #touch,body:has(#mapv.on) #touch{visibility:hidden!important}
 </style>
 </head>
 <body>
+<script>(function(){function mm(q){try{return matchMedia(q).matches}catch(e){return false}}
+window.__tdTouch=function(p){if(p==='on')return true;if(p==='off')return false;var t=navigator.maxTouchPoints>0||'ontouchstart' in window;
+  return mm('(pointer:coarse)')||(t&&!mm('(any-pointer:fine)'))||(t&&/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));};
+var p='auto';try{p=localStorage.getItem('td-touch')||'auto'}catch(e){}if(window.__tdTouch(p))document.body.classList.add('mob');
+window.TOUCHUI=function(){return document.body.classList.contains('mob')};})();</script>
 
 <canvas id="gl" tabindex="0"></canvas>
 <div id="splash"><div class="sp-in"><svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Toshkent Drive"><defs>
@@ -407,13 +553,13 @@ body.foot #br{display:none}
   <div id="stars" class="card" aria-label="Qidiruv darajasi"></div>
   <div id="br"><canvas id="speedo" width="400" height="400"></canvas></div>
   <div id="actions">
-    <button class="hbtn" id="bPhone">Telefon <kbd>P</kbd></button>
-    <button class="hbtn" id="bMap">Xarita <kbd>M</kbd></button>
+    <button class="hbtn" id="bPhone" aria-label="Telefon"><svg class="hi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span class="hl">Telefon</span> <kbd>P</kbd></button>
+    <button class="hbtn" id="bMap" aria-label="Xarita"><svg class="hi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg><span class="hl">Xarita</span> <kbd>M</kbd></button>
     <button class="hbtn" id="bShop">Avtosalon <kbd>B</kbd></button>
     <button class="hbtn" id="bGarage">Garaj <kbd>G</kbd></button>
-    <button class="hbtn" id="bTaxi">Taksi <kbd>T</kbd></button>
-    <button class="hbtn" id="bCam">Kamera <kbd>C</kbd></button>
-    <button class="hbtn" id="bSound">Ovoz</button>
+    <button class="hbtn" id="bTaxi" aria-label="Taksi"><svg class="hi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16h14l-1.5-5.5h-11zM7 10.5 8.5 7h7l1.5 3.5M7 16v2.5M17 16v2.5M10 4.5h4"/></svg><span class="hl">Taksi</span> <kbd>T</kbd></button>
+    <button class="hbtn" id="bCam" aria-label="Kamera"><svg class="hi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span class="hl">Kamera</span> <kbd>C</kbd></button>
+    <button class="hbtn" id="bSound" aria-label="Ovoz"><svg class="hi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg><span class="hl">Ovoz</span></button>
     <button class="hbtn" id="bTime">Vaqt <kbd>N</kbd></button>
     <button class="hbtn" id="bSeason">Fasl</button>
     <button class="hbtn" id="bGfx">Grafika</button>
@@ -431,7 +577,7 @@ body.foot #br{display:none}
     <div class="tb" id="tGas" data-k="up">GAZ</div>
     <div class="tb" id="tHb" data-k="hb">DRIFT</div>
     <div class="tb" id="tNitro" style="display:none">NITRO</div>
-    <div class="tb" id="tExit" data-a="enter">CHIQISH</div>
+    <div class="tb" id="tExit" data-a="enter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/></svg>TUSHISH</div>
   </div>
   <div id="tFoot">
     <div id="joy"><div id="joyK"></div></div>
@@ -440,10 +586,10 @@ body.foot #br{display:none}
     <div class="tb" id="tPunch" data-a="punch">MUSHT</div>
     <div class="tb" id="tEnter" data-a="enter">MASHINA</div>
   </div>
-  <div class="tb" id="tAct" data-a="act">E</div>
+  <div class="tb" id="tAct" data-a="act">OK</div>
 </div>
 
-<div id="phone" role="dialog" aria-label="Telefon"><div class="ph-screen"><div class="ph-bar"><span id="phClock">09:00</span><span id="phWx"></span></div><div class="ph-body" id="phBody"></div></div><button class="ph-home-btn" id="phHome" aria-label="Bosh ekran"></button></div>
+<div id="phone" role="dialog" aria-label="Telefon"><div class="ph-screen"><div class="ph-bar"><span id="phClock">09:00</span><span id="phWx"></span></div><div class="ph-body" id="phBody"></div></div><button class="ph-x" id="phX" aria-label="Telefonni yopish">✕</button><button class="ph-home-btn" id="phHome" aria-label="Bosh ekran"></button></div>
 <div id="mapv">
   <canvas id="bigmap"></canvas>
   <div class="mv-top"><div class="card st-title" style="padding:6px 12px;font-size:20px">XARITA</div><span class="stat-line card" style="padding:7px 10px" id="mvSub">Bosing — GPS nuqta qoʻyish</span><div class="sp"></div>
@@ -501,6 +647,8 @@ body.foot #br{display:none}
     <div class="stat-line" id="menuStat"></div>
     <div class="row"><button class="btn" id="play">Davom etish</button><button class="btn ghost" id="newGame">Yangi oʻyin</button><button class="btn ghost" id="loadGame">Yuklash</button><button class="btn ghost" id="playShop">Avtosalon</button></div>
     <div class="row" id="slotRow" style="gap:6px" hidden></div>
+    <button class="ig-banner" id="igBanner" hidden><i class="igi"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg></i><span>Instagramda <b style="all:unset;font-weight:700">@azamowc</b> ga obuna boʻling — <em>$50,000</em> bonus</span><b id="igBtnT">Obuna boʻlish</b></button>
+    <div class="row" id="installRow" hidden><button class="btn ghost" id="installBtn">Ilovani oʻrnatish</button><span class="stat-line" id="installHint"></span></div>
     <div class="row" style="gap:6px"><span class="stat-line">Grafika:</span><button class="chip" data-gfx="phone">Telefon (yengil)</button><button class="chip" data-gfx="pc">Kompyuter</button><button class="chip" data-gfx="ultra">Ultra (kuchli kompyuter)</button></div>
     <div class="row" style="gap:6px"><span class="stat-line">Vaqt:</span><button class="chip" data-tod="auto">Avto</button><button class="chip" data-tod="morning">Ertalab</button><button class="chip" data-tod="day">Kunduz</button><button class="chip" data-tod="evening">Kechqurun</button><button class="chip" data-tod="night">Tun</button></div>
     <div class="row" style="gap:6px"><span class="stat-line">Fasl:</span><button class="chip" data-season="auto">Avto</button><button class="chip" data-season="spring">Bahor</button><button class="chip" data-season="summer">Yoz</button><button class="chip" data-season="autumn">Kuz</button><button class="chip" data-season="winter">Qish</button></div>
@@ -623,6 +771,7 @@ let S=freshSave();
 function sanitize(d){const s=freshSave();if(!d||typeof d!=='object')return s;
   if(Array.isArray(d.owned)){const o=d.owned.filter(x=>x&&CAR[x.id]).map(x=>({id:x.id,color:clamp(x.color|0,0,COLORS.length-1),plate:x.plate&&typeof x.plate.reg==='string'&&typeof x.plate.txt==='string'?{reg:x.plate.reg.slice(0,3),txt:x.plate.txt.slice(0,12)}:randomPlate()}));if(o.length)s.owned=o;}
   s.cur=clamp(d.cur|0,0,s.owned.length-1);
+  if(d.igBonus===true)s.igBonus=true;
   for(const k of ['money','trips','earned','story','tod','hp','played'])if(typeof d[k]==='number'&&isFinite(d[k]))s[k]=d[k];
   if(!(s.money<1e9))s.money=25000; // saves from the old "unlimited" build stored 1e12
   for(const k of ['sound','unlimited','onFoot'])if(typeof d[k]==='boolean')s[k]=d[k];
@@ -1724,7 +1873,7 @@ function updateHUD(dt,kmh,rpm,gear){
   hudExtra();
   $('#street').textContent=where(px(),pz());$('#district').textContent=district(px(),pz())+' tumani · '+(mode==='foot'?'piyoda':P.sp.brand+' '+P.sp.model);
   const ar=$('#arrow'),tx=$('#taxi');tx.classList.toggle('on',taxi.on);
-  if(!taxi.on){$('#taxi1').textContent='Taksi oʻchiq';$('#taxi2').textContent=matchMedia('(pointer:coarse)').matches?'Taksi tugmasi — buyurtma olish':'T tugmasi — buyurtma olish';ar.style.transform='rotate(0deg)';return;}
+  if(!taxi.on){$('#taxi1').textContent='Taksi oʻchiq';$('#taxi2').textContent=TOUCHUI()?'Taksi tugmasi — buyurtma olish':'T tugmasi — buyurtma olish';ar.style.transform='rotate(0deg)';return;}
   let tgt=null;
   if(taxi.stage==='pickup'){tgt=taxi.pick;$('#taxi1').textContent='Yoʻlovchi kutmoqda: '+taxi.name;}
   else if(taxi.stage==='drop'){tgt=taxi.drop;$('#taxi1').textContent=taxi.name+' → '+taxi.place;}
@@ -1878,7 +2027,7 @@ $('#stClose').addEventListener('click',closeStage);
 let camSnap=true;
 function startDrive(){camSnap=true;initAudio();if(A&&A.ac.state==='suspended')A.ac.resume();mode='drive';HERO.mesh.visible=false;document.body.classList.remove('foot');$('#touch').style.visibility='visible';$('#menu').hidden=true;$('#stageUI').hidden=true;$('#hud').hidden=false;canvas.focus();updMoney();}
 let ROT=false;
-function goLandscape(){if(!matchMedia('(pointer:coarse)').matches)return;try{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;const p=rq?rq.call(el):null;const lock=()=>{try{const o=screen.orientation;if(o&&o.lock)o.lock('landscape').catch(()=>{});}catch(e){}};if(p&&p.then)p.then(lock).catch(()=>{});else lock();}catch(e){}}
+function goLandscape(){if(!TOUCHUI())return;try{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;const p=rq?rq.call(el):null;const lock=()=>{try{const o=screen.orientation;if(o&&o.lock)o.lock('landscape').catch(()=>{});}catch(e){}};if(p&&p.then)p.then(lock).catch(()=>{});else lock();}catch(e){}}
 $('#play').addEventListener('click',()=>{goLandscape();startGame();});
 $('#playShop').addEventListener('click',()=>{goLandscape();initAudio();openStage('shop');});
 $('#bShop').addEventListener('click',()=>openStage('shop'));
@@ -1920,20 +2069,22 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>{if(KM[e.code])keys[KM[e.code]]=false;if(e.code==='ShiftLeft'||e.code==='ShiftRight')keys.sprint=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
 document.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k,a=b.dataset.a;
-  const on=e=>{e.preventDefault();b.classList.add('on');if(k)keys[k]=true;if(a)touchAction(a);},off=e=>{if(k)keys[k]=false;b.classList.remove('on');};
+  const on=e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId);}catch(_){}b.classList.add('on');if(k)keys[k]=true;if(a)touchAction(a);},off=e=>{if(k)keys[k]=false;b.classList.remove('on');};
   b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('pointerleave',off);});
+// safety net: when the last finger leaves the screen every held touch button is released
+document.addEventListener('touchend',e=>{if(e.touches.length)return;document.querySelectorAll('.tb.on').forEach(b=>{b.classList.remove('on');if(b.dataset.k)keys[b.dataset.k]=false;});},{passive:true});
 
-function resize(){const coarse=matchMedia('(pointer:coarse)').matches,rot=coarse&&innerHeight>innerWidth,bs=document.body.style;
+function resize(){const coarse=TOUCHUI(),rot=coarse&&innerHeight>innerWidth,bs=document.body.style;
   document.body.classList.toggle('rot',rot);const w=rot?innerHeight:innerWidth,h=rot?innerWidth:innerHeight;document.body.classList.toggle('lp',coarse&&w>h);
   if(rot){bs.width=w+'px';bs.height=h+'px';bs.setProperty('--rw',innerWidth+'px');}else{bs.width='';bs.height='';}
-  bs.setProperty('--W',w+'px');bs.setProperty('--H',h+'px');ROT=rot;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();ST.cam.aspect=w/h;ST.cam.updateProjectionMatrix();}
+  document.body.classList.toggle('short',h<380);document.body.classList.toggle('tiny',h<330);bs.setProperty('--W',w+'px');bs.setProperty('--H',h+'px');ROT=rot;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();ST.cam.aspect=w/h;ST.cam.updateProjectionMatrix();}
 addEventListener('resize',resize);addEventListener('orientationchange',()=>setTimeout(resize,250));resize();
 /* ================= V2: time of day, seasons, shops, traffic & pedestrian behaviour, quality ================= */
 const lerp=(a,b,t)=>a+(b-a)*t,sstep=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
 S.inv=S.inv||{};S.up=S.up||{};S.buff=S.buff||{};
 if(!S.todMode)S.todMode='auto';if(!S.seasonMode)S.seasonMode='auto';
 {const hs=(location.hash||'').replace('#','');if(hs==='telefon')S.gfx='phone';else if(hs==='kompyuter')S.gfx='pc';else if(hs==='ultra')S.gfx='ultra';
- if(!S.gfx&&!matchMedia('(pointer:coarse)').matches&&(navigator.hardwareConcurrency||8)<=4)S.gfx='phone';}
+ if(!S.gfx&&!TOUCHUI()&&(navigator.hardwareConcurrency||8)<=4)S.gfx='phone';}
 const SEASONS=['spring','summer','autumn','winter'],SEASON_NAME={auto:'Avto',spring:'Bahor',summer:'Yoz',autumn:'Kuz',winter:'Qish'};
 const TODS={morning:7.3,day:13,evening:18.7,night:23},TOD_NAME={auto:'Avto',morning:'Ertalab',day:'Kunduz',evening:'Kechqurun',night:'Tun'};
 const SEAS={spring:{el:.85,temp:[19,9],grass:[.96,1.08,.9],fog:1},summer:{el:1,temp:[34,22],grass:[1,1,1],fog:1},autumn:{el:.78,temp:[13,5],grass:[1.14,.98,.72],fog:.9},winter:{el:.55,temp:[-2,-8],grass:[1,1,1],fog:.62}};
@@ -2072,7 +2223,7 @@ const V2={nT:0,dirty:true,tA:0,hT:0,
   chip(){const h=Math.floor(W.tod),mi=Math.floor((W.tod-h)*60),se=SEAS[W.season],tp=Math.round(lerp(se.temp[0],se.temp[1],W.night));
     $('#envChip').textContent=String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0')+' · '+SEASON_NAME[W.season]+' · '+(tp>0?'+':tp<0?'−':'')+Math.abs(tp)+'°'+(window.__TD_WORLD?' · '+WEATHERS[WX.cur].n:'');},
   setDpr(G,k){const short=Math.max(1,Math.min(innerWidth,innerHeight)),dp=devicePixelRatio||1;
-    if(k!=='phone'&&!spot)V2.mkSpot();baseDpr=k==='phone'&&matchMedia('(pointer:coarse)').matches?Math.min(dp,3,Math.max(1.5,1080/short)):Math.min(dp,G.dpr);dyn=1;renderer.setPixelRatio(baseDpr);V2.dirty=true;},
+    if(k!=='phone'&&!spot)V2.mkSpot();baseDpr=k==='phone'&&TOUCHUI()?Math.min(dp,2,Math.max(1.25,760/short)):Math.min(dp,G.dpr);dyn=1;renderer.setPixelRatio(baseDpr);V2.dirty=true;},
   fareMul(){let m=1+(S.buff.food>0?.1:0)+(S.buff.vit>0?.1:0)+(S.buff.style>0?.05:0)+(S.up.pro?.15:0)+(S.up.suit?.08:0)+(S.up.shoes?.05:0)+(S.up.card?.05:0);
     if(S.inv.flowers>0){S.inv.flowers--;m*=1.3;toast('Guldasta yoʻlovchiga yoqdi: +30%','gold');}else if(S.inv.sweet>0){S.inv.sweet--;m*=1.15;toast('Shirinlik uchun rahmat: +15%','gold');}updBuffs();return m;},
   limitMul(){return S.buff.focus>0||S.buff.vit>0?1.25:1;},
@@ -2120,11 +2271,11 @@ const V2={nT:0,dirty:true,tA:0,hT:0,
       const fx=Math.sin(P.h),fz=Math.cos(P.h),L=P.sp.L/2;spot.position.set(P.x+fx*L,1,P.z+fz*L);spot.target.position.set(P.x+fx*(L+18),0,P.z+fz*(L+18));spot.intensity=W.night*2.4;}else if(spot)spot.intensity=0;
     // shop prompt
     shopT+=dt;if(shopT>.2){shopT=0;let b=null,bd=15;if(mode==='foot'||Math.hypot(P.vx,P.vz)<2.5)for(const s of SHOPPTS){const d=Math.abs(s.x-px())+Math.abs(s.z-pz());if(d<bd){bd=d;b=s;}}
-      if(b!==nearShop){nearShop=b;const pr=$('#prompt');pr.hidden=!b;if(b)pr.innerHTML=(matchMedia('(pointer:coarse)').matches?'':'<kbd>E</kbd> ')+'«'+b.name+'» doʻkoniga kirish';}}
+      if(b!==nearShop){nearShop=b;const pr=$('#prompt');pr.hidden=!b;if(b)pr.innerHTML=(TOUCHUI()?'':'<kbd>E</kbd> ')+'«'+b.name+'» doʻkoniga kirish';}}
     // hud chip
     V2.hT+=dt;if(V2.hT>.5||ch){V2.hT=0;V2.chip();updBuffs();}
     // keep the frame rate up: lower the render resolution when the device struggles, raise it back when it copes
-    fpsN++;fpsT+=dt;if(fpsT>2){const fps=fpsN/fpsT;fpsN=0;fpsT=0;let nd=dyn;if(fps<27)nd=Math.max(.55,dyn-.12);else if(fps>52&&dyn<1)nd=Math.min(1,dyn+.06);
+    fpsN++;fpsT+=dt;if(fpsT>2){const fps=fpsN/fpsT;fpsN=0;fpsT=0;let nd=dyn;if(fps<(TOUCHUI()?40:27))nd=Math.max(.5,dyn-.12);else if(fps>55&&dyn<1)nd=Math.min(1,dyn+.05);
       if(nd!==dyn){dyn=nd;renderer.setPixelRatio(baseDpr*dyn);}}
   }};
 $('#shopClose').addEventListener('click',()=>V2.closeShop());
@@ -2158,7 +2309,7 @@ function applyGfx(k,announce){if(!GFX[k])k='pc';const G=GFX[k];S.gfx=k;persist()
   if(announce)toast('Grafika: '+G.name);resize();}
 document.querySelectorAll('[data-gfx]').forEach(b=>b.addEventListener('click',()=>applyGfx(b.dataset.gfx,true)));
 $('#bGfx').addEventListener('click',()=>{const o=['phone','pc','ultra'];applyGfx(o[(o.indexOf(S.gfx)+1)%3],true);});
-applyGfx(S.gfx||(matchMedia('(pointer:coarse)').matches?'phone':'pc'));
+applyGfx(S.gfx||(TOUCHUI()?'phone':'pc'));
 
 
 /* =====================================================================
@@ -2810,17 +2961,19 @@ function hudExtra(){starP.forEach((p,i)=>p.classList.toggle('on',i<WANT.lvl));st
   else o.classList.remove('on');
   $('#taxi').style.display=(MS.cur||EVT.cur)&&!taxi.on?'none':'';}
 let ACT=null,lastHint='';
-function updateHints(){let txt='',key='',fn=null;const X=px(),Z=pz();
-  if(DLG.cur){key='E';txt='Keyingi gap';fn=()=>nextLine();}
+let hintKey='',actLab='';
+function updateHints(){let txt='',key='',fn=null,lab='OK';const X=px(),Z=pz();
+  if(DLG.cur){key='E';txt='Keyingi gap';fn=()=>nextLine();lab='KEYINGI';}
   else if(WANT.bust>.2)txt='Qoʻlga olinmoqda… '+Math.min(100,Math.round(WANT.bust/(mode==='drive'?2.6:1.6)*100))+'%';
-  else if(MS.hintE){key='E';txt=MS.hintE.txt;fn=MS.hintE.fn;}
+  else if(MS.hintE){key='E';txt=MS.hintE.txt;fn=MS.hintE.fn;lab='BAJARISH';}
   else{const smk=storyMarker();
-    if(smk&&Math.hypot(smk.x-X,smk.z-Z)<9){const def=STORY[S.story];if(def.hours&&!inHours(W.tod,def.hours))txt=def.giver+' '+def.hours[0]+':00 dan keyin keladi (Telefon → Ob-havo → kutish)';else{key='E';txt='Missiya: '+def.title;fn=()=>startMission(def);}}
-    else if(EVT.cur&&EVT.cur.near&&EVT.cur.near()){key='E';txt=EVT.cur.act;fn=()=>EVT.cur.onE();}
-    else if(mode==='foot'){const n=nearestEnterable();if(n){key='F';txt=n.kind==='traffic'?'Mashinani olib qochish (jinoyat!)':'Mashinaga oʻtirish';}else if(!nearShop){const p=nearPed(2.2);if(p){key='E';txt='Salomlashish · Q — musht';fn=()=>greet(p);}}}
+    if(smk&&Math.hypot(smk.x-X,smk.z-Z)<9){const def=STORY[S.story];if(def.hours&&!inHours(W.tod,def.hours))txt=def.giver+' '+def.hours[0]+':00 dan keyin keladi (Telefon → Ob-havo → kutish)';else{key='E';txt='Missiya: '+def.title;fn=()=>startMission(def);lab='MISSIYA';}}
+    else if(EVT.cur&&EVT.cur.near&&EVT.cur.near()){key='E';txt=EVT.cur.act;fn=()=>EVT.cur.onE();lab='YORDAM';}
+    else if(mode==='foot'){const n=nearestEnterable();if(n){key='F';txt=n.kind==='traffic'?'Mashinani olib qochish (jinoyat!)':'Mashinaga oʻtirish';}else if(!nearShop){const p=nearPed(2.2);if(p){key='E';txt=TOUCHUI()?'Salomlashish':'Salomlashish · Q — musht';fn=()=>greet(p);lab='SALOM';}}}
     else if(mode==='drive'&&Math.hypot(P.vx,P.vz)<1){key='F';txt='Mashinadan tushish';}}
-  ACT=fn;const h=$('#hint'),s=key+'|'+txt;if(s!==lastHint){lastHint=s;if(txt){h.innerHTML=(key?'<kbd>'+key+'</kbd>':'')+esc(txt);h.classList.add('on');}else h.classList.remove('on');}
-  $('#tAct').classList.toggle('on',!!fn);}
+  ACT=fn;hintKey=key;const h=$('#hint'),s=key+'|'+txt;if(s!==lastHint){lastHint=s;if(txt){h.innerHTML=(key?'<kbd>'+key+'</kbd>':'')+esc(txt);h.classList.add('on');h.classList.toggle('tap',!!key);}else h.classList.remove('on');}
+  if(!fn&&nearShop&&!PAUSED)lab='KIRISH';const on=!!fn||(!!nearShop&&!WANT.lvl),ta=$('#tAct');ta.classList.toggle('on',on);if(on&&lab!==actLab){actLab=lab;ta.textContent=lab;}}
+$('#hint').addEventListener('click',()=>{if(PAUSED)return;if(hintKey==='F')toggleVehicle();else if(hintKey==='E')interact();});
 function interact(){if(PAUSED)return;if(ACT)ACT();else if(nearShop)V2.enterShop();}
 function touchAction(a){if(a==='enter')toggleVehicle();else if(a==='jump')HERO.jumpReq=true;else if(a==='punch')punch();else if(a==='act')interact();}
 
@@ -2847,6 +3000,8 @@ const APPS=[
   ['hero','Qahramon','#b45a3c','<path d="M8 3 3 6l2 4 2-1v12h10V9l2 1 2-4-5-3c-1 2-2 3-4 3S9 5 8 3z"/>'],
   ['camera','Kamera','#374151','<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l2-3h4l2 3"/>'],
   ['weather','Ob-havo','#2563eb','<circle cx="8" cy="8" r="3"/><path d="M8 20h9a4 4 0 0 0 0-8 5 5 0 0 0-9 1 3.5 3.5 0 0 0 0 7z"/>'],
+  ['bonus','Bonus','linear-gradient(45deg,#f09433,#dc2743 50%,#bc1888)','<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>'],
+  ['shop','Avtosalon','#0e7490','<path d="M5 17h14l-1.5-6h-11zM7 11l1.5-4h7L17 11M7 17v2M17 17v2"/>'],
   ['garage','Garaj','#475569','<path d="M3 15l2-6h14l2 6v4H3zM7 19v2M17 19v2M6.5 15h.01M17.5 15h.01"/>'],
   ['settings','Sozlamalar','#4b5563','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>'],
   ['debug','Debug','#7f1d1d','<path d="M8 8h8v10H8zM12 4v4M4 12h4M16 12h4"/>']];
@@ -2857,7 +3012,7 @@ const swRow=(arr,cur,key)=>`<div class="ph-sw">${arr.map((c,i)=>`<button class="
 function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').textContent=WEATHERS[WX.cur].n+' · '+(S.unlimited?'∞':fmt(S.money));
   const back=t=>`<div class="ph-title"><button class="ph-back" data-act="home" aria-label="Orqaga">‹</button>${t}</div>`;let h='';
   switch(phApp){
-  case 'home':{const un=S.msgs.filter(m=>!m.r).length;h=`<div class="ph-home">`+APPS.filter(a=>a[0]!=='debug'||DEBUG).map(a=>`<button class="app" data-act="app:${a[0]}"><i style="background:${a[2]}">${SVGI(a[3])}</i>${a[1]}${a[0]==='msgs'&&un?`<em>${un}</em>`:''}</button>`).join('')+`</div>`;
+  case 'home':{const un=S.msgs.filter(m=>!m.r).length;h=`<div class="ph-home">`+APPS.filter(a=>a[0]!=='debug'||DEBUG).map(a=>`<button class="app" data-act="app:${a[0]}"><i style="background:${a[2]}">${SVGI(a[3])}</i>${a[1]}${a[0]==='msgs'&&un?`<em>${un}</em>`:a[0]==='bonus'&&!INSTA.got()?'<em>!</em>':''}</button>`).join('')+`</div>`;
     h+=`<div class="ph-card" style="margin-top:8px"><div class="meta2">Hikoya</div><p>${S.story>=STORY.length?'1-bob yakunlandi. Davomi kutilmoqda!':esc(STORY[S.story].title)+' — '+esc(STORY[S.story].giver)}</p></div>`;break;}
   case 'missions':{h=back('Missiyalar');
     if(MS.cur)h+=`<div class="ph-card cur"><div class="meta2">Joriy</div><h4>${esc(MS.cur.title)}</h4><p>${esc(MS.txt)}</p><button class="btn danger" data-act="mcancel">Bekor qilish</button></div>`;
@@ -2883,7 +3038,10 @@ function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').text
     h+=PHOTOS.length?`<div class="ph-gal">${PHOTOS.map((u,i)=>`<a href="${u}" download="toshkent-surat-${i+1}.jpg" title="Yuklab olish"><img src="${u}" alt="Surat ${i+1}"></a>`).join('')}</div>`:'<p class="stat-line">Galereya boʻsh.</p>';break;}
   case 'weather':{const busy=MS.cur||WANT.lvl;h=back('Ob-havo')+`<div class="ph-card"><div class="meta2">Hozir</div><h4 style="font-size:28px">${clockStr(W.tod)}</h4><p>${SEASON_NAME[W.season]} · ${WEATHERS[WX.cur].n} · yoʻl ilashuvi ${Math.round(ENV.grip*100)}%${ENV.wet>.2?' · yoʻllar hoʻl':''}</p></div>
       <div class="ph-card"><div class="meta2">Vaqtni oʻtkazish</div><div class="ph-opt">${[8,13,19,22].map(t=>`<button class="chip" data-act="wait:${t}"${busy?' disabled':''}>${t}:00</button>`).join('')}</div>${busy?'<p>Missiya yoki qidiruv paytida mumkin emas.</p>':''}</div>`;break;}
-  case 'settings':{const s=S.sub;h=back('Sozlamalar')+`<div class="ph-card"><div class="ph-row"><span>Ovoz</span>${chip(S.sound,'set:sound',S.sound?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Cheksiz pul</span>${chip(S.unlimited,'set:unl',S.unlimited?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Mini-xarita aylansin</span>${chip(!!S.miniRot,'set:rot',S.miniRot?'Ha':'Yoʻq')}</div></div>
+  case 'bonus':{const got=INSTA.got();h=back('Bonus')+`<div class="ph-card ig-card"><div class="meta2">Instagram bonusi</div><h4>${fmt(INSTA.SUM)}</h4><p>Instagram sahifamiz <b>@${INSTA.USER}</b> ga obuna boʻling va oʻyin hisobingizga bir martalik bonus oling.</p>`+
+      (got?'<p style="color:var(--green);font-weight:700">Bonus olingan. Obuna uchun rahmat!</p>':INSTA.ready()?`<button class="btn" data-act="ig:claim">${fmt(INSTA.SUM)} bonusni olish</button>`:`<button class="btn ig-btn" data-act="ig:open">Instagramda obuna boʻlish</button>${INSTA.opened?'<p class="stat-line">Obuna boʻlgach, oʻyinga qayting.</p>':''}`)+
+      `</div><p class="stat-line">Bonus har bir qurilmada bir marta beriladi.</p>`;break;}
+  case 'settings':{const s=S.sub;h=back('Sozlamalar')+`<div class="ph-card"><div class="ph-row"><span>Ovoz</span>${chip(S.sound,'set:sound',S.sound?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Cheksiz pul</span>${chip(S.unlimited,'set:unl',S.unlimited?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Mini-xarita aylansin</span>${chip(!!S.miniRot,'set:rot',S.miniRot?'Ha':'Yoʻq')}</div><div class="ph-row"><span>Sensor tugmalar</span><div class="ph-opt">${[['auto','Avto'],['on','Ha'],['off','Yoʻq']].map(([v,n])=>chip(touchPref()===v,'touch:'+v,n)).join('')}</div></div></div>
       <div class="ph-card"><div class="meta2">Subtitrlar</div><div class="ph-row"><span>Holat</span>${chip(s.on,'set:sub',s.on?'Yoqilgan':'Oʻchiq')}</div>
         <div class="ph-row"><span>Shrift</span><div class="ph-opt">${[[.85,'S'],[1,'M'],[1.2,'L'],[1.4,'XL']].map(([v,n])=>chip(s.size===v,'set:size:'+v,n)).join('')}</div></div>
         <div class="ph-row"><span>Fon</span><div class="ph-opt">${[[0,'0%'],[.35,'35%'],[.6,'60%'],[.85,'85%']].map(([v,n])=>chip(s.bg===v,'set:bg:'+v,n)).join('')}</div></div>
@@ -2897,11 +3055,14 @@ function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').text
       <div class="ph-card"><div class="ph-opt">${chip(false,'dbg:money','+$10 000')}${chip(GOD,'dbg:god','Oʻlmaslik')}${chip(false,'dbg:skip','Qadamni oʻtkazish')}${chip(false,'dbg:story','Hikoyani nolga')}${chip(false,'dbg:npc','NPC chaqirish')}${chip(false,'dbg:evt','Hodisa')}</div></div>`;break;}
   }
   $('#phBody').innerHTML=h;}
+$('#phX').addEventListener('click',()=>closePhone());
 $('#phHome').addEventListener('click',()=>{if(phApp==='home')closePhone();else{phApp='home';renderPhone();}});
 $('#phBody').addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const [a,x,y]=b.dataset.act.split(':');
   switch(a){
     case 'home':phApp='home';break;
-    case 'app':if(x==='map'){openMap();return;}if(x==='garage'){closePhone();openStage('garage');return;}phApp=x;break;
+    case 'app':if(x==='map'){openMap();return;}if(x==='garage'||x==='shop'){closePhone();openStage(x);return;}phApp=x;break;
+    case 'ig':if(x==='open')INSTA.open();else INSTA.claim();break;
+    case 'touch':setTouchPref(x);break;
     case 'mcancel':failMission('Bekor qilindi');break;
     case 'sgps':{const m=storyMarker();if(m){GPS.wp={x:m.x,z:m.z};toast('GPS oʻrnatildi','gold');closePhone();}return;}
     case 'wait':if(MS.cur||WANT.lvl)return;closePhone();bigScreen('VAQT OʻTMOQDA',x+':00 gacha',()=>skipTo(+x),'#eaf3f3');return;
@@ -2975,6 +3136,25 @@ $('#mvClr').addEventListener('click',()=>{GPS.wp=null;GPS.t=0;updateGPS(1);drawM
 $('#mvClose').addEventListener('click',closeMap);
 addEventListener('resize',()=>{if(mapOpen){sizeMap();drawMap();}});
 
+/* ================= Instagram follow bonus (once per device) and touch-control preference ================= */
+// Instagram gives no way to check a follow from a web page, so the bonus unlocks after the player has opened the profile
+// and come back; it is remembered per device (localStorage) and per save.
+const INSTA={USER:'azamowc',SUM:50000,K:'toshkent-drive-ig-bonus',opened:false,t:0,
+  got(){let d=false;try{d=localStorage.getItem(INSTA.K)==='1';}catch(e){}return d||!!S.igBonus;},
+  ready(){return INSTA.opened&&Date.now()-INSTA.t>5000;},
+  open(){INSTA.opened=true;INSTA.t=Date.now();try{window.open('https://www.instagram.com/'+INSTA.USER+'/','_blank','noopener');}catch(e){}
+    syncIG();setTimeout(()=>{syncIG();if(phoneOpen&&phApp==='bonus')renderPhone();},5200);},
+  claim(){if(INSTA.got())return;if(!INSTA.ready()){toast('Avval Instagramda obuna boʻling','bad');return;}
+    earn(INSTA.SUM);S.igBonus=true;try{localStorage.setItem(INSTA.K,'1');}catch(e){}persist();updMoney();syncIG();menuStatLine();
+    toast('Instagram bonusi: +'+fmt(INSTA.SUM)+' · Obuna uchun rahmat!','gold');}};
+function syncIG(){const b=$('#igBanner');if(!b)return;const got=INSTA.got();b.hidden=got;if(got)return;
+  b.classList.toggle('ready',INSTA.ready());$('#igBtnT').textContent=INSTA.ready()?'Bonusni olish':'Obuna boʻlish';}
+$('#igBanner').addEventListener('click',()=>{if(INSTA.ready())INSTA.claim();else INSTA.open();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden||!INSTA.opened)return;setTimeout(()=>{syncIG();if(phoneOpen&&phApp==='bonus')renderPhone();},Math.max(0,5100-(Date.now()-INSTA.t)));});
+syncIG();
+function touchPref(){try{return localStorage.getItem('td-touch')||'auto';}catch(e){return 'auto';}}
+function setTouchPref(v){try{localStorage.setItem('td-touch',v);}catch(e){}document.body.classList.toggle('mob',window.__tdTouch(v));resize();toast(TOUCHUI()?'Sensor tugmalar yoqildi':'Sensor tugmalar oʻchirildi');}
+
 /* ================= SAVE SLOTS & GAME FLOW ================= */
 const slotKey=n=>KEY+'-slot'+n;
 function slotMeta(n){try{const d=JSON.parse(localStorage.getItem(slotKey(n))||'null');return d?{story:d.story|0,when:d.savedAt||0}:null;}catch(e){return null;}}
@@ -2985,6 +3165,7 @@ addEventListener('pagehide',()=>{if(mode==='drive'||mode==='foot')persist();});
 function showGameUI(){$('#touch').style.visibility='visible';$('#menu').hidden=true;$('#stageUI').hidden=true;$('#hud').hidden=false;canvas.focus();updMoney();}
 function startFoot(){initAudio();if(A&&A.ac.state==='suspended')A.ac.resume();mode='foot';document.body.classList.add('foot');HERO.mesh.visible=true;showGameUI();}
 function startGame(){if(S.onFoot){HERO.y=groundAt(HERO.x,HERO.z);FC.yaw=HERO.h+Math.PI;startFoot();}else startDrive();
+  if(!INSTA.got()&&!INSTA.nag){INSTA.nag=1;setTimeout(()=>{if(!INSTA.got())toast('Telefon → Bonus: Instagramga obuna boʻling va '+fmt(INSTA.SUM)+' oling','gold');},9000);}
   if(!S.played){S.played=1;setTimeout(()=>addMsg('Botir aka','Assalomu alaykum, Sardor! Toshkentga xush kelibsan. Chorsu bozori yonidagi ustaxonamga kel — senga ish bor. (Xaritada S belgisi)'),2500);}persist();}
 let newArm=false;
 $('#newGame').addEventListener('click',()=>{const b=$('#newGame');if(!newArm){newArm=true;b.textContent='Tasdiqlang: hammasi oʻchadi';setTimeout(()=>{newArm=false;b.textContent='Yangi oʻyin';},3500);return;}
@@ -2992,7 +3173,8 @@ $('#newGame').addEventListener('click',()=>{const b=$('#newGame');if(!newArm){ne
 $('#loadGame').addEventListener('click',()=>{const r=$('#slotRow');r.hidden=!r.hidden;if(r.hidden)return;
   r.innerHTML='<span class="stat-line">Slotlar:</span>'+[1,2,3].map(n=>{const m=slotMeta(n);return `<button class="chip" data-slot="${n}"${m?'':' disabled'}>${n}: ${m?'hikoya '+m.story+'/5':'boʻsh'}</button>`;}).join('');});
 $('#slotRow').addEventListener('click',e=>{const b=e.target.closest('[data-slot]');if(b&&!b.disabled)loadSlot(+b.dataset.slot);});
-$('#menuStat').innerHTML=`Hikoya: <b>${Math.min(S.story,STORY.length)}/${STORY.length}</b> · Hisob: <b>${S.unlimited?'∞ cheksiz':fmt(S.money)}</b> · Garajda: <b>${S.owned.length}</b> ta mashina · Vaqt: <b>${clockStr(W.tod)}</b>`;
+function menuStatLine(){$('#menuStat').innerHTML=`Hikoya: <b>${Math.min(S.story,STORY.length)}/${STORY.length}</b> · Hisob: <b>${S.unlimited?'∞ cheksiz':fmt(S.money)}</b> · Garajda: <b>${S.owned.length}</b> ta mashina · Vaqt: <b>${clockStr(W.tod)}</b>`;}
+menuStatLine();
 if(S.pos){P.x=S.pos.x;P.z=S.pos.z;P.h=S.pos.h;}
 if(S.hpos){HERO.x=S.hpos.x;HERO.z=S.hpos.z;HERO.h=S.hpos.h;}else{HERO.x=P.x-3;HERO.z=P.z;}
 HERO.y=groundAt(HERO.x,HERO.z);HERO.hp=S.hp;
@@ -3028,6 +3210,15 @@ if(window.__TD_TEST)window.__td={V2,W,applySeason,startDrive,resetToRoad,setPlay
   scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
 
 })();
+</script>
+<script>
+(function(){var row=document.getElementById('installRow'),btn=document.getElementById('installBtn'),hint=document.getElementById('installHint'),ev=null;
+  var standalone=matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone;
+  if('serviceWorker' in navigator&&location.protocol!=='file:'&&!window.__TD_TEST)addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+  addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;if(!standalone){row.hidden=false;hint.textContent='';}});
+  addEventListener('appinstalled',function(){row.hidden=true;});
+  if(!standalone&&/iPhone|iPad|iPod/.test(navigator.userAgent)){row.hidden=false;btn.hidden=true;hint.textContent='Ilova qilish: Safari → «Ulashish» → «Bosh ekranga qoʻshish»';}
+  btn.addEventListener('click',function(){if(!ev)return;ev.prompt();ev.userChoice.then(function(){ev=null;row.hidden=true;});});})();
 </script>
 </body>
 </html>

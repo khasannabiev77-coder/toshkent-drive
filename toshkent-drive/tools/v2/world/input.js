@@ -39,5 +39,7 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>{if(KM[e.code])keys[KM[e.code]]=false;if(e.code==='ShiftLeft'||e.code==='ShiftRight')keys.sprint=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
 document.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k,a=b.dataset.a;
-  const on=e=>{e.preventDefault();b.classList.add('on');if(k)keys[k]=true;if(a)touchAction(a);},off=e=>{if(k)keys[k]=false;b.classList.remove('on');};
+  const on=e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId);}catch(_){}b.classList.add('on');if(k)keys[k]=true;if(a)touchAction(a);},off=e=>{if(k)keys[k]=false;b.classList.remove('on');};
   b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('pointerleave',off);});
+// safety net: when the last finger leaves the screen every held touch button is released
+document.addEventListener('touchend',e=>{if(e.touches.length)return;document.querySelectorAll('.tb.on').forEach(b=>{b.classList.remove('on');if(b.dataset.k)keys[b.dataset.k]=false;});},{passive:true});

@@ -1,0 +1,20 @@
+{
+  "name": "Toshkent Drive",
+  "short_name": "Toshkent Drive",
+  "description": "Toshkent koʻchalarida ochiq dunyo: piyoda yuring, mashina haydang, missiyalar, politsiya, kun-tun va ob-havo.",
+  "lang": "uz",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#071015",
+  "theme_color": "#071015",
+  "categories": ["games"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
