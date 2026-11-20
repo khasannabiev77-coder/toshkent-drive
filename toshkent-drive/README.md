@@ -180,13 +180,19 @@ python3 tools/slim/slim.py model.glb models/kalit 70000 512 --nolines
   Ular oxirgi koʻrilgan joyni qidiradi; koʻzdan yoʻqolsangiz qutulasiz, ushlansangiz jarima, sogʻliq tugasa — shifoxona.
 - **Ob-havo** (kun-tun va fasllar ustiga): ochiq, bulutli, yomgʻir, momaqaldiroq, tuman; yomgʻirda yoʻl hoʻl va sirpanchiq.
   Qishda yomgʻir oʻrniga 2-versiyaning qori yogʻadi.
-- **Missiyalar:** 5 ta hikoya missiyasi (1-bob: Botir aka, Kamron, Lola, Inspektor Rahimov) va 10 ta ish — taksi, yetkazib berish,
+- **Missiyalar:** 10 ta hikoya missiyasi — 1-bob (Botir aka, Kamron, Lola, Inspektor Rahimov) va 2-bob «Yangi tahdid»
+  (Kamron ortidagi «Shef»: yashirin yuk, drift qiroli Jasur, bozordagi kuzatuv, pulli poyga, Shefni quvish) va 10 ta ish — taksi, yetkazib berish,
   koʻcha poygasi, vaqtga qarshi, mashina yetkazish, tez yordam, qochish, drift, surat ovi, 20 ta oltin anor.
   Tasodifiy hodisalar: adashgan sayyoh, buzilgan mashina, politsiya quvuvi, avariya, poyga va yetkazish takliflari.
 - **Telefon** (`P` yoki `Esc`, oʻyin pauzada): xarita, missiyalar, ishlar, xabarlar, kontaktlar, qahramon, kamera (galereya), ob-havo
   (vaqtni oʻtkazish), garaj, sozlamalar (subtitr hajmi/foni, lotin-kirill, cheksiz pul, mini-xarita aylanishi, 3 ta saqlash sloti).
 - **Xarita va GPS** (`M`): ochilgan hududlar, nuqta qoʻyish, koʻchalar boʻylab marshrut, ochilgan joylarga tez sayohat.
   Taksi yoʻlovchisigacha marshrut «Navigator» xaridi bilan chiziladi. Mini-xaritani bosib masshtab oʻzgaradi.
+- **Yoʻl qoidalari:** svetoforli chorrahada qizil chiroqdan oʻtish — $150, 100 km/soatdan tez — $100 (radar); yaqinda politsiya
+  boʻlsa qidiruv yulduzi ham qoʻshiladi. Missiya va quvish paytida jarima yoʻq; Telefon → Sozlamalar'da oʻchirish mumkin.
+- **Reyting** (Telefon → Reyting): «Drift sinovi» (60 soniyadagi ochko) va jami topilgan pul boʻyicha eng yaxshi 20 oʻyinchi.
+  Ism bir marta kiritiladi. Faqat Netlify saytida ishlaydi (`netlify/` papkasidagi funksiya).
+- **Bonuslar** (Telefon → Bonus): Instagram obunasi uchun bir martalik $50,000 va Instagram story'lardagi promo-kodlar.
 - **Saqlash:** har 20 soniyada avtomatik; menyuda «Davom etish», «Yangi oʻyin», «Yuklash».
 - Ishlab chiquvchilar uchun: manzil oxiriga `#debug` qoʻshilsa, telefonda Debug ilovasi chiqadi (teleport, vaqt, ob-havo, qidiruv, pul, oʻlmaslik).
 
@@ -203,6 +209,33 @@ node tools/v2/world/build.js v2.html index.html tools/artifact-version.html
 bir marta mos kelishi shart, aks holda yigʻish toʻxtaydi), `world.js` (tizimlar), `world.css`, `save.js` (saqlashni tekshirish),
 `input.js` (klaviatura va sensor), `minimap.js`, `mobile.css` (telefon interfeysi), `sw.template.js` (oflayn ishlash;
 yigʻishda `sw.js` versiyasi bilan yoziladi). `manifest.webmanifest` va `icons/` — ilova sifatida oʻrnatish uchun.
+
+### Telefon grafikasi (yengil modellar)
+
+`models-lite/` — telefon uchun mashina nusxalari: koʻrinish bir xil (yorugʻlik va teksturani saqlaydigan soddalashtirish),
+lekin hajm ~1,5 barobar, uchburchaklar ~30% kam (Cobalt: 1,9 MB → 0,65 MB). «Telefon» grafikasida shular yuklanadi,
+«Kompyuter» va «Ultra» da asl modellar. Qayta yaratish (`@gltf-transform` 4.1, `meshoptimizer` 0.22, `sharp`):
+
+```
+ERR=0.003 node tools/v2/world/lite.mjs models models-lite 25000 "" index.html
+```
+
+### Promo-kodlar
+
+```
+node tools/v2/world/promo.js add KOD 25000 2026-12-31   # kod, summa ($), oxirgi kun
+node tools/v2/world/promo.js list
+node tools/v2/world/promo.js del KOD
+```
+
+Soʻng `index.html` ni qayta yigʻing va push qiling. Sahifada kodning oʻzi emas, faqat SHA-256 izi saqlanadi; har bir kod har bir
+qurilmada bir marta ishlaydi.
+
+### Statistika va reyting (Netlify)
+
+Repo ildizidagi `netlify/functions/td.mts` (+ `netlify/td-core.mjs`) Netlify Blobs'da saqlaydi: kunlik ochgan / oʻynagan /
+oʻrnatgan / bonus olgan qurilmalar soni va ikki reyting. Shaxsiy maʼlumot yigʻilmaydi (qurilma uchun tasodifiy raqam).
+Statistika sahifasi: **https://tashkentdrive1.netlify.app/stats**. Tekshiruv: `node netlify/core.test.mjs`.
 
 Instagram bonusi: Instagram veb-sahifaga obunani tekshirish imkonini bermaydi, shuning uchun bonus oʻyinchi profilni ochib
 oʻyinga qaytgach beriladi va har bir qurilmada bir marta. Hisob nomi va summa `world.js` dagi `INSTA` obyektida.

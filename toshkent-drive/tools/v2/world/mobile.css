@@ -124,3 +124,5 @@ body.lp .mv-top .stat-line{display:none}
 body.lp #mvInfo{width:220px}
 #installRow[hidden]{display:none}
 body:has(#phone.on) #touch,body:has(#mapv.on) #touch{visibility:hidden!important}
+.ph-input{flex:1;min-width:0;padding:10px 12px;border-radius:9px;border:1px solid var(--line-strong);background:rgba(0,0,0,.35);color:var(--fg);font:inherit;font-family:var(--f-display);font-weight:700;letter-spacing:.08em;text-transform:uppercase;-webkit-user-select:text;user-select:text;touch-action:manipulation}
+.ph-input:focus{outline:2px solid var(--accent);outline-offset:1px}

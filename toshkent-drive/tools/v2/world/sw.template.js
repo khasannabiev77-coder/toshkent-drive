@@ -4,10 +4,11 @@ const V = 'td-__VER__';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
-const ASSET = /\/(models|draco|media|icons)\//, CDN = /^https:\/\/(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;
+const ASSET = /\/(models|models-lite|draco|media|icons)\//, CDN = /^https:\/\/(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;
 self.addEventListener('fetch', e => {
   const r = e.request; if (r.method !== 'GET') return;
   const u = new URL(r.url), same = u.origin === location.origin;
+  if (same && (u.pathname.startsWith("/api/") || u.pathname === "/stats")) return;
   if (r.mode === 'navigate' || (same && /\/(index\.html)?$/.test(u.pathname))) {
     e.respondWith(fetch(r).then(res => { if (res.ok) { const c = res.clone(); caches.open(V).then(x => x.put(r, c)); } return res; })
       .catch(() => caches.match(r).then(m => m || caches.match('index.html'))));

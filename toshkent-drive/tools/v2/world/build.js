@@ -238,12 +238,31 @@ rep('</body>', `<script>
   var standalone=matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone;
   if('serviceWorker' in navigator&&location.protocol!=='file:'&&!window.__TD_TEST)addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
   addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;if(!standalone){row.hidden=false;hint.textContent='';}});
-  addEventListener('appinstalled',function(){row.hidden=true;});
+  addEventListener('appinstalled',function(){row.hidden=true;if(window.__tdHit)window.__tdHit('install');});
   if(!standalone&&/iPhone|iPad|iPod/.test(navigator.userAgent)){row.hidden=false;btn.hidden=true;hint.textContent='Ilova qilish: Safari → «Ulashish» → «Bosh ekranga qoʻshish»';}
   btn.addEventListener('click',function(){if(!ev)return;ev.prompt();ev.userChoice.then(function(){ev=null;row.hidden=true;});});})();
 </script>
 </body>`);
 
+// promo-code hashes (tools/v2/world/promo.js)
+rep('const PROMO=__PROMO__,', 'const PROMO=' + (fs.existsSync(path.join(HERE, 'promo.json')) ? JSON.stringify(JSON.parse(read('promo.json')).map(p => ({ h: p.h, sum: p.sum, until: p.until || '' }))) : '[]') + ',');
+/* ---------------- phone graphics: light copies of the car models (tools/v2/world/lite.mjs → models-lite/) ---------------- */
+{ const idx = path.join(path.dirname(dst), 'models-lite', '_index.json');
+  const LITE = fs.existsSync(idx) ? JSON.parse(fs.readFileSync(idx, 'utf8')) : {};
+  rep('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>\n',
+    '<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>\n<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/meshopt_decoder.js"></script>\n');
+  rep('function modelData(d){const k=d.key+\'@\'+MODEL_VER;',
+    'const LITE=' + JSON.stringify(LITE) + ';\n// phones load the light copy (fewer triangles, smaller textures); computers keep the full model\nconst useLite=d=>!!(d&&d.key&&LITE[d.key])&&S.gfx===\'phone\';\nfunction modelData(d){const lite=useLite(d),k=d.key+(lite?\'@lite\':\'\')+\'@\'+MODEL_VER,base=lite?\'models-lite/\':\'models/\',np=lite?1:d.n;');
+  rep("for(let i=0;i<d.n;i++)parts.push(fetch('models/'+d.key+'.part'+i+'.txt')", "for(let i=0;i<np;i++)parts.push(fetch(base+d.key+'.part'+i+'.txt')");
+  rep("toast(c.brand+' '+c.model+': 3D model yuklanmoqda (~'+d.mb+' MB)…');\n  const ld=new THREE.GLTFLoader();",
+    "toast(c.brand+' '+c.model+': 3D model yuklanmoqda (~'+(useLite(d)?LITE[d.key].mb:d.mb)+' MB)…');\n  const ld=new THREE.GLTFLoader();if(window.MeshoptDecoder&&ld.setMeshoptDecoder)ld.setMeshoptDecoder(window.MeshoptDecoder);");
+  // light models store positions/normals/uvs as normalised integers; three r128 does not scale those in getX, so merge does
+  rep('    list.forEach(o=>{const g=o.geometry,p=g.attributes.position,n=g.attributes.normal,u=g.attributes.uv,m=o.matrixWorld,flipW=m.determinant()<0;nm.getNormalMatrix(m);\n      for(let i=0;i<p.count;i++){const k=(vo+i)*3;v.fromBufferAttribute(p,i).applyMatrix4(m);',
+    '    const dn=a=>{if(!a||!a.normalized)return 1;const A=a.array;return A instanceof Int8Array?1/127:A instanceof Uint8Array?1/255:A instanceof Int16Array?1/32767:A instanceof Uint16Array?1/65535:1;};\n    list.forEach(o=>{const g=o.geometry,p=g.attributes.position,n=g.attributes.normal,u=g.attributes.uv,m=o.matrixWorld,flipW=m.determinant()<0,sp=dn(p),su=dn(u);nm.getNormalMatrix(m);\n      for(let i=0;i<p.count;i++){const k=(vo+i)*3;v.fromBufferAttribute(p,i).multiplyScalar(sp).applyMatrix4(m);');
+  rep('if(U&&u){U[(vo+i)*2]=u.getX(i);U[(vo+i)*2+1]=u.getY(i);}}', 'if(U&&u){U[(vo+i)*2]=u.getX(i)*su;U[(vo+i)*2+1]=u.getY(i)*su;}}'); }
+
+// refuse to write a page whose inline scripts do not parse
+{ const re = /<script>([\s\S]*?)<\/script>/g; let m, i = 0; while ((m = re.exec(s))) { i++; try { new Function(m[1]); } catch (e) { throw new Error('inline script ' + i + ': ' + e.message); } } }
 fs.writeFileSync(dst, s);
 if (copy) fs.writeFileSync(copy, s);
 // the service worker next to the page, versioned by the page content so phones pick up each new build

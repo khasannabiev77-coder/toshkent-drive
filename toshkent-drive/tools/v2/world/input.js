@@ -12,6 +12,7 @@ sndBtn.addEventListener('click',()=>{S.sound=!S.sound;persist();syncSnd();});
 $('#credits').textContent='Barcha '+Object.keys(REAL).length+' ta mashina — Sketchfab mualliflarining 3D modellari (Creative Commons). Har bir model muallifi avtosalonda va README faylida koʻrsatilgan.';
 const KM={KeyW:'up',ArrowUp:'up',KeyS:'down',ArrowDown:'down',KeyA:'left',ArrowLeft:'left',KeyD:'right',ArrowRight:'right',Space:'hb'};
 addEventListener('keydown',e=>{
+  if(e.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)){if(e.code==='Enter'&&e.target.id==='promoIn')redeemPromo(e.target.value);if(e.code==='Escape')e.target.blur();return;}
   if(mode==='stage'){if(e.code==='Escape')closeStage();return;}
   if(mode==='shop'){if((e.code==='Escape'||e.code==='KeyE')&&!e.repeat)V2.closeShop();return;}
   if(mode==='menu')return;

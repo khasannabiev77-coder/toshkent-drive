@@ -424,7 +424,7 @@ const STEPS={
       MS.txt=mode!=='foot'&&dist<14?'Mashinadan tushing (F)':resolve(st.txt,d);return MS.flag;},end:()=>{MS.hintE=null;}},
   photo:{init:(st,d)=>{st._k=resolve(st.lm,d);MS.goal=lmRoad(st._k);},upd:st=>{const l=LM[st._k],dist=Math.hypot(l.x-px(),l.z-pz());MS.sub=l.name+' · '+Math.round(dist)+' m';return MS.flag;}},
   drift:{init:(st,d)=>{d.score=0;},upd:(st,d,dt)=>{if(mode==='drive'){const lat=Math.abs(P.vx*Math.cos(P.h)-P.vz*Math.sin(P.h)),sp=Math.hypot(P.vx,P.vz);if(lat>2.2&&sp>7)d.score+=lat*sp*dt*.9;}
-    MS.sub='Ochko: '+Math.round(d.score)+' / '+st.need+' · '+Math.max(0,Math.ceil(st.dur-MS.t))+' s';if(d.score>=st.need)return true;if(MS.t>st.dur)return 'Ochko yetmadi';return false;}},
+    MS.sub='Ochko: '+Math.round(d.score)+' / '+st.need+' · '+Math.max(0,Math.ceil(st.dur-MS.t))+' s'+(d.score>=st.need?' · bajarildi, rekord uchun davom eting':'');if(MS.t>st.dur)return d.score>=st.need?true:'Ochko yetmadi';return false;}},
   chase:{init:(st,d)=>{const q=snapRoad(P.x+Math.sin(P.h)*95,P.z+Math.cos(P.h)*95);const a=makeAgent('flee',st.spawn.id,st.spawn.ci,q.x,q.z,q.h,{max:st.max||26,acc:8,mission:true});a.hits=0;d.target=a;d.lost=0;},
     upd:(st,d,dt)=>{const a=d.target;if(!a||!a.on)return 'Nishon yoʻqoldi';MS.goal={x:a.x,z:a.z};const dist=Math.hypot(a.x-px(),a.z-pz());
       MS.sub='Zarba: '+Math.min(100,Math.round(a.hits/st.need*100))+'% · '+Math.round(dist)+' m';
@@ -510,7 +510,59 @@ const STORY=[
       {t:'escape',txt:'Kamron sizni politsiyaga sotdi — qutuling!'},
       {t:'goto',txt:'Dalillarni Inspektor Rahimovga olib boring',at:()=>lmRoad('police'),r:10},
       {t:'talk',lines:[['Inspektor Rahimov','Sardor... Lola siz haqingizda aytgan edi. Koʻraylik-chi.'],['Inspektor Rahimov','Surat, hujjatlar, raqamlar... Bu yetarli. Kamron bugun tunda qoʻlga olinadi.'],['Inspektor Rahimov','Sizga qarzdormiz. Shaharga siz kabi odamlar kerak.'],['Sardor','Men faqat Botir akaning mashinasini qaytarmoqchi edim, xolos.']]}],
-    after:()=>addMsg('Botir aka','Eshitdim, eshitdim! Kamron qamaldi. Ustaxonada senga doim joy bor, Sardor. 1-bob tugadi — davomi bor!')}
+    after:()=>{addMsg('Botir aka','Eshitdim, eshitdim! Kamron qamaldi. Ustaxonada senga doim joy bor, Sardor.');setTimeout(()=>addMsg('Inspektor Rahimov','Sardor, Kamron yolgʻiz ishlamagan ekan. Politsiya boshqarmasiga keling — gaplashamiz. (2-bob)'),6000);}},
+  /* ---------- 2-bob: Yangi tahdid ---------- */
+  {id:'s6',idx:5,story:true,chapter:2,title:'Yashirin yuk',giver:'Inspektor Rahimov',at:()=>lmRoad('police'),reward:6000,
+    desc:'Kamronning odamlari Magic City yonida yuk tashiyapti. Shubhali Tahoeni toʻxtatib, yukni tekshiring.',
+    steps:[
+      {t:'talk',lines:[['Inspektor Rahimov','Kamron qamoqda, lekin mashina oʻgʻirlash toʻxtamadi. Demak, uning ortida kimdir bor.'],['Inspektor Rahimov','Bugun Magic City yonida qora Tahoe yuk olib ketyapti. Bizning mashinalarni ular uzoqdan taniydi — siz esa oddiy haydovchisiz.'],['Sardor','Toʻxtatib, nima olib ketayotganini koʻraman.']]},
+      {t:'needcar'},
+      {t:'goto',txt:'Magic City yoniga boring',at:()=>lmRoad('magic'),r:40},
+      {t:'chase',txt:'Qora Tahoeni urib toʻxtating',spawn:{id:'chevrolet-tahoe',ci:1},need:50,max:24},
+      {t:'pickup',txt:'Mashinadan tushib, yukni tekshiring',act:'Yukni tekshirish',at:d=>({x:d.target.x,z:d.target.z})},
+      {t:'goto',txt:'Topilgan raqam va hujjatlarni Inspektor Rahimovga olib boring',at:()=>lmRoad('police'),r:10},
+      {t:'talk',lines:[['Inspektor Rahimov','Oʻnlab soxta raqam... va bitta ism: «Shef».'],['Inspektor Rahimov','Hech kim uni koʻrmagan. Lekin poygachilar orasida u haqida gap yuradi.']]}],
+    after:()=>addMsg('Jasur','Sen Kamronni yengan bolamisan? Men Jasur, drift qiroliman. Shef haqida bilaman — lekin avval Humo Arena yonida meni yeng (20:00 dan keyin).')},
+  {id:'s7',idx:6,story:true,chapter:2,title:'Drift qiroli',giver:'Jasur',hours:[20,5],at:()=>lmRoad('humo'),reward:5000,
+    desc:'Jasur faqat oʻzidan kuchlilar bilan gaplashadi: bir daqiqada 4 000 drift ochko toʻplang.',
+    steps:[
+      {t:'talk',lines:[['Jasur','Tezlik — bu hali hammasi emas. Haqiqiy haydovchi mashinani yonboshlab boshqaradi.'],['Jasur','Bir daqiqada 4 000 ochko. Uddalasang — Shef haqida bilganimni aytaman.'],['Sardor','Kelishdik.']]},
+      {t:'needcar'},
+      {t:'drift',dur:60,need:4000,txt:'Bir daqiqada 4 000 drift ochko toʻplang (Probel)'},
+      {t:'talk',lines:[['Jasur','Ha-ha! Kamron bekorga sendan qoʻrqmagan ekan.'],['Jasur','Shefning odamlari mashinalarni Hazrati Imom yonidagi bozorda sotadi.'],['Jasur','Botir akadan soʻra — u bozordagilarni yaxshi taniydi.']]}],
+    after:d=>{const v=Math.round(d.score||0);if(v>(S.best.drift||0)){S.best.drift=v;API.submit('drift',v);}addMsg('Botir aka','Sardor, Jasur menga qoʻngʻiroq qildi. Ustaxonaga kel — bozor haqida gaplashamiz.');}},
+  {id:'s8',idx:7,story:true,chapter:2,title:'Bozordagi kuzatuv',giver:'Botir aka',at:()=>lmRoad('chorsu',-20),reward:6000,
+    desc:'Hazrati Imom yonidagi savdoni suratga olib, dalillarni Botir akaga keltiring.',
+    steps:[
+      {t:'talk',lines:[['Botir aka','Hazrati Imom yonida mashina bozori bor. Ostida — oʻgʻirlangan mashinalar savdosi.'],['Botir aka','Yaqinlashib surat ol. Lekin hech kimga koʻrinma, ular xavfli odamlar.']]},
+      {t:'goto',txt:'Hazrati Imom majmuasiga boring',at:()=>lmRoad('imom'),r:45},
+      {t:'photo',lm:'imom',r:150,txt:'Mashinadan tushib, savdo joyini suratga oling (K)'},
+      {t:'func',run:()=>{setWanted(2);say([['Sardor','Meni koʻrib qolishdi! Ularning politsiyada ham odami bor ekan — tezroq ketish kerak.']]);}},
+      {t:'escape',txt:'Shefning odamlaridan qutuling'},
+      {t:'goto',txt:'Suratlarni Botir akaga olib boring',at:()=>lmRoad('chorsu',-10),r:10},
+      {t:'talk',lines:[['Botir aka','Mana bu odamni taniyman... U Lolaning taksi parkida ishlaydi!'],['Botir aka','Lolaga ehtiyot boʻlib ayt. Balki u hech narsani bilmas.']]}],
+    after:()=>addMsg('Lola','Sardor, taksi parkimizda gʻalati ishlar boʻlyapti. Bugun «Shef»ning odamlari pulli poyga uyushtiradi. Mustaqillik maydonida uchrashamiz.')},
+  {id:'s9',idx:8,story:true,chapter:2,title:'Katta pul poygasi',giver:'Lola',at:()=>lmRoad('must'),reward:8000,
+    desc:'Shefning poygasida gʻolib boʻling — gʻolib unga shaxsan tanishtiriladi.',
+    steps:[
+      {t:'talk',lines:[['Lola','Shefning odamlari poyga uyushtiradi. Gʻolibni Shefning oʻzi qabul qiladi — boshqa yoʻl bilan unga yetib boʻlmaydi.'],['Sardor','Demak, yutish kerak.'],['Lola','Ha. Raqiblar kuchli — AMG GT va M4. Ehtiyot boʻl.']]},
+      {t:'needcar'},
+      {t:'race',txt:'Shefning poygasida birinchi keling',cps:()=>[lmRoad('navoi'),lmRoad('temur'),lmRoad('hotel'),lmRoad('minor'),lmRoad('park'),lmRoad('must')],rivals:[['mercedes-amg-gt',0],['bmw-m4',3]]},
+      {t:'talk',lines:[['Lola','Yutding! Shefning odami aytdi: u seni bugun kechasi teleminora yonida kutadi.'],['Sardor','Rahimovga aytish kerak.'],['Lola','Ehtiyot boʻl, Sardor. Botir aka aytgan odam — mening oʻrinbosarim ekan. Uni allaqachon ishdan haydadim.']]}],
+    after:()=>addMsg('Inspektor Rahimov','Lola hammasini aytdi. Bugun tunda Shefni qoʻlga olamiz — siz bilan. Boshqarmaga keling (19:00 dan keyin).')},
+  {id:'s10',idx:9,story:true,chapter:2,title:'Shefning oxiri',giver:'Inspektor Rahimov',hours:[19,4],at:()=>lmRoad('police'),reward:25000,
+    desc:'Shefning Urusini quvib yetib toʻxtating va uni adolatga topshiring.',
+    steps:[
+      {t:'talk',lines:[['Inspektor Rahimov','Shef sizni teleminora yonida kutadi. Biz yaqinda boʻlamiz.'],['Inspektor Rahimov','U qochishga urinsa — toʻxtating. U sariq Urusda boʻladi.'],['Sardor','Bu safar qochib qutulolmaydi.']]},
+      {t:'needcar'},
+      {t:'goto',txt:'Teleminoraga boring',at:()=>lmRoad('tv'),r:45},
+      {t:'func',run:()=>say([['Shef','Demak, Kamronni sen qamatding... Sen bilan keyinroq gaplashamiz!']])},
+      {t:'chase',txt:'Shefning Urusini urib toʻxtating',spawn:{id:'lamborghini-urus',ci:8},need:70,max:30},
+      {t:'func',run:()=>{setWanted(3);say([['Inspektor Rahimov','Shef qoʻlga olindi! Lekin uning politsiyadagi odamlari sizni quvyapti — qutuling, keyin boshqarmaga keling.']]);}},
+      {t:'escape',txt:'Sotqin politsiyachilardan qutuling'},
+      {t:'goto',txt:'Inspektor Rahimovning oldiga boring',at:()=>lmRoad('police'),r:10},
+      {t:'talk',lines:[['Inspektor Rahimov','Shef va uning sotqin odamlari qamoqda. Shahar sizga qarzdor, Sardor.'],['Lola','Rahmat, Sardor. Taksi parkimni qutqarding.'],['Botir aka','Qoʻqondan kelgan bola butun Toshkentni tozaladi!'],['Sardor','Men faqat toʻgʻri ishni qildim.']]}],
+    after:()=>addMsg('Botir aka','2-bob tugadi! Endi sen Toshkentning eng mashhur haydovchisisan, Sardor. Davomi bor...')}
 ];
 function storyMarker(){const def=STORY[S.story];if(!def||MS.cur)return null;return def._p||(def._p=def.at());}
 /* ---------- side activities ---------- */
@@ -548,7 +600,8 @@ const SIDE=[
   {id:'esc',title:'Qochish',desc:'Uch yulduzli qidiruvni boshlang va politsiyadan qutuling.',make:()=>({id:'esc',title:'Qochish',wantedOK:true,reward:2000,steps:[
     {t:'func',run:()=>setWanted(3)},{t:'escape',txt:'Uch yulduzli qidiruvdan qutuling'}]})},
   {id:'drift',title:'Drift sinovi',desc:'60 soniyada 3 000 drift ochko yigʻing (Probel — qoʻl tormozi).',make:()=>({id:'drift',title:'Drift sinovi',reward:1500,steps:[
-    {t:'needcar'},{t:'drift',dur:60,need:3000,txt:'Yon tomonga sirpanib ochko yigʻing (Probel)'}]})},
+    {t:'needcar'},{t:'drift',dur:60,need:3000,txt:'Yon tomonga sirpanib ochko yigʻing (Probel)'}],
+    after:d=>{const v=Math.round(d.score||0);if(v>(S.best.drift||0)){S.best.drift=v;toast('Drift rekordi: '+v+' ochko','gold');API.submit('drift',v);}}})},
   {id:'photo',title:'Surat ovi',desc:'Diqqatga sazovor joylarni suratga oling: har bir yangi surat $500.',make:()=>{if(!nearestUnphotographed()){toast('Barcha joylar suratga olingan!','good');return null;}return {id:'photo',title:'Surat ovi',reward:0,steps:[
     {t:'func',run:d=>{d.lm=nearestUnphotographed();}},
     {t:'goto',txt:d=>LM[d.lm].name+' yoniga boring',at:d=>lmRoad(d.lm),r:60},
@@ -687,6 +740,7 @@ const APPS=[
   ['camera','Kamera','#374151','<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l2-3h4l2 3"/>'],
   ['weather','Ob-havo','#2563eb','<circle cx="8" cy="8" r="3"/><path d="M8 20h9a4 4 0 0 0 0-8 5 5 0 0 0-9 1 3.5 3.5 0 0 0 0 7z"/>'],
   ['bonus','Bonus','linear-gradient(45deg,#f09433,#dc2743 50%,#bc1888)','<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>'],
+  ['rank','Reyting','#a16207','<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/>'],
   ['shop','Avtosalon','#0e7490','<path d="M5 17h14l-1.5-6h-11zM7 11l1.5-4h7L17 11M7 17v2M17 17v2"/>'],
   ['garage','Garaj','#475569','<path d="M3 15l2-6h14l2 6v4H3zM7 19v2M17 19v2M6.5 15h.01M17.5 15h.01"/>'],
   ['settings','Sozlamalar','#4b5563','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>'],
@@ -699,7 +753,7 @@ function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').text
   const back=t=>`<div class="ph-title"><button class="ph-back" data-act="home" aria-label="Orqaga">‹</button>${t}</div>`;let h='';
   switch(phApp){
   case 'home':{const un=S.msgs.filter(m=>!m.r).length;h=`<div class="ph-home">`+APPS.filter(a=>a[0]!=='debug'||DEBUG).map(a=>`<button class="app" data-act="app:${a[0]}"><i style="background:${a[2]}">${SVGI(a[3])}</i>${a[1]}${a[0]==='msgs'&&un?`<em>${un}</em>`:a[0]==='bonus'&&!INSTA.got()?'<em>!</em>':''}</button>`).join('')+`</div>`;
-    h+=`<div class="ph-card" style="margin-top:8px"><div class="meta2">Hikoya</div><p>${S.story>=STORY.length?'1-bob yakunlandi. Davomi kutilmoqda!':esc(STORY[S.story].title)+' — '+esc(STORY[S.story].giver)}</p></div>`;break;}
+    h+=`<div class="ph-card" style="margin-top:8px"><div class="meta2">Hikoya</div><p>${S.story>=STORY.length?'2-bob yakunlandi. Davomi kutilmoqda!':(STORY[S.story].chapter||1)+'-bob · '+esc(STORY[S.story].title)+' — '+esc(STORY[S.story].giver)}</p></div>`;break;}
   case 'missions':{h=back('Missiyalar');
     if(MS.cur)h+=`<div class="ph-card cur"><div class="meta2">Joriy</div><h4>${esc(MS.cur.title)}</h4><p>${esc(MS.txt)}</p><button class="btn danger" data-act="mcancel">Bekor qilish</button></div>`;
     STORY.forEach((d,i)=>{const done=i<S.story,cur=i===S.story;h+=`<div class="ph-card${done?' done':cur?' cur':''}"><div class="meta2">${i+1}-missiya · ${esc(d.giver)}${done?' · bajarildi':cur?'':' · yopiq'}</div><h4>${esc(d.title)}</h4>`;
@@ -712,7 +766,7 @@ function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').text
       h+=`<div class="ph-card"><div class="meta2">${esc(j.title)}${extra}</div><p>${esc(j.desc)}</p><button class="btn" data-act="job:${j.id}"${MS.cur?' disabled':''}>${j.id==='anor'?'Eng yaqinini koʻrsatish':j.id==='taxi'?(taxi.on?'Taksi yoqilgan':'Taksini yoqish'):'Boshlash'}</button></div>`;});break;}
   case 'msgs':{h=back('Xabarlar');if(!S.msgs.length)h+='<p class="stat-line">Hozircha xabar yoʻq.</p>';
     S.msgs.slice().reverse().forEach((m,ri2)=>{const i=S.msgs.length-1-ri2;h+=`<div class="msg"><b>${esc(m.f)}</b><span>${esc(tr(m.t))}</span><small>${clockStr(m.h)}</small>${m.a&&!MS.cur?`<button class="btn" style="padding:7px 12px;font-size:13px;align-self:flex-start" data-act="macc:${i}">Qabul qilish</button>`:''}</div>`;m.r=true;});break;}
-  case 'contacts':{h=back('Kontaktlar');const C2=[['botir','Botir aka','Ustaxona, Chorsu',true],['lola','Lola','Taksi dispetcheri',S.story>=3],['mech','Usta Anvar','Mexanik: mashinangizni yoningizga olib keladi ($100)',true],['taxi','Taksi dispetcheri','Taksi buyurtmalari',true],['rah','Inspektor Rahimov','Politsiya',S.story>=5]];
+  case 'contacts':{h=back('Kontaktlar');const C2=[['botir','Botir aka','Ustaxona, Chorsu',true],['lola','Lola','Taksi dispetcheri',S.story>=3],['mech','Usta Anvar','Mexanik: mashinangizni yoningizga olib keladi ($100)',true],['taxi','Taksi dispetcheri','Taksi buyurtmalari',true],['rah','Inspektor Rahimov','Politsiya',S.story>=5],['jasur','Jasur','Drift qiroli, Humo Arena',S.story>=6]];
     C2.forEach(c=>{if(c[3])h+=`<div class="ph-card"><h4>${c[1]}</h4><p>${c[2]}</p><button class="btn ghost" data-act="call:${c[0]}">Qoʻngʻiroq</button></div>`;});break;}
   case 'hero':{const L=S.hero;h=back('Qahramon')+`<div class="ph-card"><div class="meta2">Teri rangi</div>${swRow(SKINS,L.skin,'skin')}</div>
       <div class="ph-card"><div class="meta2">Soch turmagi</div><div class="ph-opt">${HAIRS.map((n,i)=>chip(L.hair===i,'hero:hair:'+i,n)).join('')}</div>${swRow(HAIRC,L.hairC,'hairC')}</div>
@@ -724,16 +778,23 @@ function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').text
     h+=PHOTOS.length?`<div class="ph-gal">${PHOTOS.map((u,i)=>`<a href="${u}" download="toshkent-surat-${i+1}.jpg" title="Yuklab olish"><img src="${u}" alt="Surat ${i+1}"></a>`).join('')}</div>`:'<p class="stat-line">Galereya boʻsh.</p>';break;}
   case 'weather':{const busy=MS.cur||WANT.lvl;h=back('Ob-havo')+`<div class="ph-card"><div class="meta2">Hozir</div><h4 style="font-size:28px">${clockStr(W.tod)}</h4><p>${SEASON_NAME[W.season]} · ${WEATHERS[WX.cur].n} · yoʻl ilashuvi ${Math.round(ENV.grip*100)}%${ENV.wet>.2?' · yoʻllar hoʻl':''}</p></div>
       <div class="ph-card"><div class="meta2">Vaqtni oʻtkazish</div><div class="ph-opt">${[8,13,19,22].map(t=>`<button class="chip" data-act="wait:${t}"${busy?' disabled':''}>${t}:00</button>`).join('')}</div>${busy?'<p>Missiya yoki qidiruv paytida mumkin emas.</p>':''}</div>`;break;}
+  case 'rank':{if(LB.rows===null&&!LB.err&&!LB.busy){LB.busy=1;LB.load();setTimeout(()=>{LB.busy=0;},300);}
+    const nm={drift:'Drift (60 s, ochko)',earned:'Jami topilgan pul'},val=v=>LB.tab==='earned'?fmt(v):Math.round(v)+' ochko';
+    h=back('Reyting')+`<div class="ph-card"><div class="meta2">Ismingiz (reytingda koʻrinadi)</div><div class="row" style="gap:6px;flex-wrap:nowrap"><input id="nickIn" class="ph-input" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Ism" value="${esc(S.nick||'')}" style="text-transform:none;letter-spacing:0"><button class="btn" data-act="nick">Saqlash</button></div><p class="stat-line">Sizning rekordlaringiz: drift ${S.best.drift||0} ochko · topilgan ${fmt(S.earned||0)}</p></div>`+
+      `<div class="ph-opt">${Object.keys(nm).map(k=>chip(LB.tab===k,'lbtab:'+k,nm[k])).join('')}</div>`+
+      (LB.err?'<p class="stat-line">Reyting faqat internet orqali, oʻyinning asosiy saytida ishlaydi.</p>':LB.rows===null?'<p class="stat-line">Yuklanmoqda…</p>':!LB.rows.length?'<p class="stat-line">Hali hech kim yoʻq — birinchi boʻling!</p>':
+      `<div class="ph-card">${LB.rows.map((r,i)=>`<div class="ph-row"${API.dev.startsWith(r.me)?' style="color:var(--gold)"':''}><span>${i+1}. ${esc(r.n)}</span><b>${val(r.v)}</b></div>`).join('')}</div>`)+
+      (LB.tab==='drift'?'<p class="stat-line">Drift rekordi: Telefon → Ishlar → «Drift sinovi».</p>':'');break;}
   case 'bonus':{const got=INSTA.got();h=back('Bonus')+`<div class="ph-card ig-card"><div class="meta2">Instagram bonusi</div><h4>${fmt(INSTA.SUM)}</h4><p>Instagram sahifamiz <b>@${INSTA.USER}</b> ga obuna boʻling va oʻyin hisobingizga bir martalik bonus oling.</p>`+
       (got?'<p style="color:var(--green);font-weight:700">Bonus olingan. Obuna uchun rahmat!</p>':INSTA.ready()?`<button class="btn" data-act="ig:claim">${fmt(INSTA.SUM)} bonusni olish</button>`:`<button class="btn ig-btn" data-act="ig:open">Instagramda obuna boʻlish</button>${INSTA.opened?'<p class="stat-line">Obuna boʻlgach, oʻyinga qayting.</p>':''}`)+
-      `</div><p class="stat-line">Bonus har bir qurilmada bir marta beriladi.</p>`;break;}
-  case 'settings':{const s=S.sub;h=back('Sozlamalar')+`<div class="ph-card"><div class="ph-row"><span>Ovoz</span>${chip(S.sound,'set:sound',S.sound?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Cheksiz pul</span>${chip(S.unlimited,'set:unl',S.unlimited?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Mini-xarita aylansin</span>${chip(!!S.miniRot,'set:rot',S.miniRot?'Ha':'Yoʻq')}</div><div class="ph-row"><span>Sensor tugmalar</span><div class="ph-opt">${[['auto','Avto'],['on','Ha'],['off','Yoʻq']].map(([v,n])=>chip(touchPref()===v,'touch:'+v,n)).join('')}</div></div></div>
+      `</div><div class="ph-card"><div class="meta2">Promo-kod</div><p>Instagram story'larimizda e'lon qilinadigan kodni kiriting.</p><div class="row" style="gap:6px;flex-wrap:nowrap"><input id="promoIn" class="ph-input" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="KOD"><button class="btn" data-act="promo">Olish</button></div></div><p class="stat-line">Bonus har bir qurilmada bir marta beriladi.</p>`;break;}
+  case 'settings':{const s=S.sub;h=back('Sozlamalar')+`<div class="ph-card"><div class="ph-row"><span>Ovoz</span>${chip(S.sound,'set:sound',S.sound?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Cheksiz pul</span>${chip(S.unlimited,'set:unl',S.unlimited?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Mini-xarita aylansin</span>${chip(!!S.miniRot,'set:rot',S.miniRot?'Ha':'Yoʻq')}</div><div class="ph-row"><span>Yoʻl qoidalari (jarimalar)</span>${chip(S.rules!==false,'set:rules',S.rules!==false?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Sensor tugmalar</span><div class="ph-opt">${[['auto','Avto'],['on','Ha'],['off','Yoʻq']].map(([v,n])=>chip(touchPref()===v,'touch:'+v,n)).join('')}</div></div></div>
       <div class="ph-card"><div class="meta2">Subtitrlar</div><div class="ph-row"><span>Holat</span>${chip(s.on,'set:sub',s.on?'Yoqilgan':'Oʻchiq')}</div>
         <div class="ph-row"><span>Shrift</span><div class="ph-opt">${[[.85,'S'],[1,'M'],[1.2,'L'],[1.4,'XL']].map(([v,n])=>chip(s.size===v,'set:size:'+v,n)).join('')}</div></div>
         <div class="ph-row"><span>Fon</span><div class="ph-opt">${[[0,'0%'],[.35,'35%'],[.6,'60%'],[.85,'85%']].map(([v,n])=>chip(s.bg===v,'set:bg:'+v,n)).join('')}</div></div>
         <div class="ph-row"><span>Til</span><div class="ph-opt">${chip(!s.cyr,'set:cyr:0','Lotin')}${chip(s.cyr,'set:cyr:1','Кирилл')}</div></div></div>
       <div class="ph-card"><div class="meta2">Grafika</div><div class="ph-opt">${Object.keys(GFX).map(k=>chip(S.gfx===k,'gfx:'+k,GFX[k].name)).join('')}</div></div>
-      <div class="ph-card"><div class="meta2">Saqlash (avto-saqlash har 20 soniyada)</div>${[1,2,3].map(n=>{const m=slotMeta(n);return `<div class="ph-row"><span>${n}-slot: ${m?'hikoya '+m.story+'/5 · '+new Date(m.when).toLocaleString('uz'):'boʻsh'}</span><button class="chip" data-act="save:${n}">Saqlash</button></div>`;}).join('')}</div>
+      <div class="ph-card"><div class="meta2">Saqlash (avto-saqlash har 20 soniyada)</div>${[1,2,3].map(n=>{const m=slotMeta(n);return `<div class="ph-row"><span>${n}-slot: ${m?'hikoya '+m.story+'/'+STORY.length+' · '+new Date(m.when).toLocaleString('uz'):'boʻsh'}</span><button class="chip" data-act="save:${n}">Saqlash</button></div>`;}).join('')}</div>
       <button class="btn ghost" data-act="tomenu">Asosiy menyuga chiqish</button>`;break;}
   case 'debug':{h=back('Debug')+`<div class="ph-card"><div class="meta2">Teleport</div><div class="ph-opt">${Object.keys(LM).map(k=>chip(false,'dbg:tp:'+k,LM[k].name.split(' ')[0])).join('')}</div></div>
       <div class="ph-card"><div class="meta2">Vaqt / ob-havo</div><div class="ph-opt">${[6,12,18,22,2].map(t=>chip(false,'dbg:time:'+t,t+':00')).join('')}</div><div class="ph-opt">${Object.keys(WEATHERS).map(k=>chip(WX.cur===k,'dbg:wx:'+k,WEATHERS[k].n)).join('')}</div></div>
@@ -748,6 +809,9 @@ $('#phBody').addEventListener('click',e=>{const b=e.target.closest('[data-act]')
     case 'home':phApp='home';break;
     case 'app':if(x==='map'){openMap();return;}if(x==='garage'||x==='shop'){closePhone();openStage(x);return;}phApp=x;break;
     case 'ig':if(x==='open')INSTA.open();else INSTA.claim();break;
+    case 'lbtab':LB.tab=x;LB.load();break;
+    case 'nick':{const i=$('#nickIn'),n=String(i&&i.value||'').normalize('NFC').replace(/[^p{L}p{N} _.-]/gu,'').replace(/s+/g,' ').trim().slice(0,16);if(!n){toast('Ism kiriting','bad');return;}S.nick=n;persist();toast('Ism saqlandi: '+n,'good');if(S.best.drift)API.submit('drift',S.best.drift);if(S.earned)API.submit('earned',S.earned);setTimeout(()=>LB.load(),1200);break;}
+    case 'promo':{const i=$('#promoIn');redeemPromo(i&&i.value);return;}
     case 'touch':setTouchPref(x);break;
     case 'mcancel':failMission('Bekor qilindi');break;
     case 'sgps':{const m=storyMarker();if(m){GPS.wp={x:m.x,z:m.z};toast('GPS oʻrnatildi','gold');closePhone();}return;}
@@ -757,7 +821,7 @@ $('#phBody').addEventListener('click',e=>{const b=e.target.closest('[data-act]')
     case 'call':closePhone();callContact(x);return;
     case 'hero':{const L=S.hero;if(x==='glasses')L.glasses=y==='1';else L[x]=+y;rebuildHero();if(mode==='foot')HERO.mesh.visible=true;persist();break;}
     case 'photo':closePhone();setTimeout(takePhoto,180);return;
-    case 'set':if(x==='sound'){S.sound=!S.sound;syncSnd();}else if(x==='unl'){S.unlimited=!S.unlimited;updMoney();}else if(x==='rot')S.miniRot=!S.miniRot;else if(x==='sub')S.sub.on=!S.sub.on;
+    case 'set':if(x==='sound'){S.sound=!S.sound;syncSnd();}else if(x==='unl'){S.unlimited=!S.unlimited;updMoney();}else if(x==='rot')S.miniRot=!S.miniRot;else if(x==='rules')S.rules=S.rules===false;else if(x==='sub')S.sub.on=!S.sub.on;
       else if(x==='size')S.sub.size=+y;else if(x==='bg')S.sub.bg=+y;else if(x==='cyr')S.sub.cyr=y==='1';applySubStyle();persist();break;
     case 'gfx':applyGfx(x,true);break;
     case 'save':saveSlot(+x);break;
@@ -766,6 +830,7 @@ $('#phBody').addEventListener('click',e=>{const b=e.target.closest('[data-act]')
   renderPhone();});
 function callContact(k){const st=S.story;
   if(k==='botir')say([['Botir aka',st<1?'Chorsuga kel, ukam, ish bor!':st<3?'Ustaxonada ish koʻp, lekin sen koʻchada kerakroqsan.':'Doim kutib qolaman, Sardor!']]);
+  else if(k==='jasur')say([['Jasur',st<7?'Humo Arena yonida, kechqurun. Kutaman!':st<10?'Shefni tutsang — senga yangi drift yoʻlini koʻrsataman.':'Sen endi haqiqiy afsonasan, Sardor!']]);
   else if(k==='lola')say([['Lola',st<5?'Ehtiyot boʻl, Sardor. Kamronning odamlari hamma joyda.':'Shahar tinchroq boʻlib qoldi. Rahmat senga.']]);
   else if(k==='mech'){if(mode!=='foot'){say([['Usta Anvar','Siz allaqachon mashinadasiz-ku!']]);return;}if(!pay(100)){say([['Usta Anvar','Avval $100 tayyorlab qoʻying.']]);return;}
     bringCarToHero();updMoney();say([['Usta Anvar','Mashinangiz yaqindagi yoʻlda turibdi. Xizmatga tayyormiz!']]);}
@@ -822,6 +887,29 @@ $('#mvClr').addEventListener('click',()=>{GPS.wp=null;GPS.t=0;updateGPS(1);drawM
 $('#mvClose').addEventListener('click',closeMap);
 addEventListener('resize',()=>{if(mapOpen){sizeMap();drawMap();}});
 
+/* ================= traffic rules: red lights and speed cameras at signalled crossings ================= */
+// Fines apply only in free roam (no mission, no police chase) and can be turned off in Settings.
+const RULES={inside:false,cool:0,fines:0};
+function fine(sum,why){if(!S.unlimited)S.money=Math.max(0,S.money-sum);RULES.fines+=sum;updMoney();toast(why+' — jarima '+fmt(sum),'bad');beep(300,.12);
+  if(AGENTS.some(a=>a.on&&a.pool==='police'&&Math.hypot(a.x-P.x,a.z-P.z)<45)){addWanted(1);toast('Politsiya buni koʻrdi!','bad');}}
+function updateRules(dt){RULES.cool=Math.max(0,RULES.cool-dt);if(mode!=='drive'||S.rules===false)return;
+  const i=nearestRoadIdx(P.x),j=nearestRoadIdx(P.z),inside=Math.abs(P.x-ROADS[i])<RW(i)/2-.5&&Math.abs(P.z-ROADS[j])<RW(j)/2-.5;
+  if(inside&&!RULES.inside&&!MS.cur&&!WANT.lvl&&!EVT.cur&&RULES.cool<=0){const sp=Math.hypot(P.vx,P.vz),ax=Math.abs(P.vz)>Math.abs(P.vx)?'z':'x';
+    if(TL[ax]==='r'&&sp>5){RULES.cool=6;fine(150,'Qizil chiroqdan oʻtdingiz');}
+    else if(sp*3.6>100){RULES.cool=6;fine(100,'Radar: '+Math.round(sp*3.6)+' km/soat (cheklov 100)');}}
+  RULES.inside=inside;}
+
+/* ================= online: anonymous usage counts and leaderboards (Netlify functions in netlify/) ================= */
+const API={dev:(()=>{try{let d=localStorage.getItem('td-device');if(!d||!/^[a-f0-9]{16}$/.test(d)){d=[...crypto.getRandomValues(new Uint8Array(8))].map(b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem('td-device',d);}return d;}catch(e){return '';}})(),
+  on(){return !window.__TD_TEST&&location.protocol==='https:'&&!/github.io$/.test(location.hostname)&&!!API.dev;},
+  post(u,o){try{return fetch(u,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(o),keepalive:true}).catch(()=>null);}catch(e){return Promise.resolve(null);}},
+  hit(e){if(API.on())API.post('/api/hit',{d:API.dev,e});},
+  submit(b,v){if(API.on()&&S.nick&&v>0)API.post('/api/lb',{b,d:API.dev,n:S.nick,v:Math.round(v)});},
+  async top(b){const r=await fetch('/api/lb?b='+b,{cache:'no-store'});if(!r.ok)throw new Error('lb');const j=await r.json();return j.rows||[];},
+  lastE:0,lastT:0};
+window.__tdHit=e=>API.hit(e);
+const LB={tab:'drift',rows:null,err:false,load(){LB.rows=null;LB.err=false;if(!API.on()){LB.err=true;return;}API.top(LB.tab).then(r=>{LB.rows=r;}).catch(()=>{LB.err=true;}).then(()=>{if(phoneOpen&&phApp==='rank')renderPhone();});}};
+
 /* ================= Instagram follow bonus (once per device) and touch-control preference ================= */
 // Instagram gives no way to check a follow from a web page, so the bonus unlocks after the player has opened the profile
 // and come back; it is remembered per device (localStorage) and per save.
@@ -831,8 +919,18 @@ const INSTA={USER:'azamowc',SUM:50000,K:'toshkent-drive-ig-bonus',opened:false,t
   open(){INSTA.opened=true;INSTA.t=Date.now();try{window.open('https://www.instagram.com/'+INSTA.USER+'/','_blank','noopener');}catch(e){}
     syncIG();setTimeout(()=>{syncIG();if(phoneOpen&&phApp==='bonus')renderPhone();},5200);},
   claim(){if(INSTA.got())return;if(!INSTA.ready()){toast('Avval Instagramda obuna boʻling','bad');return;}
-    earn(INSTA.SUM);S.igBonus=true;try{localStorage.setItem(INSTA.K,'1');}catch(e){}persist();updMoney();syncIG();menuStatLine();
+    earn(INSTA.SUM);S.igBonus=true;API.hit('bonus');try{localStorage.setItem(INSTA.K,'1');}catch(e){}persist();updMoney();syncIG();menuStatLine();
     toast('Instagram bonusi: +'+fmt(INSTA.SUM)+' · Obuna uchun rahmat!','gold');}};
+// promo codes from Instagram stories: only SHA-256 hashes are in the page (tools/v2/world/promo.js manages them)
+const PROMO=__PROMO__,PROMO_K='toshkent-drive-promo-used';
+function promoUsed(){try{return JSON.parse(localStorage.getItem(PROMO_K)||'[]');}catch(e){return [];}}
+async function redeemPromo(raw){const code=String(raw||'').trim().toUpperCase();if(!code){toast('Kodni kiriting','bad');return;}
+  let h='';try{const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('td:'+code));h=[...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('');}catch(e){toast('Bu brauzerda kod tekshirib boʻlmadi','bad');return;}
+  const p=PROMO.find(x=>x.h===h);if(!p){toast('Bunday kod yoʻq','bad');return;}
+  if(p.until&&new Date().toISOString().slice(0,10)>p.until){toast('Bu kodning muddati tugagan','bad');return;}
+  const used=promoUsed();if(used.includes(h)||(S.promo||[]).includes(h)){toast('Bu kod allaqachon ishlatilgan','bad');return;}
+  used.push(h);try{localStorage.setItem(PROMO_K,JSON.stringify(used));}catch(e){}API.hit('promo');S.promo=(S.promo||[]).concat(h);earn(p.sum);persist();updMoney();
+  toast('Promo-kod qabul qilindi: +'+fmt(p.sum),'gold');if(phoneOpen)renderPhone();}
 function syncIG(){const b=$('#igBanner');if(!b)return;const got=INSTA.got();b.hidden=got;if(got)return;
   b.classList.toggle('ready',INSTA.ready());$('#igBtnT').textContent=INSTA.ready()?'Bonusni olish':'Obuna boʻlish';}
 $('#igBanner').addEventListener('click',()=>{if(INSTA.ready())INSTA.claim();else INSTA.open();});
@@ -846,25 +944,25 @@ const slotKey=n=>KEY+'-slot'+n;
 function slotMeta(n){try{const d=JSON.parse(localStorage.getItem(slotKey(n))||'null');return d?{story:d.story|0,when:d.savedAt||0}:null;}catch(e){return null;}}
 function saveSlot(n){persist();try{const d=JSON.parse(localStorage.getItem(KEY));d.savedAt=Date.now();localStorage.setItem(slotKey(n),JSON.stringify(d));toast(n+'-slotga saqlandi','good');}catch(e){toast('Saqlab boʻlmadi','bad');}}
 function loadSlot(n){try{const raw=localStorage.getItem(slotKey(n));if(!raw)return;sanitize(JSON.parse(raw));NO_SAVE=true;localStorage.setItem(KEY,raw);location.reload();}catch(e){toast('Slot buzilgan','bad');}}
-persistHook=()=>{S.tod=W.tod;S.pos={x:P.x,z:P.z,h:P.h};S.hpos={x:HERO.x,z:HERO.z,h:HERO.h};if(mode==='foot'||mode==='drive')S.onFoot=mode==='foot';S.hp=Math.round(HERO.hp);};
+persistHook=()=>{if(S.nick&&S.earned>API.lastE+500&&Date.now()-API.lastT>60000){API.lastE=S.earned;API.lastT=Date.now();API.submit('earned',S.earned);}S.tod=W.tod;S.pos={x:P.x,z:P.z,h:P.h};S.hpos={x:HERO.x,z:HERO.z,h:HERO.h};if(mode==='foot'||mode==='drive')S.onFoot=mode==='foot';S.hp=Math.round(HERO.hp);};
 addEventListener('pagehide',()=>{if(mode==='drive'||mode==='foot')persist();});
 function showGameUI(){$('#touch').style.visibility='visible';$('#menu').hidden=true;$('#stageUI').hidden=true;$('#hud').hidden=false;canvas.focus();updMoney();}
 function startFoot(){initAudio();if(A&&A.ac.state==='suspended')A.ac.resume();mode='foot';document.body.classList.add('foot');HERO.mesh.visible=true;showGameUI();}
-function startGame(){if(S.onFoot){HERO.y=groundAt(HERO.x,HERO.z);FC.yaw=HERO.h+Math.PI;startFoot();}else startDrive();
+function startGame(){API.hit('play');if(S.onFoot){HERO.y=groundAt(HERO.x,HERO.z);FC.yaw=HERO.h+Math.PI;startFoot();}else startDrive();
   if(!INSTA.got()&&!INSTA.nag){INSTA.nag=1;setTimeout(()=>{if(!INSTA.got())toast('Telefon → Bonus: Instagramga obuna boʻling va '+fmt(INSTA.SUM)+' oling','gold');},9000);}
   if(!S.played){S.played=1;setTimeout(()=>addMsg('Botir aka','Assalomu alaykum, Sardor! Toshkentga xush kelibsan. Chorsu bozori yonidagi ustaxonamga kel — senga ish bor. (Xaritada S belgisi)'),2500);}persist();}
 let newArm=false;
 $('#newGame').addEventListener('click',()=>{const b=$('#newGame');if(!newArm){newArm=true;b.textContent='Tasdiqlang: hammasi oʻchadi';setTimeout(()=>{newArm=false;b.textContent='Yangi oʻyin';},3500);return;}
   const f=freshSave();f.gfx=S.gfx;f.sub=S.sub;f.sound=S.sound;NO_SAVE=true;try{localStorage.setItem(KEY,JSON.stringify(f));}catch(e){}location.reload();});
 $('#loadGame').addEventListener('click',()=>{const r=$('#slotRow');r.hidden=!r.hidden;if(r.hidden)return;
-  r.innerHTML='<span class="stat-line">Slotlar:</span>'+[1,2,3].map(n=>{const m=slotMeta(n);return `<button class="chip" data-slot="${n}"${m?'':' disabled'}>${n}: ${m?'hikoya '+m.story+'/5':'boʻsh'}</button>`;}).join('');});
+  r.innerHTML='<span class="stat-line">Slotlar:</span>'+[1,2,3].map(n=>{const m=slotMeta(n);return `<button class="chip" data-slot="${n}"${m?'':' disabled'}>${n}: ${m?'hikoya '+m.story+'/'+STORY.length:'boʻsh'}</button>`;}).join('');});
 $('#slotRow').addEventListener('click',e=>{const b=e.target.closest('[data-slot]');if(b&&!b.disabled)loadSlot(+b.dataset.slot);});
 function menuStatLine(){$('#menuStat').innerHTML=`Hikoya: <b>${Math.min(S.story,STORY.length)}/${STORY.length}</b> · Hisob: <b>${S.unlimited?'∞ cheksiz':fmt(S.money)}</b> · Garajda: <b>${S.owned.length}</b> ta mashina · Vaqt: <b>${clockStr(W.tod)}</b>`;}
 menuStatLine();
 if(S.pos){P.x=S.pos.x;P.z=S.pos.z;P.h=S.pos.h;}
 if(S.hpos){HERO.x=S.hpos.x;HERO.z=S.hpos.z;HERO.h=S.hpos.h;}else{HERO.x=P.x-3;HERO.z=P.z;}
 HERO.y=groundAt(HERO.x,HERO.z);HERO.hp=S.hp;
-window.__TD_WORLD=true;
+window.__TD_WORLD=true;API.hit('open');
 V2.init();setWeather(WEATHERS[S.weather]?S.weather:'clear',true);useOwnedCar();applySubStyle();updMoney();
 cam.position.set(P.x,4,P.z+10);
 
@@ -872,7 +970,7 @@ let last=performance.now(),menuA=0,autoT=20;
 // one simulation tick of the open world (also driven directly by the automated test hook)
 function simulate(dt){V2.tick(dt);updateWeather(dt,true);updateTraffic(dt);updatePeople(dt);
   if(mode==='drive')updateDrive(dt);else updateFoot(dt);
-  updateAgents(dt);updateHelis(dt);updateOfficers(dt);updateWanted(dt);updateMission(dt);updateDialog(dt);updateEvents(dt);updateAnor(dt);updateDiscovery(dt);updateGPS(dt);updateHints();}
+  updateAgents(dt);updateHelis(dt);updateOfficers(dt);updateWanted(dt);updateMission(dt);updateDialog(dt);updateEvents(dt);updateAnor(dt);updateDiscovery(dt);updateGPS(dt);updateRules(dt);updateHints();}
 function frame(now){
   const dt=clamp((now-last)/1000,0,.05);last=now; // the first rAF stamp can predate the end of the (long) init script
   try{
@@ -893,5 +991,5 @@ function frame(now){
 }
 requestAnimationFrame(frame);
 if(window.__TD_TEST)window.__td={V2,W,applySeason,startDrive,resetToRoad,setPlayerCar,BLOCKS,updateTraffic,updatePeople,updateDrive,ROADS,CAT,persist,getMode:()=>mode,renderer,scene,TRAFFIC,TL,taxi,get A(){return A;},ST,openStage,showStageCar,CARS,realTpl,P,cam,PEOPLE,SHOPPTS,HERO,WANT,MS,STORY,SIDE,AGENTS,EVT,S,ENV,WX,LM,GPS,DLG,
-  scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
+  scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,loadReal,REAL,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
 

@@ -1,0 +1,8 @@
+{
+  "name": "toshkent-drive",
+  "private": true,
+  "description": "Toshkent Drive — the game is the static folder toshkent-drive/; netlify/ holds the small API (usage counts, leaderboards).",
+  "dependencies": {
+    "@netlify/blobs": "^11.1.9"
+  }
+}
