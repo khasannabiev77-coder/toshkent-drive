@@ -331,7 +331,7 @@ function policeMesh(){const sp=CAR['chevrolet-cobalt'],g=buildProcCar(sp,0,{lod:
   const l1=new THREE.Mesh(box(.46,.12,.24),r);l1.position.set(-.28,sp.H+.07,-.1);g.add(l1);const l2=new THREE.Mesh(box(.46,.12,.24),b);l2.position.set(.28,sp.H+.07,-.1);g.add(l2);
   g.userData.lights=[r,b];return g;}
 function makeAgent(kind,id,ci,x,z,h,o){o=o||{};const pol=kind==='police'||kind==='block'||kind==='chaser';let a=pol?AGENTS.find(q=>!q.on&&!q.dead&&q.pool==='police'):null;
-  if(!a){const plate=pol?null:randomPlate(),mesh=pol?policeMesh():realTpl[id]&&REAL[id]?realCarFor(CAR[id],ci,plate,S.gfx!=='phone'):buildCar(CAR[id],ci,{lod:true,proc:true,quiet:true,plate});if(!pol&&!realTpl[id]&&REAL[id])loadReal(id,false);if(mesh.parent!==scene)scene.add(mesh);a={pool:pol?'police':'civ',mesh,id:pol?'chevrolet-cobalt':id,ci:pol?0:ci,plate};AGENTS.push(a);}
+  if(!a){const plate=pol?null:randomPlate(),mesh=pol?policeMesh():realTpl[id]&&REAL[id]?realCarFor(CAR[id],ci,plate,!LOWG()):buildCar(CAR[id],ci,{lod:true,proc:true,quiet:true,plate});if(!pol&&!realTpl[id]&&REAL[id])loadReal(id,false);if(mesh.parent!==scene)scene.add(mesh);a={pool:pol?'police':'civ',mesh,id:pol?'chevrolet-cobalt':id,ci:pol?0:ci,plate};AGENTS.push(a);}
   Object.assign(a,{on:true,dead:false,kind,x,z,h:h||0,speed:0,vx:0,vz:0,hits:0,stuck:0,rev:0,leave:false,goal:null,siren:pol,sees:false,offCD:3,
     enterable:!!o.enterable,tag:o.tag||null,onEnter:o.onEnter||null,onHit:o.onHit||(pol?policeHit:null),max:o.max||30,acc:o.acc||9,route:o.route||null,ri:0,done:false,hold:false,
     hazard:!!o.hazard,target:o.target||null,life:o.life||0,mission:!!o.mission});
@@ -869,12 +869,12 @@ function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').text
   case 'bonus':{const got=INSTA.got();h=back('Bonus')+`<div class="ph-card ig-card"><div class="meta2">Instagram bonusi</div><h4>${fmt(INSTA.SUM)}</h4><p>Instagram sahifamiz <b>@${INSTA.USER}</b> ga obuna boʻling va oʻyin hisobingizga bir martalik bonus oling.</p>`+
       (got?'<p style="color:var(--green);font-weight:700">Bonus olingan. Obuna uchun rahmat!</p>':INSTA.ready()?`<button class="btn" data-act="ig:claim">${fmt(INSTA.SUM)} bonusni olish</button>`:`<button class="btn ig-btn" data-act="ig:open">Instagramda obuna boʻlish</button>${INSTA.opened?'<p class="stat-line">Obuna boʻlgach, oʻyinga qayting.</p>':''}`)+
       `</div><div class="ph-card"><div class="meta2">Promo-kod</div><p>Instagram story'larimizda e'lon qilinadigan kodni kiriting.</p><div class="row" style="gap:6px;flex-wrap:nowrap"><input id="promoIn" class="ph-input" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="KOD"><button class="btn" data-act="promo">Olish</button></div></div><p class="stat-line">Bonus har bir qurilmada bir marta beriladi.</p>`;break;}
-  case 'settings':{const s=S.sub;h=back('Sozlamalar')+`<div class="ph-card"><div class="ph-row"><span>Ovoz</span>${chip(S.sound,'set:sound',S.sound?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Cheksiz pul</span>${chip(S.unlimited,'set:unl',S.unlimited?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Mini-xarita aylansin</span>${chip(!!S.miniRot,'set:rot',S.miniRot?'Ha':'Yoʻq')}</div><div class="ph-row"><span>Yoʻl qoidalari (jarimalar)</span>${chip(S.rules!==false,'set:rules',S.rules!==false?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Sensor tugmalar</span><div class="ph-opt">${[['auto','Avto'],['on','Ha'],['off','Yoʻq']].map(([v,n])=>chip(touchPref()===v,'touch:'+v,n)).join('')}</div></div></div>
+  case 'settings':{const s=S.sub;h=back('Sozlamalar')+`<div class="ph-card"><div class="ph-row"><span>Ovoz</span>${chip(S.sound,'set:sound',S.sound?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Cheksiz pul</span>${chip(S.unlimited,'set:unl',S.unlimited?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>Mini-xarita aylansin</span>${chip(!!S.miniRot,'set:rot',S.miniRot?'Ha':'Yoʻq')}</div><div class="ph-row"><span>Yoʻl qoidalari (jarimalar)</span>${chip(S.rules!==false,'set:rules',S.rules!==false?'Yoqilgan':'Oʻchiq')}</div><div class="ph-row"><span>FPS koʻrsatkichi</span>${chip(!!S.showFps,'set:fps',S.showFps?'Ha':'Yoʻq')}</div><div class="ph-row"><span>Sensor tugmalar</span><div class="ph-opt">${[['auto','Avto'],['on','Ha'],['off','Yoʻq']].map(([v,n])=>chip(touchPref()===v,'touch:'+v,n)).join('')}</div></div></div>
       <div class="ph-card"><div class="meta2">Subtitrlar</div><div class="ph-row"><span>Holat</span>${chip(s.on,'set:sub',s.on?'Yoqilgan':'Oʻchiq')}</div>
         <div class="ph-row"><span>Shrift</span><div class="ph-opt">${[[.85,'S'],[1,'M'],[1.2,'L'],[1.4,'XL']].map(([v,n])=>chip(s.size===v,'set:size:'+v,n)).join('')}</div></div>
         <div class="ph-row"><span>Fon</span><div class="ph-opt">${[[0,'0%'],[.35,'35%'],[.6,'60%'],[.85,'85%']].map(([v,n])=>chip(s.bg===v,'set:bg:'+v,n)).join('')}</div></div>
         <div class="ph-row"><span>Til</span><div class="ph-opt">${chip(!s.cyr,'set:cyr:0','Lotin')}${chip(s.cyr,'set:cyr:1','Кирилл')}</div></div></div>
-      <div class="ph-card"><div class="meta2">Grafika</div><div class="ph-opt">${Object.keys(GFX).map(k=>chip(S.gfx===k,'gfx:'+k,GFX[k].name)).join('')}</div></div>
+      <div class="ph-card"><div class="meta2">Grafika</div><div class="ph-opt">${chip(!!S.gfxAuto,'gfx:auto','Avto')}${Object.keys(GFX).map(k=>chip(S.gfx===k&&!S.gfxAuto,'gfx:'+k,GFX[k].name)).join('')}</div></div>
       <div class="ph-card"><div class="meta2">Saqlash (avto-saqlash har 20 soniyada)</div>${[1,2,3].map(n=>{const m=slotMeta(n);return `<div class="ph-row"><span>${n}-slot: ${m?'hikoya '+m.story+'/'+STORY.length+' · '+new Date(m.when).toLocaleString('uz'):'boʻsh'}</span><button class="chip" data-act="save:${n}">Saqlash</button></div>`;}).join('')}</div>
       <button class="btn ghost" data-act="tomenu">Asosiy menyuga chiqish</button>`;break;}
   case 'debug':{h=back('Debug')+`<div class="ph-card"><div class="meta2">Teleport</div><div class="ph-opt">${Object.keys(LM).map(k=>chip(false,'dbg:tp:'+k,LM[k].name.split(' ')[0])).join('')}</div></div>
@@ -902,9 +902,9 @@ $('#phBody').addEventListener('click',e=>{const b=e.target.closest('[data-act]')
     case 'call':closePhone();callContact(x);return;
     case 'hero':{const L=S.hero;if(x==='orig'){L.tint=false;rebuildHero();if(mode==='foot')HERO.mesh.visible=true;persist();break;}L.tint=true;if(x==='glasses')L.glasses=y==='1';else L[x]=+y;rebuildHero();if(mode==='foot')HERO.mesh.visible=true;persist();break;}
     case 'photo':closePhone();setTimeout(takePhoto,180);return;
-    case 'set':if(x==='sound'){S.sound=!S.sound;syncSnd();}else if(x==='unl'){S.unlimited=!S.unlimited;updMoney();}else if(x==='rot')S.miniRot=!S.miniRot;else if(x==='rules')S.rules=S.rules===false;else if(x==='sub')S.sub.on=!S.sub.on;
+    case 'set':if(x==='sound'){S.sound=!S.sound;syncSnd();}else if(x==='unl'){S.unlimited=!S.unlimited;updMoney();}else if(x==='rot')S.miniRot=!S.miniRot;else if(x==='rules')S.rules=S.rules===false;else if(x==='fps')S.showFps=!S.showFps;else if(x==='sub')S.sub.on=!S.sub.on;
       else if(x==='size')S.sub.size=+y;else if(x==='bg')S.sub.bg=+y;else if(x==='cyr')S.sub.cyr=y==='1';applySubStyle();persist();break;
-    case 'gfx':applyGfx(x,true);break;
+    case 'gfx':if(x==='auto'){S.gfxAuto=true;applyGfx(detectGfx(),true);}else{S.gfxAuto=false;applyGfx(x,true);}break;
     case 'save':saveSlot(+x);break;
     case 'tomenu':persist();NO_SAVE=true;location.reload();return;
     case 'dbg':debugAct(x,y);break;}
@@ -974,7 +974,7 @@ const T3D={t:3,loading:null,ids:null};
 function realCarFor(sp,ci,plate,shadow){const m=buildCar(sp,ci,{lod:true,quiet:true,plate});m.userData.sp=m.userData.sp||sp;m.traverse(o=>{if(o.isMesh){o.castShadow=shadow;}});scene.add(m);return m;}
 function swapMesh(o,target){if(o.mesh===target)return;target.position.copy(o.mesh.position);target.rotation.copy(o.mesh.rotation);target.visible=o.mesh.visible;o.mesh.visible=false;o.mesh=target;}
 function update3DCars(dt){T3D.t-=dt;if(T3D.t>0)return;T3D.t=.5;if(mode!=='drive'&&mode!=='foot')return;
-  const phone=S.gfx==='phone',K=phone?6:12,R2=(phone?160:220)**2,shadow=!phone;
+  const lv=GFXN(),phone=lv<=1,K=[3,6,9,12,16][lv],R2=(phone?160:220)**2,shadow=lv>=3;
   if(!T3D.ids){const cnt={};TCARS.forEach(id=>cnt[id]=(cnt[id]||0)+1);T3D.ids=Object.keys(cnt).filter(id=>REAL[id]&&REAL[id].key).sort((a,b)=>cnt[b]-cnt[a]);if(phone)T3D.ids=T3D.ids.slice(0,7);}
   // download one model at a time, most common cars first, mission cars before all
   if(!T3D.loading||realTpl[T3D.loading]||!realReq[T3D.loading]){const need=AGENTS.filter(a=>a.on&&a.pool==='civ'&&REAL[a.id]&&!realTpl[a.id]).map(a=>a.id).concat(T3D.ids).find(id=>!realTpl[id]);
@@ -985,6 +985,27 @@ function update3DCars(dt){T3D.t-=dt;if(T3D.t>0)return;T3D.t=.5;if(mode!=='drive'
   for(const [t,d2] of list){const want=n<K&&d2<R2&&!!realTpl[t.sp.id];
     if(want){n++;if(!t.real)t.real=realCarFor(t.sp,t.ci,t.plate,shadow);swapMesh(t,t.real);}else if(t.mesh!==t.proc)swapMesh(t,t.proc);}
   for(const a of AGENTS)if(a.on&&a.pool==='civ'&&realTpl[a.id]&&!a.mesh.userData.real){const old=a.mesh,m=realCarFor(CAR[a.id],a.ci,a.plate,shadow);swapMesh(a,m);scene.remove(old);disposeCar(old);}}
+
+/* ================= graphics: hardware detection, light-preset test, FPS guard and counter ================= */
+function LOWG(){return ['phone','vlow'].indexOf(S.gfx)>=0;}
+function GFXN(){const v=({vlow:0,phone:1,medium:2,pc:3,ultra:4})[S.gfx];return v===undefined?3:v;}
+// first start: pick a preset from the GPU name, memory, CPU threads and phone/desktop
+function detectGfx(){const mob=TOUCHUI(),mem=navigator.deviceMemory||4,cpu=navigator.hardwareConcurrency||4;let g='';
+  try{const gl=renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');g=String(ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'').toLowerCase();}catch(e){}
+  if(/swiftshader|llvmpipe|software|microsoft basic/.test(g))return 'vlow';
+  if(mob){if(mem<=3||cpu<=4||/adreno \(tm\) [1-5]\d\d|mali-[4t]|powervr/.test(g))return 'vlow';
+    if(mem>=6&&/apple gpu|adreno \(tm\) (7[3-9]\d|8\d\d)|mali-g(7[1-9]|[6-9]\d\d)|immortalis|xclipse/.test(g))return 'medium';return 'phone';}
+  if(/rtx|radeon rx ?[67]\d{3}|arc a7/.test(g))return mem>=8?'ultra':'pc';
+  if(/gtx|radeon rx|radeon pro|apple m[1-9]/.test(g))return 'pc';
+  if(/intel/.test(g))return cpu>=8?'medium':'phone';
+  return cpu<=4||mem<=4?'medium':'pc';}
+// FPS guard: a long, steady drop (not one hitch) steps the automatic preset down one level
+const FPSG={t:0,n:0,bad:0,cool:20,el:null};
+function fpsGuard(dt){const now=performance.now()/1000;if(!FPSG.t0)FPSG.t0=now;FPSG.n++;const el=now-FPSG.t0;if(el<1)return;FPSG.cool-=el;const fps=FPSG.n/el;FPSG.t0=now;FPSG.n=0;
+  if(S.showFps){if(!FPSG.el){FPSG.el=document.createElement('div');FPSG.el.id='fps';document.body.appendChild(FPSG.el);}FPSG.el.textContent=Math.round(fps)+' FPS · '+GFX[S.gfx].name+(S.gfxAuto?' (avto)':'');FPSG.el.hidden=false;}else if(FPSG.el)FPSG.el.hidden=true;
+  if(!S.gfxAuto||PAUSED||document.hidden||window.__TD_TEST){FPSG.bad=0;return;}
+  FPSG.bad=fps<(TOUCHUI()?24:28)?FPSG.bad+1:Math.max(0,FPSG.bad-2);
+  if(FPSG.bad>=8&&FPSG.cool<=0&&GFXN()>0){const o=Object.keys(GFX),k=o[Math.max(0,o.indexOf(S.gfx)-1)];FPSG.bad=0;FPSG.cool=45;applyGfx(k);toast('Silliq oʻyin uchun grafika avtomatik pasaytirildi: '+GFX[k].name);}}
 
 /* ================= car dynamics: two-axle tyre model with weight transfer (tunable per car) =================
    Each axle makes sideways force from its slip angle (magic-formula curve), limited by the load on it and by the
@@ -1020,7 +1041,7 @@ function carDynamics(dt,sp,vF,vL,vF0,c){const V=vehParams(sp),n=PHYS.substeps,h=
    Rear wheels leave a mark while they slide (drift, handbrake, wheelspin, hard braking); marks live in a ring buffer
    and are cleared after 30 s. Smoke is a small particle pool with per-particle fade (one draw call each). */
 const FX={skN:0,skI:0,sk:null,skT:null,last:[null,null],smoke:null,sm:[],smN:0,sweep:0};
-function fxInit(){if(FX.sk)return;const phone=S.gfx==='phone';FX.skN=phone?420:900;FX.smN=phone?70:160;
+function fxInit(){if(FX.sk)return;const phone=LOWG();FX.skN=phone?420:900;FX.smN=phone?70:160;
   const g=new THREE.PlaneGeometry(.24,1).rotateX(-Math.PI/2);keepG(g);
   FX.sk=new THREE.InstancedMesh(g,new THREE.MeshBasicMaterial({color:0x0b0b0b,transparent:true,opacity:.55,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}),FX.skN);
   FX.sk.instanceMatrix.setUsage(THREE.DynamicDrawUsage);FX.sk.frustumCulled=false;FX.skT=new Float32Array(FX.skN).fill(-1);const z=new THREE.Matrix4().makeScale(0,0,0);for(let i=0;i<FX.skN;i++)FX.sk.setMatrixAt(i,z);scene.add(FX.sk);
@@ -1040,7 +1061,7 @@ function updateSkids(dt){fxInit();const now=performance.now()/1000;
       if(k>.25){if(L){const dx=wx-L.x,dz=wz-L.z,d=Math.hypot(dx,dz);if(d>.3&&d<4){const i=FX.skI;FX.skI=(FX.skI+1)%FX.skN;
           _fxP.set((wx+L.x)/2,groundAt(wx,wz)+.012,(wz+L.z)/2);_fxQ.setFromAxisAngle(_fxY,Math.atan2(dx,dz));_fxS.set(1,1,d);_fxM.compose(_fxP,_fxQ,_fxS);FX.sk.setMatrixAt(i,_fxM);FX.skT[i]=now;FX.sk.instanceMatrix.needsUpdate=true;FX.last[w]={x:wx,z:wz};}
           else if(d>=4)FX.last[w]={x:wx,z:wz};}else FX.last[w]={x:wx,z:wz};
-        if(!soft&&Math.random()<k*dt*(S.gfx==='phone'?18:34))puff(wx,wz,k);}else FX.last[w]=null;}}
+        if(!soft&&Math.random()<k*dt*(LOWG()?18:34))puff(wx,wz,k);}else FX.last[w]=null;}}
   FX.sweep-=dt;if(FX.sweep<=0){FX.sweep=1;const z=new THREE.Matrix4().makeScale(0,0,0);let ch=false;for(let i=0;i<FX.skN;i++)if(FX.skT[i]>0&&now-FX.skT[i]>30){FX.skT[i]=-1;FX.sk.setMatrixAt(i,z);ch=true;}if(ch)FX.sk.instanceMatrix.needsUpdate=true;}
   const g=FX.smoke.geometry,pa=g.attributes.position.array,aa=g.attributes.alpha.array,sa=g.attributes.size.array;
   FX.sm.forEach((p,i)=>{if(p.life>0){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.vx*=.97;p.vz*=.97;const a=p.life/p.max;aa[i]=a*.42;sa[i]=p.s*(1+(1-a)*2.6);}else{aa[i]=0;p.y=-9;}pa[i*3]=p.x;pa[i*3+1]=p.y;pa[i*3+2]=p.z;});
@@ -1148,7 +1169,7 @@ function frame(now){
     pickBeam.rotation.y+=dt;dropBeam.rotation.y+=dt;objBeam.rotation.y+=dt;cpBeam.rotation.y+=dt;evtBeam.rotation.y+=dt;
     if((mode==='drive'||mode==='foot')&&!DISPLAY.req&&Math.hypot(px()-LM.salon.lot[0],pz()-LM.salon.lot[1])<280){DISPLAY.req=1;DISPLAY.forEach(d=>{if(realTpl[d.id])onRealLoaded(d.id);else loadReal(d.id,false);});}
     if(mode==='drive'||mode==='foot'){
-      if(!PAUSED){simulate(dt);autoT-=dt;if(autoT<=0){autoT=20;persist();}}
+      fpsGuard(dt);if(!PAUSED){simulate(dt);autoT-=dt;if(autoT<=0){autoT=20;persist();}}
       else if(mode==='drive')updateAudio(0,0,0,false);
       updateAmbience();sky.position.copy(cam.position);renderer.render(scene,cam);}
     else if(mode==='shop'){V2.tick(dt);updateWeather(dt,false);updateAmbience();renderer.render(scene,cam);}

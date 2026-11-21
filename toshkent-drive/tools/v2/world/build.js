@@ -293,6 +293,59 @@ rep("  const camD=[{d:7.2+sp.L*.3,h:2.3+sp.H*.3,l:1.1},{d:12.5,h:4.4,l:1.4}][cam
   "  const camD=[{d:7.2+sp.L*.3,h:2.3+sp.H*.3,l:1.1},{d:12.5,h:4.4,l:1.4}][camMode];\n  if(camD){const ax=clamp((vF-vF0)/Math.max(dt,1e-3),-12,12);P.camLag=(P.camLag||0)+(ax*.07-(P.camLag||0))*Math.min(1,dt*2.5);camD.d+=Math.min(3.2,speed*.05)+P.camLag;camD.h-=Math.min(.45,speed*.008);}");
 rep("const ch=vF<-1?P.h:P.h+Math.atan2(Math.sin(vh-P.h),Math.cos(vh-P.h))*.35;", "const ch=vF<-1?P.h:P.h+Math.atan2(Math.sin(vh-P.h),Math.cos(vh-P.h))*(.35+.3*clamp(Math.abs(vL)/8,0,1));");
 
+/* ---------------- facades: detailed window tile with depth (normal map) and glass/plaster roughness; split ACs and roof antennas ---------------- */
+// The window opening keeps the same place in the tile as before, so the night-light atlas still lines up.
+rep("const windowTex=ctex(64,64,(x)=>{x.fillStyle='#ffffff';x.fillRect(0,0,64,64);const g=x.createLinearGradient(0,14,0,50);g.addColorStop(0,'#5e7488');g.addColorStop(1,'#26323e');x.fillStyle=g;x.fillRect(12,14,40,34);x.fillStyle='rgba(255,255,255,.55)';x.fillRect(12,46,40,4);x.fillStyle='#d6d2c8';x.fillRect(31,14,2,34);},true);",
+`// height map → tangent-space normal map (canvas, done once at start)
+function nrmFromHeight(cv,k){const w=cv.width,h=cv.height,src=cv.getContext('2d').getImageData(0,0,w,h).data,out=document.createElement('canvas');out.width=w;out.height=h;const o=out.getContext('2d'),img=o.createImageData(w,h),d=img.data,H=(x,y)=>src[(((y+h)%h)*w+((x+w)%w))*4]/255;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const dx=(H(x+1,y)-H(x-1,y))*k,dy=(H(x,y+1)-H(x,y-1))*k,l=Math.hypot(dx,dy,1),i=(y*w+x)*4;d[i]=(-dx/l*.5+.5)*255;d[i+1]=(dy/l*.5+.5)*255;d[i+2]=(1/l*.5+.5)*255;d[i+3]=255;}
+  o.putImageData(img,0,0);const t=new THREE.CanvasTexture(out);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=maxAniso;return t;}
+function tileTex(draw,size){const cv=document.createElement('canvas');cv.width=cv.height=size;draw(cv.getContext('2d'),size);return cv;}
+const WT=128,wO=[24,28,80,68]; // window opening x,y,w,h in a 128 px tile (same fractions as the night atlas)
+const windowTex=(()=>{const cv=tileTex((x,s)=>{x.fillStyle='#ffffff';x.fillRect(0,0,s,s);
+    for(let k=0;k<1400;k++){const g=232+Math.random()*23|0;x.fillStyle='rgba('+g+','+g+','+(g-4)+',.5)';x.fillRect(Math.random()*s,Math.random()*s,2,2);} // plaster
+    x.fillStyle='rgba(0,0,0,.10)';x.fillRect(wO[0]-6,wO[1]-8,wO[2]+12,6);                       // lintel shadow
+    x.fillStyle='#e9e6df';x.fillRect(wO[0]-4,wO[1]-4,wO[2]+8,wO[3]+8);                          // frame
+    const g=x.createLinearGradient(0,wO[1],0,wO[1]+wO[3]);g.addColorStop(0,'#6f879c');g.addColorStop(.55,'#3a4b5b');g.addColorStop(1,'#26323e');x.fillStyle=g;x.fillRect(wO[0],wO[1],wO[2],wO[3]);
+    x.fillStyle='rgba(235,226,205,.55)';x.fillRect(wO[0]+2,wO[1]+2,16,wO[3]-4);x.fillRect(wO[0]+wO[2]-18,wO[1]+2,16,wO[3]-4); // curtains
+    x.fillStyle='rgba(255,255,255,.18)';x.beginPath();x.moveTo(wO[0]+20,wO[1]);x.lineTo(wO[0]+44,wO[1]);x.lineTo(wO[0]+26,wO[1]+wO[3]);x.lineTo(wO[0]+4,wO[1]+wO[3]);x.closePath();x.fill(); // reflection streak
+    x.fillStyle='#d6d2c8';x.fillRect(wO[0]+wO[2]/2-2,wO[1],4,wO[3]);x.fillRect(wO[0],wO[1]+22,wO[2],3);  // mullions
+    x.fillStyle='#cfcac0';x.fillRect(wO[0]-8,wO[1]+wO[3]+3,wO[2]+16,6);x.fillStyle='rgba(0,0,0,.16)';x.fillRect(wO[0]-8,wO[1]+wO[3]+9,wO[2]+16,4);},WT); // sill + its shadow
+  const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;t.anisotropy=maxAniso;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;})();
+const windowNrm=nrmFromHeight(tileTex((x,s)=>{x.fillStyle='#808080';x.fillRect(0,0,s,s);for(let k=0;k<2500;k++){const g=118+Math.random()*20|0;x.fillStyle='rgb('+g+','+g+','+g+')';x.fillRect(Math.random()*s,Math.random()*s,2,2);}
+  x.fillStyle='#a8a8a8';x.fillRect(wO[0]-4,wO[1]-4,wO[2]+8,wO[3]+8);x.fillStyle='#303030';x.fillRect(wO[0],wO[1],wO[2],wO[3]);x.fillStyle='#707070';x.fillRect(wO[0]+wO[2]/2-2,wO[1],4,wO[3]);x.fillRect(wO[0],wO[1]+22,wO[2],3);
+  x.fillStyle='#d0d0d0';x.fillRect(wO[0]-8,wO[1]+wO[3]+3,wO[2]+16,6);},WT),3.2);
+const windowRgh=(()=>{const cv=tileTex((x,s)=>{x.fillStyle='#ececec';x.fillRect(0,0,s,s);x.fillStyle='#8a8a8a';x.fillRect(wO[0]-4,wO[1]-4,wO[2]+8,wO[3]+8);x.fillStyle='#262626';x.fillRect(wO[0],wO[1],wO[2],wO[3]);x.fillStyle='#909090';x.fillRect(wO[0]+wO[2]/2-2,wO[1],4,wO[3]);},WT);
+  const t=new THREE.CanvasTexture(cv);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;})();`);
+rep("const wallMat=new THREE.MeshStandardMaterial({map:windowTex,vertexColors:true,roughness:.85});",
+  "const wallMat=new THREE.MeshStandardMaterial({map:windowTex,normalMap:windowNrm,normalScale:new THREE.Vector2(.9,.9),roughnessMap:windowRgh,vertexColors:true,roughness:1,envMapIntensity:.9});");
+// split air conditioners under some windows and antennas / dishes on panel roofs (merged into the props mesh)
+rep("function towerExtras(x,z,w,h,d,podium){", `function acUnits(x,z,w,d,h,su,sv,p){const c1=C('#e9ebec'),c2=C('#c9ccce');
+  for(const [dir,len] of [['S',w],['N',w],['E',d],['W',d]]){const nu=Math.floor(len/su),nf=Math.floor((h-3)/sv);if(nu<1||nf<1)continue;
+    for(let f=1;f<nf;f++)for(let u=0;u<nu;u++){if(R2()>p)continue;const t=-len/2+su*(u+.5)+su*.18,y=.28+f*sv-sv*.08;
+      if(dir==='S')gProp.box(x+t,y,z+d/2+.17,.78,.52,.32,c1,0,0,c2);else if(dir==='N')gProp.box(x-t,y,z-d/2-.17,.78,.52,.32,c1,0,0,c2);
+      else if(dir==='E')gProp.box(x+w/2+.17,y,z+t,.32,.52,.78,c1,0,0,c2);else gProp.box(x-w/2-.17,y,z-t,.32,.52,.78,c1,0,0,c2);}}}
+function roofClutter(x,z,w,d,h){const st=C('#9aa1a7'),n=1+Math.floor(R2()*3);for(let k=0;k<n;k++){const ax=x+r2(-w*.35,w*.35),az=z+r2(-d*.35,d*.35);gProp.box(ax,.68+h,az,.08,r2(2.2,4.5),.08,st,0,0,st);gProp.box(ax,.68+h+1.4,az,1.1,.05,.05,st,0,0,st);}
+  if(R2()<.7){const dx=x+r2(-w*.3,w*.3),dz=z+r2(-d*.3,d*.3);gProp.box(dx,.68+h,dz,.1,.7,.1,st,0,0,st);gProp.box(dx,.68+h+.7,dz,.9,.9,.12,C('#dfe2e4'),0,0,C('#dfe2e4'));}}
+function towerExtras(x,z,w,h,d,podium){`);
+rep("gW.box(lx,.28,lz,fw,h,fd,cc,3.4,3.3,C('#8e8c86'));centerExtras(lx,lz,fw,fd,h,cc);", "gW.box(lx,.28,lz,fw,h,fd,cc,3.4,3.3,C('#8e8c86'));centerExtras(lx,lz,fw,fd,h,cc);acUnits(lx,lz,fw,fd,h,3.4,3.3,.07);");
+rep("gb.box(lx,.28,lz,fw,h,fd,pc,3.2,2.9,C('#8e8c86'));panelExtras(gb,lx,lz,len,dep,h,along,pc);", "gb.box(lx,.28,lz,fw,h,fd,pc,3.2,2.9,C('#8e8c86'));panelExtras(gb,lx,lz,len,dep,h,along,pc);if(gb===gW)acUnits(lx,lz,fw,fd,h,3.2,2.9,.06);roofClutter(lx,lz,fw,fd,h);");
+
+/* ---------------- graphics presets: Very low / Low / Medium / High / Ultra, auto-detected, with an FPS guard ---------------- */
+rep(" phone:{name:'Telefon',", " vlow:{name:'Juda past',dpr:1,sh:512,soft:false,area:45,trees:false,ppl:55,pstep:3,traffic:14,fog:[130,620],far:1200,pshadow:false,shadows:false},\n phone:{name:'Past',");
+rep(" pc:{name:'Kompyuter',", " medium:{name:'Oʻrta',dpr:1.5,sh:1024,soft:false,area:75,trees:false,ppl:130,pstep:1,traffic:30,fog:[220,1150],far:3500,pshadow:false},\n pc:{name:'Yuqori',");
+rep("RAIN_N={phone:900,pc:2600,ultra:4500}[k]||2600;", "RAIN_N={vlow:400,phone:900,medium:1700,pc:2600,ultra:4500}[k]||2600;");
+rep("  sun.shadow.mapSize.set(G.sh,G.sh);", "  sun.castShadow=G.shadows!==false;sun.shadow.mapSize.set(G.sh,G.sh);");
+rep("$('#bGfx').addEventListener('click',()=>{const o=['phone','pc','ultra'];applyGfx(o[(o.indexOf(S.gfx)+1)%3],true);});", "$('#bGfx').addEventListener('click',()=>{const o=Object.keys(GFX);S.gfxAuto=false;applyGfx(o[(o.indexOf(S.gfx)+1)%o.length],true);});");
+rep("document.querySelectorAll('[data-gfx]').forEach(b=>b.addEventListener('click',()=>applyGfx(b.dataset.gfx,true)));", "document.querySelectorAll('[data-gfx]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.gfx==='auto'){S.gfxAuto=true;applyGfx(detectGfx(),true);}else{S.gfxAuto=false;applyGfx(b.dataset.gfx,true);}}));");
+rep(" if(!S.gfx&&!TOUCHUI()&&(navigator.hardwareConcurrency||8)<=4)S.gfx='phone';}", "}");
+rep("applyGfx(S.gfx||(TOUCHUI()?'phone':'pc'));", "if(!S.gfx||!GFX[S.gfx])S.gfxAuto=true;applyGfx(S.gfx&&GFX[S.gfx]?S.gfx:detectGfx());");
+rep('<span class="stat-line">Grafika:</span><button class="chip" data-gfx="phone">Telefon (yengil)</button><button class="chip" data-gfx="pc">Kompyuter</button><button class="chip" data-gfx="ultra">Ultra (kuchli kompyuter)</button>',
+  '<span class="stat-line">Grafika:</span><button class="chip" data-gfx="auto">Avto</button><button class="chip" data-gfx="vlow">Juda past</button><button class="chip" data-gfx="phone">Past</button><button class="chip" data-gfx="medium">Oʻrta</button><button class="chip" data-gfx="pc">Yuqori</button><button class="chip" data-gfx="ultra">Ultra</button>');
+rep('#err{position:fixed;', '#fps{position:fixed;left:50%;top:calc(4px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:40;padding:2px 8px;border-radius:6px;background:rgba(0,0,0,.55);color:#9ef0b8;font:600 11px/1.4 var(--f-body);pointer-events:none}\n#err{position:fixed;');
+// every "is this the light preset" check now covers both light presets
+s = s.split("S.gfx!=='phone'").join('!LOWG()').split("S.gfx==='phone'").join('LOWG()');
+
 // refuse to write a page whose inline scripts do not parse
 { const re = /<script>([\s\S]*?)<\/script>/g; let m, i = 0; while ((m = re.exec(s))) { i++; try { new Function(m[1]); } catch (e) { throw new Error('inline script ' + i + ': ' + e.message); } } }
 fs.writeFileSync(dst, s);

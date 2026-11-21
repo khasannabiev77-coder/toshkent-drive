@@ -8,7 +8,7 @@ let S=freshSave();
 function sanitize(d){const s=freshSave();if(!d||typeof d!=='object')return s;
   if(Array.isArray(d.owned)){const o=d.owned.filter(x=>x&&CAR[x.id]).map(x=>({id:x.id,color:clamp(x.color|0,0,COLORS.length-1),plate:x.plate&&typeof x.plate.reg==='string'&&typeof x.plate.txt==='string'?{reg:x.plate.reg.slice(0,3),txt:x.plate.txt.slice(0,12)}:randomPlate()}));if(o.length)s.owned=o;}
   s.cur=clamp(d.cur|0,0,s.owned.length-1);
-  if(d.igBonus===true)s.igBonus=true;if(typeof d.nick==='string')s.nick=d.nick.slice(0,16);if(d.rules===false)s.rules=false;if(Array.isArray(d.promo))s.promo=d.promo.filter(x=>typeof x==='string'&&/^[0-9a-f]{64}$/.test(x)).slice(0,100);
+  if(d.igBonus===true)s.igBonus=true;if(typeof d.nick==='string')s.nick=d.nick.slice(0,16);if(d.rules===false)s.rules=false;if(typeof d.gfxAuto==='boolean')s.gfxAuto=d.gfxAuto;if(d.showFps===true)s.showFps=true;if(Array.isArray(d.promo))s.promo=d.promo.filter(x=>typeof x==='string'&&/^[0-9a-f]{64}$/.test(x)).slice(0,100);
   for(const k of ['money','trips','earned','story','tod','hp','played'])if(typeof d[k]==='number'&&isFinite(d[k]))s[k]=d[k];
   if(!(s.money<1e9))s.money=25000; // saves from the old "unlimited" build stored 1e12
   for(const k of ['sound','unlimited','onFoot'])if(typeof d[k]==='boolean')s[k]=d[k];
