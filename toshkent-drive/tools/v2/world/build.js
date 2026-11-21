@@ -271,6 +271,28 @@ rep("  vF=Math.min(vF,vmax);\n  vL*=Math.exp(-(hb?1.1:6.5*t.grip*V2.gripMul()*EN
 
 // soft ground does not screech like asphalt
 rep("updateAudio(rpmS,up?1:0,Math.abs(vL),true,", "updateAudio(rpmS,up?1:0,Math.abs(vL)*(SURF.key==='grass'||SURF.key==='dirt'?.35:1),true,");
+/* ---------------- vehicle physics: the two-axle tyre model (carDynamics in world.js) replaces the arcade yaw ---------------- */
+rep("  let vF=P.vx*fx+P.vz*fz,vL=P.vx*rx+P.vz*rz;", "  let vF=P.vx*fx+P.vz*fz,vL=P.vx*rx+P.vz*rz;const vF0=vF;");
+span("  vL*=Math.exp(-(hb?1.1:6.5*t.grip*V2.gripMul()*ENV.grip*SURF.cur.grip)*dt);", "  collide();",
+  "  const target=(keys.left?1:0)-(keys.right?1:0);\n  P.steer+=(target-P.steer)*Math.min(1,dt*(target===0?7:4.5));\n  const D=carDynamics(dt,sp,vF,vL,vF0,{hb,up,dn});vF=D.vF;vL=D.vL;const steerAng=D.steerAng,yaw=D.yaw;P.slipR=D.slip;\n");
+
+/* ---------------- engine audio: sub-octave layer, gear-shift dip, rev limiter, engine braking ---------------- */
+rep(",true,{v:speed,brake:braking,hb:hb});", ",true,{v:speed,brake:braking,hb:hb,gear:gi});");
+rep("b.connect(A.pre);b.start();A.src=b;A.key=key;}",
+  "b.connect(A.pre);b.start();A.src=b;A.key=key;if(A.src2){try{A.src2.stop();}catch(e){}A.src2.disconnect();}if(!A.lowG){A.lowG=ac.createGain();A.lowG.gain.value=0;A.lowG.connect(A.pre);}const b2=ac.createBufferSource();b2.buffer=b.buffer;b2.loop=true;b2.connect(A.lowG);b2.start(0,b.buffer.duration*.37);A.src2=b2;}");
+rep("    Q(A.src.playbackRate,real/120*8192/ac.sampleRate,.035);",
+  "    Q(A.src.playbackRate,real/120*8192/ac.sampleRate,.035);if(A.src2){Q(A.src2.playbackRate,real/120*8192/ac.sampleRate*.5,.035);Q(A.lowG.gain,(.5*(1-rpm)+.1)*(thr?1:.7),.08);}");
+rep("    Q(A.lp.frequency,500+rpm*2600+thr*(900+rpm*3200),.06);", "    Q(A.lp.frequency,(!thr&&v>5&&rpm>.35?.7:1)*(500+rpm*2600)+thr*(900+rpm*3200),.06);");
+rep("    Q(A.eng.gain,(.11+rpm*.13)*(thr?1:.55)*pr.loud,.06);",
+  "    const dtA=Math.min(.1,t-(A.lt||t));A.lt=t;if(x.gear!==undefined){if(A.gear!==undefined&&x.gear>A.gear&&thr)A.shift=.16;A.gear=x.gear;}A.shift=Math.max(0,(A.shift||0)-dtA);\n    const lim=thr&&rpm>.965?.55+.45*Math.sin(t*90):1,cut=A.shift>0?.3:1;\n    Q(A.eng.gain,(.11+rpm*.13)*(thr?1:.55)*pr.loud*lim*cut,A.shift>0?.015:.06);");
+rep("  }else{if(A.src){try{A.src.stop();}catch(e){}A.src.disconnect();A.src=null;A.key='';}",
+  "  }else{if(A.src){try{A.src.stop();}catch(e){}A.src.disconnect();A.src=null;A.key='';}if(A.src2){try{A.src2.stop();}catch(e){}A.src2.disconnect();A.src2=null;}");
+
+/* ---------------- driving camera: pulls back with speed, lags on acceleration/braking, shows the drift angle ---------------- */
+rep("  const camD=[{d:7.2+sp.L*.3,h:2.3+sp.H*.3,l:1.1},{d:12.5,h:4.4,l:1.4}][camMode];",
+  "  const camD=[{d:7.2+sp.L*.3,h:2.3+sp.H*.3,l:1.1},{d:12.5,h:4.4,l:1.4}][camMode];\n  if(camD){const ax=clamp((vF-vF0)/Math.max(dt,1e-3),-12,12);P.camLag=(P.camLag||0)+(ax*.07-(P.camLag||0))*Math.min(1,dt*2.5);camD.d+=Math.min(3.2,speed*.05)+P.camLag;camD.h-=Math.min(.45,speed*.008);}");
+rep("const ch=vF<-1?P.h:P.h+Math.atan2(Math.sin(vh-P.h),Math.cos(vh-P.h))*.35;", "const ch=vF<-1?P.h:P.h+Math.atan2(Math.sin(vh-P.h),Math.cos(vh-P.h))*(.35+.3*clamp(Math.abs(vL)/8,0,1));");
+
 // refuse to write a page whose inline scripts do not parse
 { const re = /<script>([\s\S]*?)<\/script>/g; let m, i = 0; while ((m = re.exec(s))) { i++; try { new Function(m[1]); } catch (e) { throw new Error('inline script ' + i + ': ' + e.message); } } }
 fs.writeFileSync(dst, s);

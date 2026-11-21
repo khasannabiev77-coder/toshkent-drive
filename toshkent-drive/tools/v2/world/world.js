@@ -184,6 +184,9 @@ function poseHuman(g,ph,amp,o){const H=g.userData.H;o=o||{};const s=Math.sin(ph)
   if(o.punch>0){const p=o.punch;H.rA.rotation.x=-1.55*p;H.rE.rotation.x=-.3*(1-p);H.rA.rotation.z=-.08-.2*p;H.spine.rotation.y=-.35*p;}
   if(o.work){H.lA.rotation.x=H.rA.rotation.x=-1.1+Math.sin(o.work)*.15;H.lE.rotation.x=H.rE.rotation.x=-.9;}
   H.spine.rotation.x=o.lean||0;H.hips.position.y=.97+(o.air?0:Math.abs(Math.cos(ph))*.035*amp);H.head.rotation.x=-(o.lean||0)*.5;
+  if(o.sit){const k=o.sit,st=(o.steer||0)*.28;H.lT.rotation.x=H.rT.rotation.x=-1.3*k;H.lK.rotation.x=H.rK.rotation.x=1.75*k;
+    H.lA.rotation.x=-.62*k+st;H.rA.rotation.x=-.62*k-st;H.lE.rotation.x=H.rE.rotation.x=-1.05*k;H.lA.rotation.z=.08+.18*k;H.rA.rotation.z=-.08-.18*k;
+    H.hips.position.y=.97-.86*k;H.spine.rotation.x=-.06*k;H.head.rotation.x=0;}
   if(g.userData.av)avatarPose(g);}
 function randLook(){return {skin:ri(0,4),hair:ri(0,4),hairC:ri(0,5),top:ri(0,1),topC:ri(0,11),legsC:ri(0,11),shoeC:ri(0,11),glasses:Math.random()<.2};}
 function makeNPC(L,x,z,h,lying){const g=buildHuman(L);poseHuman(g,0,0,{});g.rotation.order='YXZ';g.position.set(x,lying?.18:groundAt(x,z),z);g.rotation.set(lying?-Math.PI/2:0,h||0,0);scene.add(g);return g;}
@@ -230,6 +233,8 @@ function updateFoot(dt){const H=HERO;
   poseHuman(H.mesh,H.ph,clamp(H.spd/4.2,0,1.25)*.62,{air:H.air,punch:H.punchT>0?Math.sin(clamp((.45-H.punchT)/.45,0,1)*Math.PI):0,lean:H.spd>5?.18:H.spd*.02,work:H.work});
   H.mesh.position.set(H.x,H.y,H.z);H.mesh.rotation.set(0,H.h,0);H.mesh.visible=true;
   if(H.hp<100){H.regen+=dt;if(H.regen>4)H.hp=Math.min(100,H.hp+dt*2.5);}
+  footCam(dt);}
+function footCam(dt){const H=HERO;
   // third-person orbit camera that swings behind the hero and never goes through walls
   if(performance.now()/1000-FC.lastDrag>1.8&&H.spd>1.5)FC.yaw+=wrapA(H.h+Math.PI-FC.yaw)*Math.min(1,dt*1.6);
   const hx=H.x,hy=H.y+1.55,hz=H.z,cp=Math.cos(FC.pitch),dX=Math.sin(FC.yaw)*cp,dY=Math.sin(FC.pitch),dZ=Math.cos(FC.yaw)*cp;
@@ -261,15 +266,46 @@ function nearestEnterable(){const H=HERO;let best=null,bd=4.4;const c=(x,z,o)=>{
   for(const a of AGENTS)if(a.on&&a.enterable)c(a.x,a.z,{kind:'agent',a});
   for(const t of TRAFFIC)if(t.mesh.visible&&!t.gone)c(t.x,t.z,{kind:'traffic',t});
   return best;}
-function toggleVehicle(){if(PAUSED)return;
-  if(mode==='drive'){if(Math.hypot(P.vx,P.vz)>4){toast('Avval toʻxtang');return;}exitCar();return;}
+/* ---------- getting in and out: walk to the driver's door, face the car, sit down; the reverse on the way out ---------- */
+const TRANS={on:false};
+const instantTrans=()=>window.__TD_TEST&&!window.__TD_ANIM;
+function carRef(n){if(n.kind==='own')return {x:P.x,z:P.z,h:P.h,sp:P.sp};if(n.kind==='traffic')return {x:n.t.x,z:n.t.z,h:n.t.h,sp:n.t.mesh.userData.sp};return {x:n.a.x,z:n.a.z,h:n.a.h,sp:n.a.sp};}
+function carSide(c,side,out,fwd){const lx=Math.cos(c.h),lz=-Math.sin(c.h),fx=Math.sin(c.h),fz=Math.cos(c.h);return {x:c.x+lx*out*side+fx*c.sp.L*fwd,z:c.z+lz*out*side+fz*c.sp.L*fwd};}
+// driver seat by body type: vans sit far forward and high, cars a little behind the middle
+const SEAT={van:[.25,.36],box:[.2,.33],suv:[-.02,.27],cyber:[-.02,.27],wagon:[-.04,.21],sedan:[-.05,.2],hatch:[-.02,.21],coupe:[-.07,.17],sport:[-.07,.16]};
+const seatOf=sp=>SEAT[sp.type]||[-.04,.2];
+const doorPoint=(c,side)=>carSide(c,side,c.sp.W/2+.5,seatOf(c.sp)[0]+.06),seatPoint=(c,side)=>carSide(c,side||1,c.sp.W*.21,seatOf(c.sp)[0]);
+function startEnter(n){const c=carRef(n);let side=1,d=doorPoint(c,1);if(insideSolid(d.x,d.z,1)||collidePoint(d.x,d.z,.1)){side=-1;d=doorPoint(c,-1);}
+  if(n.kind==='traffic')n.t.speed=0;for(const k in keys)keys[k]=false;JOY.x=JOY.y=0;Object.assign(TRANS,{on:true,kind:'in',n,c,side,door:d,ph:'walk',t:0});}
+function startExit(){exitCar();const H=HERO,lx=Math.cos(P.h),lz=-Math.sin(P.h),side=((H.x-P.x)*lx+(H.z-P.z)*lz)>=0?1:-1;if(instantTrans())return;
+  Object.assign(TRANS,{on:true,kind:'out',side,door:{x:H.x,z:H.z},t:0,c:{x:P.x,z:P.z,h:P.h,sp:P.sp}});}
+function updateTrans(dt){const T_=TRANS,H=HERO,c=T_.c;T_.t+=dt;let sit=0,amp=0;
+  if(T_.kind==='in'){
+    if(T_.n.kind==='traffic'&&!T_.n.t.gone){c.x=T_.n.t.x;c.z=T_.n.t.z;c.h=T_.n.t.h;T_.n.t.speed=0;T_.door=doorPoint(c,T_.side);}
+    if(T_.ph==='walk'){const dx=T_.door.x-H.x,dz=T_.door.z-H.z,d=Math.hypot(dx,dz);
+      if(d<.2||T_.t>2.4){T_.ph='turn';T_.t=0;}else{const v=Math.min(3.4,d*4+.8);H.h+=wrapA(Math.atan2(dx,dz)-H.h)*Math.min(1,dt*12);H.x+=Math.sin(H.h)*v*dt;H.z+=Math.cos(H.h)*v*dt;H.ph+=v*dt*2.6;amp=clamp(v/4.2,0,1)*.6;}}
+    else if(T_.ph==='turn'){H.h+=wrapA(c.h-Math.PI/2*T_.side-H.h)*Math.min(1,dt*12);if(T_.t>.3){T_.ph='sit';T_.t=0;T_.sx=H.x;T_.sz=H.z;}}
+    else{const k=Math.min(1,T_.t/.4),seat=seatPoint(c,T_.side);H.x=T_.sx+(seat.x-T_.sx)*k;H.z=T_.sz+(seat.z-T_.sz)*k;H.h+=wrapA(c.h-H.h)*Math.min(1,dt*8);sit=k;
+      if(k>=1){T_.on=false;finishEnter(T_.n);return;}}}
+  else{const k=Math.min(1,T_.t/.5),seat=seatPoint(c,T_.side);H.x=seat.x+(T_.door.x-seat.x)*k;H.z=seat.z+(T_.door.z-seat.z)*k;sit=1-k;
+    H.h=k<.6?c.h+Math.PI/2*T_.side*Math.min(1,k/.3):H.h+wrapA(c.h-H.h)*Math.min(1,dt*6);if(k>=1&&T_.t>.75){T_.on=false;H.h=c.h;}}
+  H.y=groundAt(H.x,H.z)+sit*c.sp.H*seatOf(c.sp)[1];H.spd=0;poseHuman(H.mesh,H.ph,amp,sit?{sit}:{});H.mesh.position.set(H.x,H.y,H.z);H.mesh.rotation.set(0,H.h,0);H.mesh.visible=true;footCam(dt);}
+// while driving the hero sits at the wheel (hidden in the cockpit view)
+function seatHero(){const H=HERO;if(mode!=='drive'||!P.mesh)return;if(camMode===2||!S.showDriver&&S.showDriver!==undefined){H.mesh.visible=false;return;}
+  const s=seatPoint({x:P.x,z:P.z,h:P.h,sp:P.sp},1);H.mesh.visible=P.mesh.visible;H.mesh.position.set(s.x,P.sp.H*seatOf(P.sp)[1],s.z);H.mesh.rotation.set(0,P.h,0);poseHuman(H.mesh,0,0,{sit:1,steer:P.steer});}
+function finishEnter(n){if(n.kind==='own')enterCar();
+  else if(n.kind==='traffic')carjack(n.t);
+  else{const a=n.a,cb=a.onEnter;P.x=a.x;P.z=a.z;P.h=a.h;P.veh={id:a.id,color:a.ci,plate:a.plate||randomPlate()};P.stolen=true;P.missionCar=a.tag||'x';freeAgent(a);setPlayerCar();enterCar();if(cb)cb();}}
+function toggleVehicle(){if(PAUSED||TRANS.on)return;
+  if(mode==='drive'){if(Math.hypot(P.vx,P.vz)>4){toast('Avval toʻxtang');return;}startExit();return;}
   if(mode!=='foot')return;const n=nearestEnterable();if(!n){toast('Yaqinda mashina yoʻq');return;}
+  if(!instantTrans()){startEnter(n);return;}
   if(n.kind==='own')enterCar();
   else if(n.kind==='traffic')carjack(n.t);
   else{const a=n.a,cb=a.onEnter;P.x=a.x;P.z=a.z;P.h=a.h;P.veh={id:a.id,color:a.ci,plate:a.plate||randomPlate()};P.stolen=true;P.missionCar=a.tag||'x';freeAgent(a);setPlayerCar();enterCar();if(cb)cb();}}
 function enterCar(){mode='drive';P.vx=P.vz=0;HERO.mesh.visible=false;HERO.work=0;document.body.classList.remove('foot');for(const k in keys)keys[k]=false;beep(520,.05);}
 function exitCar(){const rx=Math.cos(P.h),rz=-Math.sin(P.h),off=P.sp.W/2+.55;let side=-1;
-  for(const s of [-1,1]){if(!insideSolid(P.x+rx*off*s,P.z+rz*off*s,1)&&!collidePoint(P.x+rx*off*s,P.z+rz*off*s,.1)){side=s;break;}}
+  for(const s of [1,-1]){if(!insideSolid(P.x+rx*off*s,P.z+rz*off*s,1)&&!collidePoint(P.x+rx*off*s,P.z+rz*off*s,.1)){side=s;break;}}
   HERO.x=P.x+rx*off*side;HERO.z=P.z+rz*off*side;HERO.y=groundAt(HERO.x,HERO.z);HERO.vy=0;HERO.air=false;HERO.h=P.h;HERO.spd=0;
   FC.yaw=P.h+Math.PI;P.vx=P.vz=0;mode='foot';document.body.classList.add('foot');HERO.mesh.visible=true;for(const k in keys)keys[k]=false;updateAudio(0,0,0,false);
   if(taxi.on&&taxi.stage==='drop')toast('Yoʻlovchi kutmoqda — mashinaga qayting','gold');}
@@ -409,13 +445,18 @@ let WA=null;
 function worldAudio(){if(WA||!A||!A.ac)return WA;const ac=A.ac;try{const len=ac.sampleRate*2,buf=ac.createBuffer(1,len,ac.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
   const rn=ac.createBufferSource();rn.buffer=buf;rn.loop=true;const rlp=ac.createBiquadFilter();rlp.type='lowpass';rlp.frequency.value=2600;const rg=ac.createGain();rg.gain.value=0;rn.connect(rlp);rlp.connect(rg);rg.connect(ac.destination);rn.start();
   const so=ac.createOscillator();so.type='square';so.frequency.value=700;const slp=ac.createBiquadFilter();slp.type='lowpass';slp.frequency.value=1800;const sg=ac.createGain();sg.gain.value=0;so.connect(slp);slp.connect(sg);sg.connect(ac.destination);so.start();
-  WA={ac,buf,rg,so,sg};}catch(e){WA=null;}return WA;}
+  const gn=ac.createBufferSource();gn.buffer=buf;gn.loop=true;gn.playbackRate.value=.7;const gbp=ac.createBiquadFilter();gbp.type='bandpass';gbp.frequency.value=520;gbp.Q.value=.8;const gg=ac.createGain();gg.gain.value=0;gn.connect(gbp);gbp.connect(gg);gg.connect(ac.destination);gn.start();
+  const wn=ac.createBufferSource();wn.buffer=buf;wn.loop=true;const whp=ac.createBiquadFilter();whp.type='highpass';whp.frequency.value=2400;const wg=ac.createGain();wg.gain.value=0;wn.connect(whp);whp.connect(wg);wg.connect(ac.destination);wn.start();
+  WA={ac,buf,rg,so,sg,gg,gbp,wg};}catch(e){WA=null;}return WA;}
 function thunder(d){const w=worldAudio();if(!w||!S.sound)return;const t=w.ac.currentTime+d,n=w.ac.createBufferSource();n.buffer=w.buf;const f=w.ac.createBiquadFilter();f.type='lowpass';f.frequency.value=260;const g=w.ac.createGain();
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.5,t+.08);g.gain.setTargetAtTime(0,t+.3,.6);n.connect(f);f.connect(g);g.connect(w.ac.destination);n.start(t);n.stop(t+3);}
 function babble(who){const w=worldAudio();if(!w||!S.sound)return;const base=VOICE[who]||170,t0=w.ac.currentTime;for(let k=0;k<6;k++){const o=w.ac.createOscillator(),g=w.ac.createGain(),t=t0+k*.09;o.type='triangle';o.frequency.setValueAtTime(base*(.85+Math.random()*.4),t);
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.035,t+.02);g.gain.linearRampToValueAtTime(0,t+.08);o.connect(g);g.connect(w.ac.destination);o.start(t);o.stop(t+.1);}}
 function updateAmbience(){const w=worldAudio();if(!w)return;const t=w.ac.currentTime,on=S.sound&&(mode==='drive'||mode==='foot')&&!PAUSED;
   w.rg.gain.setTargetAtTime(on?ENV.rain*.09:0,t,.3);
+  const dv=on&&mode==='drive'?Math.hypot(P.vx,P.vz):0,soft=SURF.key==='grass'||SURF.key==='dirt',sl=Math.abs(P.vx*Math.cos(P.h)-P.vz*Math.sin(P.h));
+  w.gg.gain.setTargetAtTime(soft?Math.min(.16,dv*.006+sl*.012):0,t,.12);w.gbp.frequency.setTargetAtTime(SURF.key==='dirt'?420+dv*8:300+dv*5,t,.2);
+  w.wg.gain.setTargetAtTime(!soft&&ENV.wet>.2?Math.min(.06,dv*.0018)*ENV.wet:0,t,.2);
   let d=1e9;for(const a of AGENTS)if(a.on&&(a.kind==='police'||a.kind==='chaser')&&a.siren&&!a.leave)d=Math.min(d,Math.hypot(a.x-px(),a.z-pz()));
   const sv=on?clamp(1-d/170,0,1)*.045:0;w.sg.gain.setTargetAtTime(sv,t,.1);if(sv>0)w.so.frequency.setTargetAtTime(760+380*Math.sin(performance.now()/1000*Math.PI*1.3),t,.05);}
 
@@ -945,6 +986,66 @@ function update3DCars(dt){T3D.t-=dt;if(T3D.t>0)return;T3D.t=.5;if(mode!=='drive'
     if(want){n++;if(!t.real)t.real=realCarFor(t.sp,t.ci,t.plate,shadow);swapMesh(t,t.real);}else if(t.mesh!==t.proc)swapMesh(t,t.proc);}
   for(const a of AGENTS)if(a.on&&a.pool==='civ'&&realTpl[a.id]&&!a.mesh.userData.real){const old=a.mesh,m=realCarFor(CAR[a.id],a.ci,a.plate,shadow);swapMesh(a,m);scene.remove(old);disposeCar(old);}}
 
+/* ================= car dynamics: two-axle tyre model with weight transfer (tunable per car) =================
+   Each axle makes sideways force from its slip angle (magic-formula curve), limited by the load on it and by the
+   ground; braking moves load to the front, accelerating to the rear; engine force uses up the driven axle's grip;
+   the handbrake takes most of the rear grip away. Momentum is kept in the body frame, so a car really slides. */
+const PHYS={g:9.81,B:9,C:1.2,Chb:1.5,steerMax:.6,steerSpeed:9,steerPow:1.35,hbRear:.3,assist:1.6,scrub:.45,substeps:4};
+// per-car overrides, e.g. VEH_OVR['bmw-m4-competition']={drive:'rwd',mass:1725,mu:1.15}
+const VEH_OVR={'chevrolet-damas':{mass:900},'tesla-cybertruck':{mass:3100},'honda-indycar-2015':{mass:750,mu:1.6,drive:'rwd'}};
+const LUXRWD=/^(bmw|mercedes|lamborghini-(hurac|aventador)|ferrari|porsche-911|pagani|arash|chevrolet-(camaro|corvette)|toyota-land)/;
+function vehParams(sp){if(sp._vp)return sp._vp;const o=VEH_OVR[sp.id]||{},ty=sp.type;
+  const drive=o.drive||(sp.ev||ty==='suv'||ty==='cyber'?'awd':ty==='sport'||ty==='coupe'||LUXRWD.test(sp.id)?'rwd':'fwd');
+  const mass=o.mass||Math.round((({hatch:1150,sedan:1400,wagon:1550,suv:2100,box:1500,coupe:1500,sport:1450,van:1300,cyber:3000})[ty]||1400)*clamp(sp.L/4.6,.75,1.3));
+  const Lw=sp.L*.6,a=Lw*(drive==='fwd'?.42:drive==='rwd'?.52:.48);
+  return sp._vp={drive,mass,Lw,a,b:Lw-a,h:sp.H*.36,I:mass*(sp.L*sp.L+sp.W*sp.W)/12*.95,mu:(o.mu||1.05)*((T[ty]&&T[ty].grip)||1)};}
+function carDynamics(dt,sp,vF,vL,vF0,c){const V=vehParams(sp),n=PHYS.substeps,h=dt/n,g=PHYS.g,spd=Math.abs(vF);
+  const delta=P.steer*PHYS.steerMax/(1+Math.pow(spd/PHYS.steerSpeed,PHYS.steerPow)),gm=V2.gripMul()*ENV.grip*SURF.cur.grip;
+  const muF=V.mu*gm,muR=V.mu*gm*(c.hb?PHYS.hbRear:1),ax=clamp((vF-vF0)/Math.max(dt,1e-3),-14,14);
+  const dN=V.mass*ax*V.h/V.Lw,Nf=Math.max(V.mass*g*.18,V.mass*g*V.b/V.Lw-dN),Nr=Math.max(V.mass*g*.18,V.mass*g*V.a/V.Lw+dN);
+  const Fx=c.up?V.mass*Math.max(0,ax):0,useR=V.drive==='rwd'?1:V.drive==='awd'?.55:0;
+  const capR=Math.sqrt(Math.max(.2,1-Math.pow(Fx*useR/(muR*Nr+1),2))),capF=Math.sqrt(Math.max(.2,1-Math.pow(Fx*(1-useR)/(muF*Nf+1),2)));
+  const tyre=(al,mu,N,C)=>-mu*N*Math.sin(C*Math.atan(PHYS.B*al));
+  const kin=clamp((spd-1.5)/3,0,1),sg=vF<0?-1:1;let r=P.yawR||0,slip=0;
+  for(let i=0;i<n;i++){const u=Math.max(spd,.6),af=Math.atan2(vL+V.a*r,u)-delta*sg,ar=Math.atan2(vL-V.b*r,u);
+    const Ff=tyre(af,muF*capF,Nf,PHYS.C),Fr=tyre(ar,muR*capR,Nr,c.hb?PHYS.Chb:PHYS.C),cd=Math.cos(delta),sd=Math.sin(delta);
+    vF+=(vL*r-Ff*sd*sg*PHYS.scrub/V.mass)*h;vL+=((Ff*cd+Fr)/V.mass-vF*r)*h;r+=((V.a*Ff*cd-V.b*Fr)/V.I)*h;
+    const rk=vF*Math.tan(delta)/V.Lw;r=r*kin+rk*(1-kin);if(kin<1)vL*=1-(1-kin)*Math.min(1,h*12);
+    if(!c.hb&&spd>8)r-=(r-rk)*Math.min(1,h*PHYS.assist*(1+4*Math.abs(ar))); // stability assist, stronger as the rear slides (off on the handbrake)
+    r=clamp(r,-4,4);slip=Math.max(slip,Math.abs(ar));
+    P.h+=r*h;const fx=Math.sin(P.h),fz=Math.cos(P.h),lx=Math.cos(P.h),lz=-Math.sin(P.h);P.vx=fx*vF+lx*vL;P.vz=fz*vF+lz*vL;P.x+=P.vx*h;P.z+=P.vz*h;}
+  P.yawR=r;return {vF,vL,yaw:r,steerAng:delta,slip};}
+
+/* ================= tyre marks and smoke =================
+   Rear wheels leave a mark while they slide (drift, handbrake, wheelspin, hard braking); marks live in a ring buffer
+   and are cleared after 30 s. Smoke is a small particle pool with per-particle fade (one draw call each). */
+const FX={skN:0,skI:0,sk:null,skT:null,last:[null,null],smoke:null,sm:[],smN:0,sweep:0};
+function fxInit(){if(FX.sk)return;const phone=S.gfx==='phone';FX.skN=phone?420:900;FX.smN=phone?70:160;
+  const g=new THREE.PlaneGeometry(.24,1).rotateX(-Math.PI/2);keepG(g);
+  FX.sk=new THREE.InstancedMesh(g,new THREE.MeshBasicMaterial({color:0x0b0b0b,transparent:true,opacity:.55,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}),FX.skN);
+  FX.sk.instanceMatrix.setUsage(THREE.DynamicDrawUsage);FX.sk.frustumCulled=false;FX.skT=new Float32Array(FX.skN).fill(-1);const z=new THREE.Matrix4().makeScale(0,0,0);for(let i=0;i<FX.skN;i++)FX.sk.setMatrixAt(i,z);scene.add(FX.sk);
+  const n=FX.smN,pos=new Float32Array(n*3),al=new Float32Array(n),sz=new Float32Array(n),geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3).setUsage(THREE.DynamicDrawUsage));geo.setAttribute('alpha',new THREE.BufferAttribute(al,1).setUsage(THREE.DynamicDrawUsage));geo.setAttribute('size',new THREE.BufferAttribute(sz,1).setUsage(THREE.DynamicDrawUsage));
+  const mat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{c:{value:new THREE.Color(0xd9dcdf)}},
+    vertexShader:'attribute float alpha;attribute float size;varying float va;void main(){va=alpha;vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=size*300./max(1.,-mv.z);gl_Position=projectionMatrix*mv;}',
+    fragmentShader:'uniform vec3 c;varying float va;void main(){vec2 p=gl_PointCoord-.5;float d=dot(p,p);if(d>.25)discard;gl_FragColor=vec4(c,va*(1.-d*4.));}'});
+  FX.smoke=new THREE.Points(geo,mat);FX.smoke.frustumCulled=false;scene.add(FX.smoke);for(let i=0;i<n;i++)FX.sm.push({x:0,y:-9,z:0,vx:0,vy:0,vz:0,life:0,max:1,s:1});}
+const _fxM=new THREE.Matrix4(),_fxQ=new THREE.Quaternion(),_fxS=new THREE.Vector3(),_fxP=new THREE.Vector3(),_fxY=new THREE.Vector3(0,1,0);
+function puff(x,z,k){const p=FX.sm.find(q=>q.life<=0);if(!p)return;p.x=x+(Math.random()-.5)*.4;p.z=z+(Math.random()-.5)*.4;p.y=groundAt(x,z)+.25;p.vx=(Math.random()-.5)*1.2-P.vx*.05;p.vz=(Math.random()-.5)*1.2-P.vz*.05;p.vy=.6+Math.random()*.6;p.max=p.life=1.4+Math.random()*1.4;p.s=.9+k*1.4;}
+function updateSkids(dt){fxInit();const now=performance.now()/1000;
+  if(mode==='drive'&&P.sp&&!PAUSED){const sp=P.sp,fx=Math.sin(P.h),fz=Math.cos(P.h),lx=Math.cos(P.h),lz=-Math.sin(P.h),v=Math.hypot(P.vx,P.vz),vL=Math.abs(P.vx*lx+P.vz*lz);
+    const soft=SURF.key==='grass'||SURF.key==='dirt',spin=keys.up&&v<9&&sp.acc<7,lock=keys.down&&v>12&&(P.vx*fx+P.vz*fz)>0;
+    const k=v<3?0:Math.max(clamp((vL-1.6)/5,0,1),keys.hb&&v>5?.8:0,spin?.7:0,lock?.5:0);
+    for(let w=0;w<2;w++){const sx=w?1:-1,wx=P.x-fx*sp.L*.31+lx*sp.W*.4*sx,wz=P.z-fz*sp.L*.31+lz*sp.W*.4*sx,L=FX.last[w];
+      if(k>.25){if(L){const dx=wx-L.x,dz=wz-L.z,d=Math.hypot(dx,dz);if(d>.3&&d<4){const i=FX.skI;FX.skI=(FX.skI+1)%FX.skN;
+          _fxP.set((wx+L.x)/2,groundAt(wx,wz)+.012,(wz+L.z)/2);_fxQ.setFromAxisAngle(_fxY,Math.atan2(dx,dz));_fxS.set(1,1,d);_fxM.compose(_fxP,_fxQ,_fxS);FX.sk.setMatrixAt(i,_fxM);FX.skT[i]=now;FX.sk.instanceMatrix.needsUpdate=true;FX.last[w]={x:wx,z:wz};}
+          else if(d>=4)FX.last[w]={x:wx,z:wz};}else FX.last[w]={x:wx,z:wz};
+        if(!soft&&Math.random()<k*dt*(S.gfx==='phone'?18:34))puff(wx,wz,k);}else FX.last[w]=null;}}
+  FX.sweep-=dt;if(FX.sweep<=0){FX.sweep=1;const z=new THREE.Matrix4().makeScale(0,0,0);let ch=false;for(let i=0;i<FX.skN;i++)if(FX.skT[i]>0&&now-FX.skT[i]>30){FX.skT[i]=-1;FX.sk.setMatrixAt(i,z);ch=true;}if(ch)FX.sk.instanceMatrix.needsUpdate=true;}
+  const g=FX.smoke.geometry,pa=g.attributes.position.array,aa=g.attributes.alpha.array,sa=g.attributes.size.array;
+  FX.sm.forEach((p,i)=>{if(p.life>0){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.vx*=.97;p.vz*=.97;const a=p.life/p.max;aa[i]=a*.42;sa[i]=p.s*(1+(1-a)*2.6);}else{aa[i]=0;p.y=-9;}pa[i*3]=p.x;pa[i*3+1]=p.y;pa[i*3+2]=p.z;});
+  g.attributes.position.needsUpdate=g.attributes.alpha.needsUpdate=g.attributes.size.needsUpdate=true;}
+
 /* ================= ground surfaces: grip, rolling drag and top-speed share per surface (tunable) ================= */
 // grip multiplies sideways grip, drag is extra rolling resistance (1/s), top caps the top speed; rain (ENV.grip) still applies on top.
 const SURFACES={asphalt:{n:'Asfalt',grip:1,drag:0,top:1},concrete:{n:'Beton',grip:.92,drag:.012,top:1},grass:{n:'Maysa',grip:.62,drag:.07,top:.7},dirt:{n:'Tuproq',grip:.55,drag:.06,top:.75}};
@@ -1038,8 +1139,8 @@ cam.position.set(P.x,4,P.z+10);
 let last=performance.now(),menuA=0,autoT=20;
 // one simulation tick of the open world (also driven directly by the automated test hook)
 function simulate(dt){V2.tick(dt);updateWeather(dt,true);updateTraffic(dt);updatePeople(dt);
-  if(mode==='drive')updateDrive(dt);else updateFoot(dt);
-  updateAgents(dt);updateHelis(dt);updateOfficers(dt);updateWanted(dt);updateMission(dt);updateDialog(dt);updateEvents(dt);updateAnor(dt);updateDiscovery(dt);updateGPS(dt);updateRules(dt);update3DCars(dt);updateHints();}
+  if(mode==='drive'){updateDrive(dt);seatHero();}else if(TRANS.on)updateTrans(dt);else updateFoot(dt);
+  updateAgents(dt);updateHelis(dt);updateOfficers(dt);updateWanted(dt);updateMission(dt);updateDialog(dt);updateEvents(dt);updateAnor(dt);updateDiscovery(dt);updateGPS(dt);updateRules(dt);update3DCars(dt);updateSkids(dt);updateHints();}
 function frame(now){
   const dt=clamp((now-last)/1000,0,.05);last=now; // the first rAF stamp can predate the end of the (long) init script
   try{
@@ -1060,5 +1161,5 @@ function frame(now){
 }
 requestAnimationFrame(frame);
 if(window.__TD_TEST)window.__td={V2,W,applySeason,startDrive,resetToRoad,setPlayerCar,BLOCKS,updateTraffic,updatePeople,updateDrive,ROADS,CAT,persist,getMode:()=>mode,renderer,scene,TRAFFIC,TL,taxi,get A(){return A;},ST,openStage,showStageCar,CARS,realTpl,P,cam,PEOPLE,SHOPPTS,HERO,WANT,MS,STORY,SIDE,AGENTS,EVT,S,ENV,WX,LM,GPS,DLG,
-  scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,loadReal,REAL,BLOCKS,COLL,surf:()=>SURF.key,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
+  scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,loadReal,REAL,TRANS,BLOCKS,COLL,surf:()=>SURF.key,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
 
