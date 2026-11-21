@@ -1735,11 +1735,12 @@ function crash(v){if(v<4)return;P.shake=Math.min(1,v/20);thud(v);if(MS.cur&&MS.d
   if(taxi.stage==='drop'&&v>7&&!S.up.kit){taxi.fare*=.9;toast('Ehtiyot boʻling! Yoʻlovchi norozi: −10%','bad');}}
 
 /* ================= COLLISION ================= */
+const _cpSeen=new Set();
 function collidePoint(px,pz,r){
-  let hit=null;
-  for(const b of BLOCKS){if(px>b.x0-r&&px<b.x1+r&&pz>b.z0-r&&pz<b.z1+r){
-    const pen=[[px-(b.x0-r),-1,0],[(b.x1+r)-px,1,0],[pz-(b.z0-r),0,-1],[(b.z1+r)-pz,0,1]].sort((a,c)=>a[0]-c[0])[0];
-    hit={d:pen[0],nx:pen[1],nz:pen[2]};break;}}
+  let hit=null;_cpSeen.clear();
+  for(const cx of [px-r,px+r])for(const cz of [pz-r,pz+r])for(const b of collAt(cx,cz)){if(_cpSeen.has(b))continue;_cpSeen.add(b);if(b[4]<.6)continue;
+    if(px>b[0]-r&&px<b[2]+r&&pz>b[1]-r&&pz<b[3]+r){const pen=[[px-(b[0]-r),-1,0],[(b[2]+r)-px,1,0],[pz-(b[1]-r),0,-1],[(b[3]+r)-pz,0,1]].sort((a,c)=>a[0]-c[0])[0];
+      if(!hit||pen[0]<hit.d)hit={d:pen[0],nx:pen[1],nz:pen[2]};}}
   const lim=EDGE-r;if(!hit){if(px>lim)hit={d:px-lim,nx:-1,nz:0};else if(px<-lim)hit={d:-lim-px,nx:1,nz:0};else if(pz>lim)hit={d:pz-lim,nx:0,nz:-1};else if(pz<-lim)hit={d:-lim-pz,nx:0,nz:1};}
   return hit;}
 function collide(){
@@ -1898,14 +1899,14 @@ function updateDrive(dt){
   const sp=P.sp,vmax=sp.top/3.6*V2.vmaxMul(),acc=27.8/sp.acc*1.2*V2.accMul(),t=T[sp.type];
   const fx=Math.sin(P.h),fz=Math.cos(P.h),rx=Math.cos(P.h),rz=-Math.sin(P.h);
   let vF=P.vx*fx+P.vz*fz,vL=P.vx*rx+P.vz*rz;
-  const up=keys.up,dn=keys.down,hb=keys.hb;
+  const up=keys.up,dn=keys.down,hb=keys.hb;updateSurface();
   let braking=false;
   if(up){if(vF<-.5){vF+=16*dt;braking=true;}else{const k=1-Math.pow(Math.max(0,vF)/vmax,2);vF+=acc*Math.max(.04,k)*dt;}}
   if(dn){if(vF>.5){vF-=15*V2.brakeMul()*dt;braking=true;}else vF=Math.max(-12,vF-6*dt);}
   if(!up&&!dn)vF-=Math.sign(vF)*Math.min(Math.abs(vF),(.7+Math.abs(vF)*.025)*dt);
   if(hb){vF-=Math.sign(vF)*Math.min(Math.abs(vF),4.5*dt);braking=true;}
-  vF=Math.min(vF,vmax);
-  vL*=Math.exp(-(hb?1.1:6.5*t.grip*V2.gripMul()*ENV.grip)*dt);
+  vF=Math.min(vF,vmax*SURF.cur.top);vF-=Math.sign(vF)*Math.min(Math.abs(vF),SURF.cur.drag*Math.abs(vF)*dt);
+  vL*=Math.exp(-(hb?1.1:6.5*t.grip*V2.gripMul()*ENV.grip*SURF.cur.grip)*dt);
   const target=(keys.left?1:0)-(keys.right?1:0);
   P.steer+=(target-P.steer)*Math.min(1,dt*(target===0?7:4.5));
   const steerAng=P.steer*.58/(1+Math.abs(vF)/24);
@@ -1926,7 +1927,7 @@ function updateDrive(dt){
   const lo=gi?gs[gi-1]:0,rpm=sp.ev?clamp(fr,0,1):clamp(.22+.78*(fr-lo)/(gs[gi]-lo)+(up?.05:0),0,1);
   rpmS+=(rpm-rpmS)*Math.min(1,dt*8);
   const gear=vF<-.5?'R':speed<.3&&!up?'N':sp.ev?'D':'D'+(gi+1);
-  updateAudio(rpmS,up?1:0,Math.abs(vL),true,{v:speed,brake:braking,hb:hb});
+  updateAudio(rpmS,up?1:0,Math.abs(vL)*(SURF.key==='grass'||SURF.key==='dirt'?.35:1),true,{v:speed,brake:braking,hb:hb});
   // camera
   const camD=[{d:7.2+sp.L*.3,h:2.3+sp.H*.3,l:1.1},{d:12.5,h:4.4,l:1.4}][camMode];
   if(camMode<2){const vh=speed>2?Math.atan2(P.vx,P.vz):P.h;const ch=vF<-1?P.h:P.h+Math.atan2(Math.sin(vh-P.h),Math.cos(vh-P.h))*.35;
@@ -2452,8 +2453,13 @@ function buildAvatar(L,hero){const root=THREE.SkeletonUtils.clone(AV.tpl),g=new 
   const bb=new THREE.Box3().setFromObject(root);root.scale.multiplyScalar(1.78/(bb.max.y-bb.min.y));root.updateMatrixWorld(true);
   const bb2=new THREE.Box3().setFromObject(root);root.position.y-=bb2.min.y;root.updateMatrixWorld(true);
   const inv=root.getWorldQuaternion(new THREE.Quaternion()).invert(),J={},H={};
+  // rest pose for the arms: both segments hanging down (slightly out), measured from the model's own bones
+  const wpos=n=>bones[n]?bones[n].getWorldPosition(new THREE.Vector3()).applyQuaternion(inv):null;
+  const hang=(a,b,sx)=>{const pa=wpos(a),pb=wpos(b);return pa&&pb?new THREE.Quaternion().setFromUnitVectors(pb.sub(pa).normalize(),new THREE.Vector3(sx*.1,-1,0).normalize()):new THREE.Quaternion();};
+  const rest={lA:hang('LeftArm','LeftForeArm',1),lE:hang('LeftForeArm','LeftHand',1),rA:hang('RightArm','RightForeArm',-1),rE:hang('RightForeArm','RightHand',-1)};
   for(const k in AV.BONES){const b=bones[AV.BONES[k]];if(!b)continue;H[k]=new THREE.Object3D();
-    J[k]={b,wb:inv.clone().multiply(b.getWorldQuaternion(new THREE.Quaternion())),wpi:inv.clone().multiply(b.parent.getWorldQuaternion(new THREE.Quaternion())).invert()};}
+    J[k]={b,rest:rest[k]||null,wb:inv.clone().multiply(b.getWorldQuaternion(new THREE.Quaternion())),wpi:inv.clone().multiply(b.parent.getWorldQuaternion(new THREE.Quaternion())).invert()};}
+  if(J.lE)J.lE.pinv=rest.lA.clone().invert();if(J.rE)J.rE.pinv=rest.rA.clone().invert();
   H.hips=H.hips||new THREE.Object3D();H.hips.position.y=.97;g.userData={H,J,root,rootY:root.position.y,av:true};
   // looks: the original outfit, or the colours and extras chosen in the phone's «Qahramon» app
   const col=(n,c)=>(mats[n]||[]).forEach(o=>o.material.color.set(c));L=L||{};
@@ -2466,10 +2472,11 @@ function buildAvatar(L,hero){const root=THREE.SkeletonUtils.clone(AV.tpl),g=new 
       if(hs===3){_avAttach(g,head,new THREE.Mesh(HG.doppi,M('#13161a')),hp.x,hp.y+.185,hp.z);_avAttach(g,head,new THREE.Mesh(HG.doppiP,M('#e8e4d8')),hp.x,hp.y+.16,hp.z);}}
     if((L.top|0)===2&&bones.Hips){const hp=bones.Hips.getWorldPosition(new THREE.Vector3());_avAttach(g,bones.Hips,new THREE.Mesh(HG.robe,new THREE.MeshStandardMaterial({map:stripeTex(CLOTH[L.topC]||CLOTH[0]),roughness:.85,side:THREE.DoubleSide})),hp.x,hp.y+.06,hp.z);}}
   return g;}
-const _avQ=new THREE.Quaternion(),_avE=new THREE.Euler(),_avL=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),-1.42),_avR=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),1.42);
+const _avQ=new THREE.Quaternion(),_avE=new THREE.Euler();
 function avatarPose(g){const {H,J,root,rootY}=g.userData;
   for(const k in J){const j=J[k],r=H[k].rotation;_avE.set(r.x,r.y,r.z,'YXZ');_avQ.setFromEuler(_avE);
-    if(k==='lA')_avQ.multiply(_avL);else if(k==='rA')_avQ.multiply(_avR);j.b.quaternion.copy(j.wpi).multiply(_avQ).multiply(j.wb);}
+    if(j.rest)_avQ.multiply(j.rest);if(j.pinv)_avQ.premultiply(j.pinv); // segment = pose · rest · bind; a forearm undoes its upper arm's rest
+    j.b.quaternion.copy(j.wpi).multiply(_avQ).multiply(j.wb);}
   root.position.y=rootY+(H.hips.position.y-.97);}
 function buildHuman(L,hero){if(hero&&AV.tpl)return buildAvatar(L,hero);
   const g=new THREE.Group(),M=c=>new THREE.MeshStandardMaterial({color:C(c),roughness:.8});
@@ -3262,6 +3269,17 @@ function update3DCars(dt){T3D.t-=dt;if(T3D.t>0)return;T3D.t=.5;if(mode!=='drive'
     if(want){n++;if(!t.real)t.real=realCarFor(t.sp,t.ci,t.plate,shadow);swapMesh(t,t.real);}else if(t.mesh!==t.proc)swapMesh(t,t.proc);}
   for(const a of AGENTS)if(a.on&&a.pool==='civ'&&realTpl[a.id]&&!a.mesh.userData.real){const old=a.mesh,m=realCarFor(CAR[a.id],a.ci,a.plate,shadow);swapMesh(a,m);scene.remove(old);disposeCar(old);}}
 
+/* ================= ground surfaces: grip, rolling drag and top-speed share per surface (tunable) ================= */
+// grip multiplies sideways grip, drag is extra rolling resistance (1/s), top caps the top speed; rain (ENV.grip) still applies on top.
+const SURFACES={asphalt:{n:'Asfalt',grip:1,drag:0,top:1},concrete:{n:'Beton',grip:.92,drag:.012,top:1},grass:{n:'Maysa',grip:.62,drag:.07,top:.7},dirt:{n:'Tuproq',grip:.55,drag:.06,top:.75}};
+const SURF={key:'asphalt',cur:SURFACES.asphalt};
+function surfaceAt(x,z){const b=blockAt(x,z);if(!b)return 'asphalt';const e=Math.min(x-b.x0,b.x1-x,z-b.z0,b.z1-z);if(e<4.5)return 'concrete';
+  return b.kind==='park'||b.kind==='mustaqillik'||b.kind==='panel'?'grass':b.kind==='mahalla'?'dirt':'concrete';}
+function updateSurface(){const k=surfaceAt(P.x,P.z);if(k===SURF.key)return;
+  // the kerb between road and pavement: a jolt and a little speed lost
+  if((SURF.key==='asphalt')!==(k==='asphalt')){const v=Math.hypot(P.vx,P.vz);if(v>5){P.shake=Math.min(1,(P.shake||0)+v*.015);P.vx*=.97;P.vz*=.97;thud(v*.6);}}
+  SURF.key=k;SURF.cur=SURFACES[k];}
+
 /* ================= traffic rules: red lights and speed cameras at signalled crossings ================= */
 // Fines apply only in free roam (no mission, no police chase) and can be turned off in Settings.
 const RULES={inside:false,cool:0,fines:0};
@@ -3366,7 +3384,7 @@ function frame(now){
 }
 requestAnimationFrame(frame);
 if(window.__TD_TEST)window.__td={V2,W,applySeason,startDrive,resetToRoad,setPlayerCar,BLOCKS,updateTraffic,updatePeople,updateDrive,ROADS,CAT,persist,getMode:()=>mode,renderer,scene,TRAFFIC,TL,taxi,get A(){return A;},ST,openStage,showStageCar,CARS,realTpl,P,cam,PEOPLE,SHOPPTS,HERO,WANT,MS,STORY,SIDE,AGENTS,EVT,S,ENV,WX,LM,GPS,DLG,
-  scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,loadReal,REAL,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
+  scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,loadReal,REAL,BLOCKS,COLL,surf:()=>SURF.key,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
 
 })();
 </script>

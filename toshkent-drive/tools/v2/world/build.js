@@ -261,6 +261,16 @@ rep('const PROMO=__PROMO__,', 'const PROMO=' + (fs.existsSync(path.join(HERE, 'p
     '    const dn=a=>{if(!a||!a.normalized)return 1;const A=a.array;return A instanceof Int8Array?1/127:A instanceof Uint8Array?1/255:A instanceof Int16Array?1/32767:A instanceof Uint16Array?1/65535:1;};\n    list.forEach(o=>{const g=o.geometry,p=g.attributes.position,n=g.attributes.normal,u=g.attributes.uv,m=o.matrixWorld,flipW=m.determinant()<0,sp=dn(p),su=dn(u);nm.getNormalMatrix(m);\n      for(let i=0;i<p.count;i++){const k=(vo+i)*3;v.fromBufferAttribute(p,i).multiplyScalar(sp).applyMatrix4(m);');
   rep('if(U&&u){U[(vo+i)*2]=u.getX(i);U[(vo+i)*2+1]=u.getY(i);}}', 'if(U&&u){U[(vo+i)*2]=u.getX(i)*su;U[(vo+i)*2+1]=u.getY(i)*su;}}'); }
 
+/* ---------------- open-world driving: cars hit buildings (the per-building collider grid), not whole city blocks ---------------- */
+rep("function collidePoint(px,pz,r){\n  let hit=null;\n  for(const b of BLOCKS){if(px>b.x0-r&&px<b.x1+r&&pz>b.z0-r&&pz<b.z1+r){\n    const pen=[[px-(b.x0-r),-1,0],[(b.x1+r)-px,1,0],[pz-(b.z0-r),0,-1],[(b.z1+r)-pz,0,1]].sort((a,c)=>a[0]-c[0])[0];\n    hit={d:pen[0],nx:pen[1],nz:pen[2]};break;}}",
+  "const _cpSeen=new Set();\nfunction collidePoint(px,pz,r){\n  let hit=null;_cpSeen.clear();\n  for(const cx of [px-r,px+r])for(const cz of [pz-r,pz+r])for(const b of collAt(cx,cz)){if(_cpSeen.has(b))continue;_cpSeen.add(b);if(b[4]<.6)continue;\n    if(px>b[0]-r&&px<b[2]+r&&pz>b[1]-r&&pz<b[3]+r){const pen=[[px-(b[0]-r),-1,0],[(b[2]+r)-px,1,0],[pz-(b[1]-r),0,-1],[(b[3]+r)-pz,0,1]].sort((a,c)=>a[0]-c[0])[0];\n      if(!hit||pen[0]<hit.d)hit={d:pen[0],nx:pen[1],nz:pen[2]};}}");
+// surface-aware grip and rolling drag (SURFACES table in world.js)
+rep("  const up=keys.up,dn=keys.down,hb=keys.hb;\n  let braking=false;", "  const up=keys.up,dn=keys.down,hb=keys.hb;updateSurface();\n  let braking=false;");
+rep("  vF=Math.min(vF,vmax);\n  vL*=Math.exp(-(hb?1.1:6.5*t.grip*V2.gripMul()*ENV.grip)*dt);",
+  "  vF=Math.min(vF,vmax*SURF.cur.top);vF-=Math.sign(vF)*Math.min(Math.abs(vF),SURF.cur.drag*Math.abs(vF)*dt);\n  vL*=Math.exp(-(hb?1.1:6.5*t.grip*V2.gripMul()*ENV.grip*SURF.cur.grip)*dt);");
+
+// soft ground does not screech like asphalt
+rep("updateAudio(rpmS,up?1:0,Math.abs(vL),true,", "updateAudio(rpmS,up?1:0,Math.abs(vL)*(SURF.key==='grass'||SURF.key==='dirt'?.35:1),true,");
 // refuse to write a page whose inline scripts do not parse
 { const re = /<script>([\s\S]*?)<\/script>/g; let m, i = 0; while ((m = re.exec(s))) { i++; try { new Function(m[1]); } catch (e) { throw new Error('inline script ' + i + ': ' + e.message); } } }
 fs.writeFileSync(dst, s);

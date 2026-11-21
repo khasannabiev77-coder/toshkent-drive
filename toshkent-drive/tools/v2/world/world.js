@@ -129,8 +129,13 @@ function buildAvatar(L,hero){const root=THREE.SkeletonUtils.clone(AV.tpl),g=new 
   const bb=new THREE.Box3().setFromObject(root);root.scale.multiplyScalar(1.78/(bb.max.y-bb.min.y));root.updateMatrixWorld(true);
   const bb2=new THREE.Box3().setFromObject(root);root.position.y-=bb2.min.y;root.updateMatrixWorld(true);
   const inv=root.getWorldQuaternion(new THREE.Quaternion()).invert(),J={},H={};
+  // rest pose for the arms: both segments hanging down (slightly out), measured from the model's own bones
+  const wpos=n=>bones[n]?bones[n].getWorldPosition(new THREE.Vector3()).applyQuaternion(inv):null;
+  const hang=(a,b,sx)=>{const pa=wpos(a),pb=wpos(b);return pa&&pb?new THREE.Quaternion().setFromUnitVectors(pb.sub(pa).normalize(),new THREE.Vector3(sx*.1,-1,0).normalize()):new THREE.Quaternion();};
+  const rest={lA:hang('LeftArm','LeftForeArm',1),lE:hang('LeftForeArm','LeftHand',1),rA:hang('RightArm','RightForeArm',-1),rE:hang('RightForeArm','RightHand',-1)};
   for(const k in AV.BONES){const b=bones[AV.BONES[k]];if(!b)continue;H[k]=new THREE.Object3D();
-    J[k]={b,wb:inv.clone().multiply(b.getWorldQuaternion(new THREE.Quaternion())),wpi:inv.clone().multiply(b.parent.getWorldQuaternion(new THREE.Quaternion())).invert()};}
+    J[k]={b,rest:rest[k]||null,wb:inv.clone().multiply(b.getWorldQuaternion(new THREE.Quaternion())),wpi:inv.clone().multiply(b.parent.getWorldQuaternion(new THREE.Quaternion())).invert()};}
+  if(J.lE)J.lE.pinv=rest.lA.clone().invert();if(J.rE)J.rE.pinv=rest.rA.clone().invert();
   H.hips=H.hips||new THREE.Object3D();H.hips.position.y=.97;g.userData={H,J,root,rootY:root.position.y,av:true};
   // looks: the original outfit, or the colours and extras chosen in the phone's «Qahramon» app
   const col=(n,c)=>(mats[n]||[]).forEach(o=>o.material.color.set(c));L=L||{};
@@ -143,10 +148,11 @@ function buildAvatar(L,hero){const root=THREE.SkeletonUtils.clone(AV.tpl),g=new 
       if(hs===3){_avAttach(g,head,new THREE.Mesh(HG.doppi,M('#13161a')),hp.x,hp.y+.185,hp.z);_avAttach(g,head,new THREE.Mesh(HG.doppiP,M('#e8e4d8')),hp.x,hp.y+.16,hp.z);}}
     if((L.top|0)===2&&bones.Hips){const hp=bones.Hips.getWorldPosition(new THREE.Vector3());_avAttach(g,bones.Hips,new THREE.Mesh(HG.robe,new THREE.MeshStandardMaterial({map:stripeTex(CLOTH[L.topC]||CLOTH[0]),roughness:.85,side:THREE.DoubleSide})),hp.x,hp.y+.06,hp.z);}}
   return g;}
-const _avQ=new THREE.Quaternion(),_avE=new THREE.Euler(),_avL=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),-1.42),_avR=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),1.42);
+const _avQ=new THREE.Quaternion(),_avE=new THREE.Euler();
 function avatarPose(g){const {H,J,root,rootY}=g.userData;
   for(const k in J){const j=J[k],r=H[k].rotation;_avE.set(r.x,r.y,r.z,'YXZ');_avQ.setFromEuler(_avE);
-    if(k==='lA')_avQ.multiply(_avL);else if(k==='rA')_avQ.multiply(_avR);j.b.quaternion.copy(j.wpi).multiply(_avQ).multiply(j.wb);}
+    if(j.rest)_avQ.multiply(j.rest);if(j.pinv)_avQ.premultiply(j.pinv); // segment = pose · rest · bind; a forearm undoes its upper arm's rest
+    j.b.quaternion.copy(j.wpi).multiply(_avQ).multiply(j.wb);}
   root.position.y=rootY+(H.hips.position.y-.97);}
 function buildHuman(L,hero){if(hero&&AV.tpl)return buildAvatar(L,hero);
   const g=new THREE.Group(),M=c=>new THREE.MeshStandardMaterial({color:C(c),roughness:.8});
@@ -939,6 +945,17 @@ function update3DCars(dt){T3D.t-=dt;if(T3D.t>0)return;T3D.t=.5;if(mode!=='drive'
     if(want){n++;if(!t.real)t.real=realCarFor(t.sp,t.ci,t.plate,shadow);swapMesh(t,t.real);}else if(t.mesh!==t.proc)swapMesh(t,t.proc);}
   for(const a of AGENTS)if(a.on&&a.pool==='civ'&&realTpl[a.id]&&!a.mesh.userData.real){const old=a.mesh,m=realCarFor(CAR[a.id],a.ci,a.plate,shadow);swapMesh(a,m);scene.remove(old);disposeCar(old);}}
 
+/* ================= ground surfaces: grip, rolling drag and top-speed share per surface (tunable) ================= */
+// grip multiplies sideways grip, drag is extra rolling resistance (1/s), top caps the top speed; rain (ENV.grip) still applies on top.
+const SURFACES={asphalt:{n:'Asfalt',grip:1,drag:0,top:1},concrete:{n:'Beton',grip:.92,drag:.012,top:1},grass:{n:'Maysa',grip:.62,drag:.07,top:.7},dirt:{n:'Tuproq',grip:.55,drag:.06,top:.75}};
+const SURF={key:'asphalt',cur:SURFACES.asphalt};
+function surfaceAt(x,z){const b=blockAt(x,z);if(!b)return 'asphalt';const e=Math.min(x-b.x0,b.x1-x,z-b.z0,b.z1-z);if(e<4.5)return 'concrete';
+  return b.kind==='park'||b.kind==='mustaqillik'||b.kind==='panel'?'grass':b.kind==='mahalla'?'dirt':'concrete';}
+function updateSurface(){const k=surfaceAt(P.x,P.z);if(k===SURF.key)return;
+  // the kerb between road and pavement: a jolt and a little speed lost
+  if((SURF.key==='asphalt')!==(k==='asphalt')){const v=Math.hypot(P.vx,P.vz);if(v>5){P.shake=Math.min(1,(P.shake||0)+v*.015);P.vx*=.97;P.vz*=.97;thud(v*.6);}}
+  SURF.key=k;SURF.cur=SURFACES[k];}
+
 /* ================= traffic rules: red lights and speed cameras at signalled crossings ================= */
 // Fines apply only in free roam (no mission, no police chase) and can be turned off in Settings.
 const RULES={inside:false,cool:0,fines:0};
@@ -1043,5 +1060,5 @@ function frame(now){
 }
 requestAnimationFrame(frame);
 if(window.__TD_TEST)window.__td={V2,W,applySeason,startDrive,resetToRoad,setPlayerCar,BLOCKS,updateTraffic,updatePeople,updateDrive,ROADS,CAT,persist,getMode:()=>mode,renderer,scene,TRAFFIC,TL,taxi,get A(){return A;},ST,openStage,showStageCar,CARS,realTpl,P,cam,PEOPLE,SHOPPTS,HERO,WANT,MS,STORY,SIDE,AGENTS,EVT,S,ENV,WX,LM,GPS,DLG,
-  scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,loadReal,REAL,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
+  scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,loadReal,REAL,BLOCKS,COLL,surf:()=>SURF.key,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
 
