@@ -1,5 +1,5 @@
 // v1 save + open-world fields; every field is validated so an old or damaged save cannot break the game
-const HERO_DEF={skin:1,hair:0,hairC:0,top:0,topC:1,legsC:0,shoeC:0,glasses:false};
+const HERO_DEF={skin:1,hair:0,hairC:0,top:0,topC:1,legsC:0,shoeC:0,glasses:false,tint:false};
 function freshSave(){return {money:25000,owned:[{id:'chevrolet-damas',color:0,plate:randomPlate()}],cur:0,trips:0,earned:0,sound:true,unlimited:false,
   hero:Object.assign({},HERO_DEF),story:0,done:{},best:{},photos:{},collect:{},disc:'',lmd:{},msgs:[],tod:9.5,weather:'clear',inv:{},up:{},buff:{},todMode:'auto',seasonMode:'auto',pos:null,onFoot:false,hp:100,
   sub:{on:true,size:1,bg:.6,cyr:false},played:0};}

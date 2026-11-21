@@ -174,8 +174,11 @@ python3 tools/slim/slim.py model.glb models/kalit 70000 512 --nolines
 
 ### Ochiq dunyo qatlami
 
-- **Piyoda qahramon (Sardor):** yurish, yugurish, sakrash, musht; mashinaga oʻtirish va tushish; istalgan mashinani olib qochish (jinoyat).
-  Kiyim, soch, doʻppi, chopon va ranglar telefondagi «Qahramon» ilovasida. Doʻkonlarga piyoda ham kirish mumkin.
+- **Piyoda qahramon (Sardor):** haqiqiy 3D odam modeli (`models/sardor.glb`, skeletli); yurish, yugurish, sakrash, musht va ish
+  harakatlari skeletni kod orqali boshqaradi. Mashinaga oʻtirish va tushish; istalgan mashinani olib qochish (jinoyat).
+  Telefondagi «Qahramon» ilovasida asl koʻrinish yoki oʻz ranglaringiz, soch/kepka/doʻppi, chopon, koʻzoynak. Doʻkonlarga piyoda ham kirish mumkin.
+- **3D koʻcha:** yaqin atrofdagi koʻcha mashinalari (telefonda 6 ta, kompyuterda 12 ta) va missiya mashinalari garajdagi kabi
+  haqiqiy 3D modellar; uzoqdagilari yengil koʻrinishda qoladi. Modellar birma-bir, eng koʻp uchraydiganidan boshlab yuklanadi.
 - **Politsiya:** 1–5 yulduzli qidiruv; patrul mashinalari, yoʻl toʻsiqlari, tunda projektorli vertolyot, piyoda politsiyachilar.
   Ular oxirgi koʻrilgan joyni qidiradi; koʻzdan yoʻqolsangiz qutulasiz, ushlansangiz jarima, sogʻliq tugasa — shifoxona.
 - **Ob-havo** (kun-tun va fasllar ustiga): ochiq, bulutli, yomgʻir, momaqaldiroq, tuman; yomgʻirda yoʻl hoʻl va sirpanchiq.
@@ -209,6 +212,12 @@ node tools/v2/world/build.js v2.html index.html tools/artifact-version.html
 bir marta mos kelishi shart, aks holda yigʻish toʻxtaydi), `world.js` (tizimlar), `world.css`, `save.js` (saqlashni tekshirish),
 `input.js` (klaviatura va sensor), `minimap.js`, `mobile.css` (telefon interfeysi), `sw.template.js` (oflayn ishlash;
 yigʻishda `sw.js` versiyasi bilan yoziladi). `manifest.webmanifest` va `icons/` — ilova sifatida oʻrnatish uchun.
+
+### Qahramon modeli
+
+«Cool Man (Rigged)» — [NABEEL619](https://sketchfab.com/NABEEL619), CC BY 4.0
+(https://sketchfab.com/3d-models/cool-man--rigged--free-0b8c511a920b43208d38948e054efcc8). Oʻyin uchun teksturalar 512 px ga
+kichraytirilgan: `node tools/v2/world/hero.mjs <asl.glb> models/sardor.glb`.
 
 ### Telefon grafikasi (yengil modellar)
 

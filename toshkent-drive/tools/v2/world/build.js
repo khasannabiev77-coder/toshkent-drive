@@ -250,7 +250,7 @@ rep('const PROMO=__PROMO__,', 'const PROMO=' + (fs.existsSync(path.join(HERE, 'p
 { const idx = path.join(path.dirname(dst), 'models-lite', '_index.json');
   const LITE = fs.existsSync(idx) ? JSON.parse(fs.readFileSync(idx, 'utf8')) : {};
   rep('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>\n',
-    '<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>\n<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/meshopt_decoder.js"></script>\n');
+    '<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>\n<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/meshopt_decoder.js"></script>\n<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>\n');
   rep('function modelData(d){const k=d.key+\'@\'+MODEL_VER;',
     'const LITE=' + JSON.stringify(LITE) + ';\n// phones load the light copy (fewer triangles, smaller textures); computers keep the full model\nconst useLite=d=>!!(d&&d.key&&LITE[d.key])&&S.gfx===\'phone\';\nfunction modelData(d){const lite=useLite(d),k=d.key+(lite?\'@lite\':\'\')+\'@\'+MODEL_VER,base=lite?\'models-lite/\':\'models/\',np=lite?1:d.n;');
   rep("for(let i=0;i<d.n;i++)parts.push(fetch('models/'+d.key+'.part'+i+'.txt')", "for(let i=0;i<np;i++)parts.push(fetch(base+d.key+'.part'+i+'.txt')");

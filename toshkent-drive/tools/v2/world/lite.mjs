@@ -32,7 +32,7 @@ for(const k of keys){let s='';for(let i=0;;i++){const f=path.join(SRC,k+'.part'+
         for(let v=0;v<nv;v++){let o=v*st;if(N){A[o++]=N[v*3];A[o++]=N[v*3+1];A[o++]=N[v*3+2];}if(U){A[o++]=U[v*2];A[o++]=U[v*2+1];}}
         [out]=MeshoptSimplifier.simplifyWithAttributes(I,P,3,A,st,W,null,target,ERR,[]);}
       if(out.length>=I.length)continue;ix.setArray(pa.getCount()>65535?out:new Uint16Array(out));compactPrimitive(p);}};
-  await doc.transform(dequantize(),dedup(),...pre,weld(),smartSimplify(),prune(),textureCompress({encoder:sharp,resize:[384,384],quality:80}),meshopt({encoder:MeshoptEncoder,level:'medium'}));
+  await doc.transform(dequantize(),dedup(),...pre,weld(),smartSimplify(),prune(),textureCompress({encoder:sharp,resize:[+(process.env.TEX||384),+(process.env.TEX||384)],quality:80}),meshopt({encoder:MeshoptEncoder,level:'medium'}));
   let t2=0;for(const m of doc.getRoot().listMeshes())for(const p of m.listPrimitives()){const ix=p.getIndices();t2+=(ix?ix.getCount():p.getAttribute('POSITION').getCount())/3;}
   const bin=Buffer.from(await io.writeBinary(doc));const txt=zlib.gzipSync(bin,{level:9}).toString('base64');
   fs.writeFileSync(path.join(DST,k+'.part0.txt'),txt);a+=s.length;b+=txt.length;out[k]={n:1,mb:+(txt.length*.75/1048576).toFixed(1)};

@@ -115,7 +115,40 @@ const HG={torso:new THREE.CylinderGeometry(.2,.16,.56,14).scale(1,1,.62),pelvis:
 Object.values(HG).forEach(g=>KEEPG.add(g));
 const _stripe={};
 function stripeTex(c){return _stripe[c]||(_stripe[c]=ctex(128,128,(x)=>{const cols=[c,'#f0d27a','#1d4f8a','#a3262a',c,'#2f7a4a'];for(let i=0;i<16;i++){x.fillStyle=cols[i%cols.length];x.fillRect(i*8,0,8,128);}},true));}
-function buildHuman(L){
+/* ---------- 3D hero avatar (models/sardor.glb — “Cool Man (Rigged)” by NABEEL619, CC BY 4.0) ----------
+   The procedural pose below writes angles into proxy joints in character space; avatarPose turns them into
+   bone rotations relative to the bind pose, so walking, running, jumping, punching and working drive the real skeleton. */
+const AV={tpl:null,req:false,BONES:{hips:'Hips',spine:'Spine1',head:'Head',lA:'LeftArm',lE:'LeftForeArm',rA:'RightArm',rE:'RightForeArm',lT:'LeftUpLeg',lK:'LeftLeg',rT:'RightUpLeg',rK:'RightLeg'}};
+function loadAvatar(){if(AV.req||!THREE.GLTFLoader||!THREE.SkeletonUtils)return;AV.req=true;
+  new THREE.GLTFLoader().load('models/sardor.glb',gl=>{AV.tpl=gl.scene;AV.tpl.traverse(o=>{if(o.isMesh&&o.geometry)KEEPG.add(o.geometry);});rebuildHero();},undefined,e=>{console.warn('3D qahramon yuklanmadi',e);});}
+const _avAttach=(g,bone,mesh,wx,wy,wz)=>{const root=g.userData.root;root.updateMatrixWorld(true);const want=new THREE.Matrix4().makeTranslation(wx,wy,wz),
+  inv=new THREE.Matrix4().copy(bone.matrixWorld).invert(),loc=inv.multiply(want);loc.decompose(mesh.position,mesh.quaternion,mesh.scale);mesh.castShadow=true;bone.add(mesh);return mesh;};
+function buildAvatar(L,hero){const root=THREE.SkeletonUtils.clone(AV.tpl),g=new THREE.Group();g.add(root);root.updateMatrixWorld(true);
+  const bones={},mats={};root.traverse(o=>{if(o.isBone){const n=(o.name||'').replace(/_\d+$/,'');if(!bones[n])bones[n]=o;}
+    if(o.isMesh){o.castShadow=true;o.frustumCulled=false;const m=o.material.clone();o.material=m;(mats[m.name]=mats[m.name]||[]).push(o);}});
+  const bb=new THREE.Box3().setFromObject(root);root.scale.multiplyScalar(1.78/(bb.max.y-bb.min.y));root.updateMatrixWorld(true);
+  const bb2=new THREE.Box3().setFromObject(root);root.position.y-=bb2.min.y;root.updateMatrixWorld(true);
+  const inv=root.getWorldQuaternion(new THREE.Quaternion()).invert(),J={},H={};
+  for(const k in AV.BONES){const b=bones[AV.BONES[k]];if(!b)continue;H[k]=new THREE.Object3D();
+    J[k]={b,wb:inv.clone().multiply(b.getWorldQuaternion(new THREE.Quaternion())),wpi:inv.clone().multiply(b.parent.getWorldQuaternion(new THREE.Quaternion())).invert()};}
+  H.hips=H.hips||new THREE.Object3D();H.hips.position.y=.97;g.userData={H,J,root,rootY:root.position.y,av:true};
+  // looks: the original outfit, or the colours and extras chosen in the phone's «Qahramon» app
+  const col=(n,c)=>(mats[n]||[]).forEach(o=>o.material.color.set(c));L=L||{};
+  if(L.tint){col('Wolf3D_Outfit_Top',CLOTH[L.topC]||CLOTH[0]);col('Wolf3D_Outfit_Bottom',CLOTH[L.legsC]||CLOTH[1]);col('Wolf3D_Outfit_Footwear',CLOTH[L.shoeC]||CLOTH[6]);
+    col('Wolf3D_Hair',HAIRC[L.hairC]||HAIRC[0]);col('Wolf3D_Skin',SKINS[L.skin]||SKINS[1]);col('Wolf3D_Body',SKINS[L.skin]||SKINS[1]);
+    (mats.Wolf3D_Glasses||[]).forEach(o=>o.visible=!!L.glasses);
+    const hs=L.hair|0,head=bones.Head;if(hs>=2)(mats.Wolf3D_Hair||[]).forEach(o=>o.visible=false);
+    if(head){const hp=head.getWorldPosition(new THREE.Vector3()),M=c=>new THREE.MeshStandardMaterial({color:C(c),roughness:.8});
+      if(hs===2){const cm=M(CLOTH[((L.topC|0)+3)%CLOTH.length]);_avAttach(g,head,new THREE.Mesh(HG.cap,cm),hp.x,hp.y+.17,hp.z);_avAttach(g,head,new THREE.Mesh(HG.brim,cm),hp.x,hp.y+.14,hp.z+.12);}
+      if(hs===3){_avAttach(g,head,new THREE.Mesh(HG.doppi,M('#13161a')),hp.x,hp.y+.185,hp.z);_avAttach(g,head,new THREE.Mesh(HG.doppiP,M('#e8e4d8')),hp.x,hp.y+.16,hp.z);}}
+    if((L.top|0)===2&&bones.Hips){const hp=bones.Hips.getWorldPosition(new THREE.Vector3());_avAttach(g,bones.Hips,new THREE.Mesh(HG.robe,new THREE.MeshStandardMaterial({map:stripeTex(CLOTH[L.topC]||CLOTH[0]),roughness:.85,side:THREE.DoubleSide})),hp.x,hp.y+.06,hp.z);}}
+  return g;}
+const _avQ=new THREE.Quaternion(),_avE=new THREE.Euler(),_avL=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),-1.42),_avR=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),1.42);
+function avatarPose(g){const {H,J,root,rootY}=g.userData;
+  for(const k in J){const j=J[k],r=H[k].rotation;_avE.set(r.x,r.y,r.z,'YXZ');_avQ.setFromEuler(_avE);
+    if(k==='lA')_avQ.multiply(_avL);else if(k==='rA')_avQ.multiply(_avR);j.b.quaternion.copy(j.wpi).multiply(_avQ).multiply(j.wb);}
+  root.position.y=rootY+(H.hips.position.y-.97);}
+function buildHuman(L,hero){if(hero&&AV.tpl)return buildAvatar(L,hero);
   const g=new THREE.Group(),M=c=>new THREE.MeshStandardMaterial({color:C(c),roughness:.8});
   const skin=M(SKINS[L.skin]||SKINS[1]),top=M(CLOTH[L.topC]||CLOTH[0]),legs=M(CLOTH[L.legsC]||CLOTH[1]),shoe=M(CLOTH[L.shoeC]||CLOTH[6]),hair=M(HAIRC[L.hairC]||HAIRC[0]),dark=M('#111111');
   const part=(geo,mt,par,x,y,z)=>{const o=new THREE.Mesh(geo,mt);o.position.set(x||0,y||0,z||0);o.castShadow=true;par.add(o);return o;};
@@ -144,14 +177,15 @@ function poseHuman(g,ph,amp,o){const H=g.userData.H;o=o||{};const s=Math.sin(ph)
   H.lA.rotation.z=.08;H.rA.rotation.z=-.08;H.spine.rotation.y=0;
   if(o.punch>0){const p=o.punch;H.rA.rotation.x=-1.55*p;H.rE.rotation.x=-.3*(1-p);H.rA.rotation.z=-.08-.2*p;H.spine.rotation.y=-.35*p;}
   if(o.work){H.lA.rotation.x=H.rA.rotation.x=-1.1+Math.sin(o.work)*.15;H.lE.rotation.x=H.rE.rotation.x=-.9;}
-  H.spine.rotation.x=o.lean||0;H.hips.position.y=.97+(o.air?0:Math.abs(Math.cos(ph))*.035*amp);H.head.rotation.x=-(o.lean||0)*.5;}
+  H.spine.rotation.x=o.lean||0;H.hips.position.y=.97+(o.air?0:Math.abs(Math.cos(ph))*.035*amp);H.head.rotation.x=-(o.lean||0)*.5;
+  if(g.userData.av)avatarPose(g);}
 function randLook(){return {skin:ri(0,4),hair:ri(0,4),hairC:ri(0,5),top:ri(0,1),topC:ri(0,11),legsC:ri(0,11),shoeC:ri(0,11),glasses:Math.random()<.2};}
 function makeNPC(L,x,z,h,lying){const g=buildHuman(L);poseHuman(g,0,0,{});g.rotation.order='YXZ';g.position.set(x,lying?.18:groundAt(x,z),z);g.rotation.set(lying?-Math.PI/2:0,h||0,0);scene.add(g);return g;}
 function removeNPC(g){if(!g)return;scene.remove(g);disposeCar(g);}
 
 /* ================= HERO: walking, running, jumping ================= */
 const HERO={x:0,z:0,y:.25,vy:0,h:0,spd:0,ph:0,air:false,punchT:0,punched:false,hp:100,jumpReq:false,mesh:null,hitCD:0,regen:0,work:0};
-function rebuildHero(){const v=HERO.mesh?HERO.mesh.visible:false;if(HERO.mesh){scene.remove(HERO.mesh);disposeCar(HERO.mesh);}HERO.mesh=buildHuman(S.hero);HERO.mesh.visible=v;scene.add(HERO.mesh);}
+function rebuildHero(){const v=HERO.mesh?HERO.mesh.visible:false;if(HERO.mesh){scene.remove(HERO.mesh);disposeCar(HERO.mesh);}HERO.mesh=buildHuman(S.hero,true);HERO.mesh.visible=v;scene.add(HERO.mesh);if(HERO.mesh.userData.av)poseHuman(HERO.mesh,HERO.ph||0,0,{});}
 rebuildHero();
 const JOY={x:0,y:0};
 const FC={yaw:Math.PI,pitch:.3,dist:4.6,lastDrag:-9};
@@ -255,7 +289,7 @@ function policeMesh(){const sp=CAR['chevrolet-cobalt'],g=buildProcCar(sp,0,{lod:
   const l1=new THREE.Mesh(box(.46,.12,.24),r);l1.position.set(-.28,sp.H+.07,-.1);g.add(l1);const l2=new THREE.Mesh(box(.46,.12,.24),b);l2.position.set(.28,sp.H+.07,-.1);g.add(l2);
   g.userData.lights=[r,b];return g;}
 function makeAgent(kind,id,ci,x,z,h,o){o=o||{};const pol=kind==='police'||kind==='block'||kind==='chaser';let a=pol?AGENTS.find(q=>!q.on&&!q.dead&&q.pool==='police'):null;
-  if(!a){const plate=pol?null:randomPlate(),mesh=pol?policeMesh():buildCar(CAR[id],ci,{lod:true,proc:true,quiet:true,plate});scene.add(mesh);a={pool:pol?'police':'civ',mesh,id:pol?'chevrolet-cobalt':id,ci:pol?0:ci,plate};AGENTS.push(a);}
+  if(!a){const plate=pol?null:randomPlate(),mesh=pol?policeMesh():realTpl[id]&&REAL[id]?realCarFor(CAR[id],ci,plate,S.gfx!=='phone'):buildCar(CAR[id],ci,{lod:true,proc:true,quiet:true,plate});if(!pol&&!realTpl[id]&&REAL[id])loadReal(id,false);if(mesh.parent!==scene)scene.add(mesh);a={pool:pol?'police':'civ',mesh,id:pol?'chevrolet-cobalt':id,ci:pol?0:ci,plate};AGENTS.push(a);}
   Object.assign(a,{on:true,dead:false,kind,x,z,h:h||0,speed:0,vx:0,vz:0,hits:0,stuck:0,rev:0,leave:false,goal:null,siren:pol,sees:false,offCD:3,
     enterable:!!o.enterable,tag:o.tag||null,onEnter:o.onEnter||null,onHit:o.onHit||(pol?policeHit:null),max:o.max||30,acc:o.acc||9,route:o.route||null,ri:0,done:false,hold:false,
     hazard:!!o.hazard,target:o.target||null,life:o.life||0,mission:!!o.mission});
@@ -768,7 +802,7 @@ function renderPhone(){$('#phClock').textContent=clockStr(W.tod);$('#phWx').text
     S.msgs.slice().reverse().forEach((m,ri2)=>{const i=S.msgs.length-1-ri2;h+=`<div class="msg"><b>${esc(m.f)}</b><span>${esc(tr(m.t))}</span><small>${clockStr(m.h)}</small>${m.a&&!MS.cur?`<button class="btn" style="padding:7px 12px;font-size:13px;align-self:flex-start" data-act="macc:${i}">Qabul qilish</button>`:''}</div>`;m.r=true;});break;}
   case 'contacts':{h=back('Kontaktlar');const C2=[['botir','Botir aka','Ustaxona, Chorsu',true],['lola','Lola','Taksi dispetcheri',S.story>=3],['mech','Usta Anvar','Mexanik: mashinangizni yoningizga olib keladi ($100)',true],['taxi','Taksi dispetcheri','Taksi buyurtmalari',true],['rah','Inspektor Rahimov','Politsiya',S.story>=5],['jasur','Jasur','Drift qiroli, Humo Arena',S.story>=6]];
     C2.forEach(c=>{if(c[3])h+=`<div class="ph-card"><h4>${c[1]}</h4><p>${c[2]}</p><button class="btn ghost" data-act="call:${c[0]}">Qoʻngʻiroq</button></div>`;});break;}
-  case 'hero':{const L=S.hero;h=back('Qahramon')+`<div class="ph-card"><div class="meta2">Teri rangi</div>${swRow(SKINS,L.skin,'skin')}</div>
+  case 'hero':{const L=S.hero;h=back('Qahramon')+`<div class="ph-card"><div class="ph-row"><span>Kiyim</span>${chip(!L.tint,'hero:orig:1','Asl koʻrinish')}</div><p class="stat-line">Rang yoki kiyim tanlasangiz, oʻzingizning koʻrinishingiz yoqiladi.</p></div><div class="ph-card"><div class="meta2">Teri rangi</div>${swRow(SKINS,L.skin,'skin')}</div>
       <div class="ph-card"><div class="meta2">Soch turmagi</div><div class="ph-opt">${HAIRS.map((n,i)=>chip(L.hair===i,'hero:hair:'+i,n)).join('')}</div>${swRow(HAIRC,L.hairC,'hairC')}</div>
       <div class="ph-card"><div class="meta2">Ustki kiyim</div><div class="ph-opt">${TOPS.map((n,i)=>chip(L.top===i,'hero:top:'+i,n)).join('')}</div>${swRow(CLOTH,L.topC,'topC')}</div>
       <div class="ph-card"><div class="meta2">Shim</div>${swRow(CLOTH,L.legsC,'legsC')}</div>
@@ -819,7 +853,7 @@ $('#phBody').addEventListener('click',e=>{const b=e.target.closest('[data-act]')
     case 'job':{const j=SIDE.find(q=>q.id===x);if(!j)return;if(j.start){j.start();return;}const def=j.make();if(def)startMission(def);return;}
     case 'macc':{const m=S.msgs[+x];if(!m||!m.a)return;const j=SIDE.find(q=>q.id===m.a);m.a='';if(j&&j.make){const def=j.make();if(def)startMission(def);}return;}
     case 'call':closePhone();callContact(x);return;
-    case 'hero':{const L=S.hero;if(x==='glasses')L.glasses=y==='1';else L[x]=+y;rebuildHero();if(mode==='foot')HERO.mesh.visible=true;persist();break;}
+    case 'hero':{const L=S.hero;if(x==='orig'){L.tint=false;rebuildHero();if(mode==='foot')HERO.mesh.visible=true;persist();break;}L.tint=true;if(x==='glasses')L.glasses=y==='1';else L[x]=+y;rebuildHero();if(mode==='foot')HERO.mesh.visible=true;persist();break;}
     case 'photo':closePhone();setTimeout(takePhoto,180);return;
     case 'set':if(x==='sound'){S.sound=!S.sound;syncSnd();}else if(x==='unl'){S.unlimited=!S.unlimited;updMoney();}else if(x==='rot')S.miniRot=!S.miniRot;else if(x==='rules')S.rules=S.rules===false;else if(x==='sub')S.sub.on=!S.sub.on;
       else if(x==='size')S.sub.size=+y;else if(x==='bg')S.sub.bg=+y;else if(x==='cyr')S.sub.cyr=y==='1';applySubStyle();persist();break;
@@ -886,6 +920,24 @@ $('#mvMe').addEventListener('click',()=>{MV.cx=px();MV.cz=pz();drawMap();});
 $('#mvClr').addEventListener('click',()=>{GPS.wp=null;GPS.t=0;updateGPS(1);drawMap();});
 $('#mvClose').addEventListener('click',closeMap);
 addEventListener('resize',()=>{if(mapOpen){sizeMap();drawMap();}});
+
+/* ================= 3D cars in the street: the nearest traffic and every mission car use the real models ================= */
+// Far cars stay light (they are a few pixels anyway); the nearest K switch to the 3D model of the same car, colour and plate.
+const T3D={t:3,loading:null,ids:null};
+function realCarFor(sp,ci,plate,shadow){const m=buildCar(sp,ci,{lod:true,quiet:true,plate});m.userData.sp=m.userData.sp||sp;m.traverse(o=>{if(o.isMesh){o.castShadow=shadow;}});scene.add(m);return m;}
+function swapMesh(o,target){if(o.mesh===target)return;target.position.copy(o.mesh.position);target.rotation.copy(o.mesh.rotation);target.visible=o.mesh.visible;o.mesh.visible=false;o.mesh=target;}
+function update3DCars(dt){T3D.t-=dt;if(T3D.t>0)return;T3D.t=.5;if(mode!=='drive'&&mode!=='foot')return;
+  const phone=S.gfx==='phone',K=phone?6:12,R2=(phone?160:220)**2,shadow=!phone;
+  if(!T3D.ids){const cnt={};TCARS.forEach(id=>cnt[id]=(cnt[id]||0)+1);T3D.ids=Object.keys(cnt).filter(id=>REAL[id]&&REAL[id].key).sort((a,b)=>cnt[b]-cnt[a]);if(phone)T3D.ids=T3D.ids.slice(0,7);}
+  // download one model at a time, most common cars first, mission cars before all
+  if(!T3D.loading||realTpl[T3D.loading]||!realReq[T3D.loading]){const need=AGENTS.filter(a=>a.on&&a.pool==='civ'&&REAL[a.id]&&!realTpl[a.id]).map(a=>a.id).concat(T3D.ids).find(id=>!realTpl[id]);
+    if(need){T3D.loading=need;loadReal(need,false);}else T3D.loading=null;}
+  const cx=cam.position.x,cz=cam.position.z,list=[];
+  for(const t of TRAFFIC){if(!t.proc){t.proc=t.mesh;t.sp=t.mesh.userData.sp;}list.push([t,t.gone?1e12:(t.x-cx)**2+(t.z-cz)**2]);}
+  list.sort((a,b)=>a[1]-b[1]);let n=0;
+  for(const [t,d2] of list){const want=n<K&&d2<R2&&!!realTpl[t.sp.id];
+    if(want){n++;if(!t.real)t.real=realCarFor(t.sp,t.ci,t.plate,shadow);swapMesh(t,t.real);}else if(t.mesh!==t.proc)swapMesh(t,t.proc);}
+  for(const a of AGENTS)if(a.on&&a.pool==='civ'&&realTpl[a.id]&&!a.mesh.userData.real){const old=a.mesh,m=realCarFor(CAR[a.id],a.ci,a.plate,shadow);swapMesh(a,m);scene.remove(old);disposeCar(old);}}
 
 /* ================= traffic rules: red lights and speed cameras at signalled crossings ================= */
 // Fines apply only in free roam (no mission, no police chase) and can be turned off in Settings.
@@ -962,7 +1014,7 @@ menuStatLine();
 if(S.pos){P.x=S.pos.x;P.z=S.pos.z;P.h=S.pos.h;}
 if(S.hpos){HERO.x=S.hpos.x;HERO.z=S.hpos.z;HERO.h=S.hpos.h;}else{HERO.x=P.x-3;HERO.z=P.z;}
 HERO.y=groundAt(HERO.x,HERO.z);HERO.hp=S.hp;
-window.__TD_WORLD=true;API.hit('open');
+window.__TD_WORLD=true;API.hit('open');loadAvatar();
 V2.init();setWeather(WEATHERS[S.weather]?S.weather:'clear',true);useOwnedCar();applySubStyle();updMoney();
 cam.position.set(P.x,4,P.z+10);
 
@@ -970,7 +1022,7 @@ let last=performance.now(),menuA=0,autoT=20;
 // one simulation tick of the open world (also driven directly by the automated test hook)
 function simulate(dt){V2.tick(dt);updateWeather(dt,true);updateTraffic(dt);updatePeople(dt);
   if(mode==='drive')updateDrive(dt);else updateFoot(dt);
-  updateAgents(dt);updateHelis(dt);updateOfficers(dt);updateWanted(dt);updateMission(dt);updateDialog(dt);updateEvents(dt);updateAnor(dt);updateDiscovery(dt);updateGPS(dt);updateRules(dt);updateHints();}
+  updateAgents(dt);updateHelis(dt);updateOfficers(dt);updateWanted(dt);updateMission(dt);updateDialog(dt);updateEvents(dt);updateAnor(dt);updateDiscovery(dt);updateGPS(dt);updateRules(dt);update3DCars(dt);updateHints();}
 function frame(now){
   const dt=clamp((now-last)/1000,0,.05);last=now; // the first rAF stamp can predate the end of the (long) init script
   try{

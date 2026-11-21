@@ -9,7 +9,7 @@ $('#bMap').addEventListener('click',()=>openMap());
 document.querySelectorAll('.hbtn').forEach(b=>b.addEventListener('click',()=>{b.blur();if(mode==='drive'||mode==='foot')canvas.focus();}));
 const sndBtn=$('#bSound');const syncSnd=()=>sndBtn.classList.toggle('active',S.sound);syncSnd();
 sndBtn.addEventListener('click',()=>{S.sound=!S.sound;persist();syncSnd();});
-$('#credits').textContent='Barcha '+Object.keys(REAL).length+' ta mashina — Sketchfab mualliflarining 3D modellari (Creative Commons). Har bir model muallifi avtosalonda va README faylida koʻrsatilgan.';
+$('#credits').textContent='Barcha '+Object.keys(REAL).length+' ta mashina — Sketchfab mualliflarining 3D modellari (Creative Commons). Har bir model muallifi avtosalonda va README faylida koʻrsatilgan. Qahramon: “Cool Man (Rigged)” — NABEEL619 (CC BY 4.0).';
 const KM={KeyW:'up',ArrowUp:'up',KeyS:'down',ArrowDown:'down',KeyA:'left',ArrowLeft:'left',KeyD:'right',ArrowRight:'right',Space:'hb'};
 addEventListener('keydown',e=>{
   if(e.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)){if(e.code==='Enter'&&e.target.id==='promoIn')redeemPromo(e.target.value);if(e.code==='Escape')e.target.blur();return;}
