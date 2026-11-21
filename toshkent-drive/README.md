@@ -213,6 +213,36 @@ bir marta mos kelishi shart, aks holda yigʻish toʻxtaydi), `world.js` (tizimla
 `input.js` (klaviatura va sensor), `minimap.js`, `mobile.css` (telefon interfeysi), `sw.template.js` (oflayn ishlash;
 yigʻishda `sw.js` versiyasi bilan yoziladi). `manifest.webmanifest` va `icons/` — ilova sifatida oʻrnatish uchun.
 
+### Realizm tizimlari (sozlamalar `tools/v2/world/world.js` da)
+
+- **Fizika** (`PHYS`, `VEH_OVR`, `vehParams`): ikki oʻqli shina modeli — sirpanish burchagi, oʻqlardagi yuk (tormozda oldinga,
+  tezlanishda orqaga koʻchadi), yuritma (oldi / orqa / toʻliq), dvigatel kuchi yetakchi gʻildirak ilashishini kamaytiradi,
+  qoʻl tormozi orqa ilashishni oladi. Tezlikka qarab rul, yengil barqarorlik yordamchisi (qoʻl tormozida oʻchadi).
+  Har bir mashina massa/yuritma/ilashish bilan alohida sozlanadi.
+- **Yoʻldan tashqari** va **sirtlar** (`SURFACES`): mashina alohida binolarga uriladi; asfalt, beton, maysa, tuproq —
+  ilashish, gʻildirash qarshiligi, eng yuqori tezlik; yomgʻir ustidan qoʻshiladi; bordyurda silkinish.
+- **Drift effektlari**: shina izlari (30 s, halqa bufer) va tutun zarrachalari; maysa/tuproqda iz va tutun yoʻq.
+- **Ovoz**: oborotga qarab dvigatel toʻlqini + past oktava qatlami, vites almashganda pasayish, oborot cheklagich,
+  dvigatel tormozi; shina chiyillashi sirtga qarab; maysa/tuproqda shagʻal, hoʻl yoʻlda shovqin.
+- **Mashinaga oʻtirish/tushish**: qahramon haydovchi eshigiga yuradi, buriladi, oʻtiradi; haydashda oʻrindiqda, qoʻllari
+  rulda (rul bilan birga buriladi); tushish teskarisi. Oʻrindiq joyi kuzov turiga qarab (`SEAT`).
+- **Kamera**: tezlikda orqaga chekinadi, tezlanish/tormozda yengil siljiydi, driftda sirpanish burchagini koʻrsatadi.
+- **Piyodalar** yoʻlni chorrahada, mashinalarga qizil chiroq yonganda kesib oʻtadi; mashinalar ularga yoʻl beradi.
+- **Fasadlar**: deraza katagi normal map va oyna/suvoq yaltirash xaritasi bilan; split konditsionerlar, tom antennalari.
+
+### Grafika darajalari va tezlik
+
+«Juda past / Past / Oʻrta / Yuqori / Ultra». Birinchi ochilishda **Avto**: videokarta nomi, xotira, protsessor va qurilma turiga
+qarab tanlanadi. Avto rejimda 8 soniya davomida FPS past boʻlsa (telefonda < 24, kompyuterda < 28), bir pogʻona pasayadi —
+bitta qotishdan pasaymaydi. Telefon → Sozlamalar: daraja, «Avto», FPS koʻrsatkichi.
+Faqat koʻrinadigan daraxt va piyodalar chiziladi (instans buferi saralanadi) — kadrdagi uchburchaklar ~45–55% kam:
+
+| Daraja | Uchburchaklar (oldin → keyin) | Soya |
+|---|---|---|
+| Juda past | 1,94 mln → 0,89 mln | yoʻq |
+| Past | 2,32 mln → 1,29 mln | bor |
+| Yuqori | 3,18 mln → 1,96 mln | bor |
+
 ### Qahramon modeli
 
 «Cool Man (Rigged)» — [NABEEL619](https://sketchfab.com/NABEEL619), CC BY 4.0

@@ -1007,6 +1007,44 @@ function fpsGuard(dt){const now=performance.now()/1000;if(!FPSG.t0)FPSG.t0=now;F
   FPSG.bad=fps<(TOUCHUI()?24:28)?FPSG.bad+1:Math.max(0,FPSG.bad-2);
   if(FPSG.bad>=8&&FPSG.cool<=0&&GFXN()>0){const o=Object.keys(GFX),k=o[Math.max(0,o.indexOf(S.gfx)-1)];FPSG.bad=0;FPSG.cool=45;applyGfx(k);toast('Silliq oʻyin uchun grafika avtomatik pasaytirildi: '+GFX[k].name);}}
 
+/* ================= pedestrians crossing at the lights =================
+   At a block corner a walker sometimes decides to cross to the neighbouring block, waits for red on that road,
+   walks over and carries on along the next pavement. Cars give way to anyone on a crossing (only those are checked). */
+const XW=new Set();
+function pedCorner(p,x,z){p.cc=(p.cc||0)-1/60;if(p.cc>0||p.panic>0||p.down>0)return;const b=p.b,o=p.off;
+  for(const c of [[b.x0+o,b.z0+o,'NW'],[b.x1-o,b.z0+o,'NE'],[b.x1-o,b.z1-o,'SE'],[b.x0+o,b.z1-o,'SW']]){if(Math.abs(x-c[0])>.5||Math.abs(z-c[1])>.5)continue;
+    p.cc=8;if(Math.random()>.35)return;const opts=[];
+    if(c[2][1]==='E'&&b.i<7)opts.push(['x',1]);if(c[2][1]==='W'&&b.i>0)opts.push(['x',-1]);if(c[2][0]==='N'&&b.j>0)opts.push(['z',-1]);if(c[2][0]==='S'&&b.j<7)opts.push(['z',1]);
+    if(!opts.length)return;const [ax,dr]=opts[Math.random()*opts.length|0],nb=BLOCKS.find(q=>q.i===b.i+(ax==='x'?dr:0)&&q.j===b.j+(ax==='z'?dr:0));if(!nb)return;
+    const tx=ax==='x'?(dr>0?nb.x0+o:nb.x1-o):x,tz=ax==='z'?(dr>0?nb.z0+o:nb.z1-o):z;
+    p.cross={x0:x,z0:z,x1:tx,z1:tz,road:ax==='x'?'z':'x',t:0,wait:0,nb,go:false};return;}}
+function pedCross(p,dt){const c=p.cross,h=Math.atan2(c.x1-c.x0,c.z1-c.z0);
+  if(!c.go){c.wait+=dt;if(TL[c.road]==='r'||c.wait>30)c.go=true;else return [c.x0,c.z0,h];}
+  XW.add(p);const d=Math.max(1,Math.hypot(c.x1-c.x0,c.z1-c.z0));c.t+=p.v*1.15*dt/d;p.ph+=p.v*dt*5.4;const k=Math.min(1,c.t),x=c.x0+(c.x1-c.x0)*k,z=c.z0+(c.z1-c.z0)*k;
+  if(k>=1){const nb=c.nb,o=p.off;p.b=nb;p.W=nb.x1-nb.x0-2*o;p.D=nb.z1-nb.z0-2*o;p.L=2*(p.W+p.D);let best=0,bd=1e9;
+    [[nb.x0+o,nb.z0+o,0],[nb.x1-o,nb.z0+o,p.W],[nb.x1-o,nb.z1-o,p.W+p.D],[nb.x0+o,nb.z1-o,2*p.W+p.D]].forEach(q=>{const dd=Math.hypot(q[0]-x,q[1]-z);if(dd<bd){bd=dd;best=q[2];}});
+    p.s=best;p.cross=null;p.cc=10;XW.delete(p);}
+  return [x,z,h];}
+
+/* ================= draw only what can be seen =================
+   Trees (≈5 000) and pedestrians (≈1 200) are instanced; hidden instances still cost vertex work, so the visible ones are
+   packed into the front of each buffer and the draw count is cut to them. Masters keep the full data (seasons recolour them). */
+const PACK={pmc:null,tr:null,t:0};
+function packInit(){if(PACK.tr)return;const [tr,cr]=TREE_MESHES;PACK.tr={n:TREES.length,mt:tr.instanceMatrix.array.slice(),mc:cr.instanceMatrix.array.slice(),cc:cr.instanceColor?cr.instanceColor.array.slice():null};
+  PACK.pmc={};for(const k in PI_)if(PI_[k].instanceColor)PACK.pmc[k]=PI_[k].instanceColor.array.slice();}
+function unpackTrees(){packInit();const T_=PACK.tr,[tr,cr]=TREE_MESHES;tr.instanceMatrix.array.set(T_.mt);cr.instanceMatrix.array.set(T_.mc);if(T_.cc)cr.instanceColor.array.set(T_.cc);tr.count=cr.count=T_.n;tr.instanceMatrix.needsUpdate=cr.instanceMatrix.needsUpdate=true;}
+function repackTrees(){const cr=TREE_MESHES[1];if(PACK.tr&&cr.instanceColor)PACK.tr.cc=cr.instanceColor.array.slice();PACK.t=0;}
+const _pkF=new THREE.Vector3();
+function packTrees(dt){PACK.t-=dt;if(PACK.t>0)return;PACK.t=.2;packInit();const T_=PACK.tr,[tr,cr]=TREE_MESHES,cx=cam.position.x,cz=cam.position.z;
+  cam.getWorldDirection(_pkF);const fl=Math.hypot(_pkF.x,_pkF.z)||1,fx=_pkF.x/fl,fz=_pkF.z/fl,far=(scene.fog?scene.fog.far:900)+30,lim=Math.cos(Math.min(Math.PI*.95,(cam.fov*Math.max(1,cam.aspect)/2+32)*Math.PI/180));
+  const TM=tr.instanceMatrix.array,CM=cr.instanceMatrix.array,CC=T_.cc&&cr.instanceColor.array;let n=0;
+  for(let k=0;k<T_.n;k++){const p=TREES[k],dx=p[0]-cx,dz=p[1]-cz,d=Math.hypot(dx,dz);if(d>far||(d>45&&(dx*fx+dz*fz)/d<lim))continue;
+    for(let q=0;q<16;q++){TM[n*16+q]=T_.mt[k*16+q];CM[n*16+q]=T_.mc[k*16+q];}if(CC){CC[n*3]=T_.cc[k*3];CC[n*3+1]=T_.cc[k*3+1];CC[n*3+2]=T_.cc[k*3+2];}n++;}
+  tr.count=cr.count=n;tr.instanceMatrix.needsUpdate=cr.instanceMatrix.needsUpdate=true;if(CC)cr.instanceColor.needsUpdate=true;}
+function pcol(i,vi){const M=PACK.pmc;for(const k of ['torso','head','hair']){const a=M[k];if(a){const d=PI_[k].instanceColor.array;d[vi*3]=a[i*3];d[vi*3+1]=a[i*3+1];d[vi*3+2]=a[i*3+2];}}
+  for(const k of ['legs','shoes','arms']){const a=M[k];if(a){const d=PI_[k].instanceColor.array;for(let j=0;j<6;j++)d[vi*6+j]=a[i*6+j];}}}
+function pedCounts(vi){for(const k of ['torso','head','hair']){PI_[k].count=vi;if(PI_[k].instanceColor)PI_[k].instanceColor.needsUpdate=true;}for(const k of ['legs','shoes','arms']){PI_[k].count=vi*2;if(PI_[k].instanceColor)PI_[k].instanceColor.needsUpdate=true;}}
+
 /* ================= car dynamics: two-axle tyre model with weight transfer (tunable per car) =================
    Each axle makes sideways force from its slip angle (magic-formula curve), limited by the load on it and by the
    ground; braking moves load to the front, accelerating to the rear; engine force uses up the driven axle's grip;
@@ -1160,6 +1198,7 @@ cam.position.set(P.x,4,P.z+10);
 let last=performance.now(),menuA=0,autoT=20;
 // one simulation tick of the open world (also driven directly by the automated test hook)
 function simulate(dt){V2.tick(dt);updateWeather(dt,true);updateTraffic(dt);updatePeople(dt);
+  packTrees(dt);
   if(mode==='drive'){updateDrive(dt);seatHero();}else if(TRANS.on)updateTrans(dt);else updateFoot(dt);
   updateAgents(dt);updateHelis(dt);updateOfficers(dt);updateWanted(dt);updateMission(dt);updateDialog(dt);updateEvents(dt);updateAnor(dt);updateDiscovery(dt);updateGPS(dt);updateRules(dt);update3DCars(dt);updateSkids(dt);updateHints();}
 function frame(now){
@@ -1182,5 +1221,5 @@ function frame(now){
 }
 requestAnimationFrame(frame);
 if(window.__TD_TEST)window.__td={V2,W,applySeason,startDrive,resetToRoad,setPlayerCar,BLOCKS,updateTraffic,updatePeople,updateDrive,ROADS,CAT,persist,getMode:()=>mode,renderer,scene,TRAFFIC,TL,taxi,get A(){return A;},ST,openStage,showStageCar,CARS,realTpl,P,cam,PEOPLE,SHOPPTS,HERO,WANT,MS,STORY,SIDE,AGENTS,EVT,S,ENV,WX,LM,GPS,DLG,
-  scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,loadReal,REAL,TRANS,BLOCKS,COLL,surf:()=>SURF.key,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
+  scene,renderer,sky,hemi,sun,SKYU,get mode(){return mode;},sim:(dt,n)=>{for(let i=0;i<n;i++)if((mode==='drive'||mode==='foot')&&!PAUSED)simulate(dt);},startMission,startEvent,setWanted,addWanted,toggleVehicle,openPhone,closePhone,openMap,closeMap,takePhoto,interact,keys,loadReal,REAL,TRANS,XW,TREE_MESHES,PI_,BLOCKS,COLL,surf:()=>SURF.key,setWeather,skipTo,nextStep,saveSlot,FC,OFFICERS,HELIS,ANOR,lmRoad,exitCar,enterCar,nextLine,failMission,endEvent,resetLaw,insideSolid,groundAt,punch,renderPhone,drawMap,clearWanted,makeAgent,busted,slotMeta,useOwnedCar,get PAUSED(){return PAUSED;},get phApp(){return phApp;},set phApp(v){phApp=v;}};
 

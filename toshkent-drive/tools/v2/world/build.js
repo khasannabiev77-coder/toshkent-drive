@@ -346,6 +346,19 @@ rep('#err{position:fixed;', '#fps{position:fixed;left:50%;top:calc(4px + env(saf
 // every "is this the light preset" check now covers both light presets
 s = s.split("S.gfx!=='phone'").join('!LOWG()').split("S.gfx==='phone'").join('LOWG()');
 
+/* ---------------- pedestrians: crossing roads at the lights (pedCorner/pedCross in world.js); cars give way ---------------- */
+rep("    if(p.walk){const pv=p.down>0?0:p.panic>0?p.v*3.4:V2.pedV(p,dt);p.s+=pv*p.dir*dt;p.ph+=pv*dt*5.4;[x,z,h]=perim(p);}",
+  "    if(p.walk&&p.cross&&!(p.down>0)&&!(p.panic>0)){[x,z,h]=pedCross(p,dt);}\n    else if(p.walk){if(p.cross){XW.delete(p);p.cross=null;}const pv=p.down>0?0:p.panic>0?p.v*3.4:V2.pedV(p,dt);p.s+=pv*p.dir*dt;p.ph+=pv*dt*5.4;[x,z,h]=perim(p);pedCorner(p,x,z);}");
+rep("    if(mode==='foot')chk(HERO.x,HERO.z,12);", "    if(mode==='foot')chk(HERO.x,HERO.z,12);\n    for(const q of XW)chk(q.cx,q.cz,14);");
+
+/* ---------------- draw only visible trees and pedestrians (packTrees / pcol / pedCounts in world.js) ---------------- */
+rep("function applySeason(){const s=W.season=", "function applySeason(){if(window.__TD_WORLD)unpackTrees();const s=W.season=");
+rep("    crown.setColorAt(k,col);}\n  crown.instanceColor.needsUpdate=true;", "    crown.setColorAt(k,col);}\n  crown.instanceColor.needsUpdate=true;if(window.__TD_WORLD)repackTrees();");
+rep("  const nightSkip=ENV.night>.6?2:1;\n  for(let i=0;i<PEOPLE.length;i++){", "  const nightSkip=ENV.night>.6?2:1;let vi=0;packInit();\n  for(let i=0;i<PEOPLE.length;i++){");
+rep("{if(!p.hid){p.hid=true;PI_.torso.setMatrixAt(i,_p0);PI_.head.setMatrixAt(i,_p0);PI_.hair.setMatrixAt(i,_p0);for(const j of [0,1]){PI_.legs.setMatrixAt(i*2+j,_p0);PI_.shoes.setMatrixAt(i*2+j,_p0);PI_.arms.setMatrixAt(i*2+j,_p0);}}continue;}", "{p.hid=true;continue;}");
+rep("    pset(PI_.torso,i,0,1.13+bob,0);pset(PI_.head,i,0,1.565+bob,0);pset(PI_.hair,i,0,1.575+bob,0);\n    pset(PI_.legs,i*2,-.1,.86+bob,0,a);pset(PI_.legs,i*2+1,.1,.86+bob,0,-a);pset(PI_.shoes,i*2,-.1,.86+bob,0,a);pset(PI_.shoes,i*2+1,.1,.86+bob,0,-a);\n    pset(PI_.arms,i*2,-.25,1.4+bob,0,-a*.8);pset(PI_.arms,i*2+1,.25,1.4+bob,0,a*.8);}\n  Object.values(PI_).forEach(m=>m.instanceMatrix.needsUpdate=true);}",
+  "    pset(PI_.torso,vi,0,1.13+bob,0);pset(PI_.head,vi,0,1.565+bob,0);pset(PI_.hair,vi,0,1.575+bob,0);\n    pset(PI_.legs,vi*2,-.1,.86+bob,0,a);pset(PI_.legs,vi*2+1,.1,.86+bob,0,-a);pset(PI_.shoes,vi*2,-.1,.86+bob,0,a);pset(PI_.shoes,vi*2+1,.1,.86+bob,0,-a);\n    pset(PI_.arms,vi*2,-.25,1.4+bob,0,-a*.8);pset(PI_.arms,vi*2+1,.25,1.4+bob,0,a*.8);pcol(i,vi);vi++;}\n  pedCounts(vi);Object.values(PI_).forEach(m=>m.instanceMatrix.needsUpdate=true);}");
+
 // refuse to write a page whose inline scripts do not parse
 { const re = /<script>([\s\S]*?)<\/script>/g; let m, i = 0; while ((m = re.exec(s))) { i++; try { new Function(m[1]); } catch (e) { throw new Error('inline script ' + i + ': ' + e.message); } } }
 fs.writeFileSync(dst, s);
